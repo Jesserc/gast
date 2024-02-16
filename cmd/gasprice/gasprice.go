@@ -20,13 +20,8 @@ var (
 // GaspriceCmd represents the gasprice command
 var GaspriceCmd = &cobra.Command{
 	Use:   "gasprice",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Get the current gas price",
+	Long:  "Get the current gas price",
 	Run: func(cmd *cobra.Command, args []string) {
 		if rpcUrl != "" {
 			handleRPCCommand(rpcUrl)
@@ -49,9 +44,14 @@ to quickly create a Cobra application.`,
 }
 
 func init() {
-	GaspriceCmd.Flags().StringVarP(&rpcUrl, "url", "u", "", "The rpc url for gas price")
-	GaspriceCmd.Flags().BoolVarP(&eth, "eth", "e", false, "Use default Ethereum rpc url")
-	// Here you will define your flags and configuration settings.
+	// Flags and configuration settings.
+	GaspriceCmd.Flags().StringVarP(&rpcUrl, "url", "u", "", "The RPC url for gas price")
+	GaspriceCmd.Flags().BoolVarP(&eth, "eth", "", false, "Use default Ethereum RPC url")
+	GaspriceCmd.Flags().BoolVarP(&op, "op", "", false, "Use default Optimism RPC url")
+	GaspriceCmd.Flags().BoolVarP(&arb, "arb", "", false, "Use default Arbitrum RPC url")
+	GaspriceCmd.Flags().BoolVarP(&base, "base", "", false, "Use default Base RPC url")
+	GaspriceCmd.Flags().BoolVarP(&linea, "linea", "", false, "Use default Linea RPC url")
+	GaspriceCmd.Flags().BoolVarP(&zkSync, "zksync", "", false, "Use default zkSync RPC URL")
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:

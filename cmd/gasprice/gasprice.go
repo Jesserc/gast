@@ -18,7 +18,7 @@ var (
 
 // GaspriceCmd represents the gasprice command
 var GaspriceCmd = &cobra.Command{
-	Use:   "gasprice",
+	Use:   "gas-price",
 	Short: "Get the current gas price",
 	Long:  "Get the current gas price",
 	Run: func(cmd *cobra.Command, args []string) {

@@ -16,7 +16,7 @@ var (
 
 // EstimateGasCmd represents the estimateGas command
 var EstimateGasCmd = &cobra.Command{
-	Use:   "estimateGas",
+	Use:   "estimate-gas",
 	Short: "A brief description of your command",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {

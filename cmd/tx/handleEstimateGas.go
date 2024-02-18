@@ -1,17 +1,13 @@
 package transaction
 
 import (
+	"context"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"golang.org/x/net/context"
-)
-
-var (
-	ctx = context.Background()
 )
 
 func HandleEstimateGas(rpcUrl, from, to, data string, value uint64) (uint64, error) {
@@ -19,6 +15,8 @@ func HandleEstimateGas(rpcUrl, from, to, data string, value uint64) (uint64, err
 	if err != nil {
 		return 0, err
 	}
+
+	var ctx = context.Background()
 
 	var (
 		fromAddr = common.HexToAddress(from)

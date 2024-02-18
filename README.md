@@ -6,3 +6,9 @@ go build .
 ```
 
 [//]: # (![img.png]&#40;img.png&#41;)
+
+```shell
+go run . tx sign-message -r -u "https://optimism.publicnode.com" -t "0x571B102323C3b8B8Afb30619Ac1d36d85359fb84" -d "eth signed message v2" -p "0x2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662" -w 0x9184e72a -n 0
+go run . tx sign-message -s -u "https://optimism.publicnode.com" -t "0x571B102323C3b8B8Afb30619Ac1d36d85359fb84" -d "eth signed message v2" -p "0x2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662" -w 0x9184e72a -n 0
+
+```

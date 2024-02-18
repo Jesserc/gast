@@ -21,15 +21,26 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("signMessage called")
+		if signRaw {
+			handleSignMessageRaw(
+				txRpcUrl,
+				to,
+				txData,
+				privKey,
+				wei,
+				nonce,
+			)
+		} else if signHash {
+			handleSignMessageHash(
+				txRpcUrl,
+				to,
+				txData,
+				privKey,
+				wei,
+				nonce,
+			)
+		}
 
-		handleSignMessage(
-			"https://sepolia.infura.io/v3/",
-			"0x571B102323C3b8B8Afb30619Ac1d36d85359fb84",
-			"eth signed message",
-			"0x2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662",
-			0x9184e72a,
-			0,
-		)
 		// fmt.Println(message)
 		fmt.Println("sign message done")
 
@@ -38,8 +49,25 @@ to quickly create a Cobra application.`,
 }
 
 func init() {
+	// Flags and configuration settings.
+	SignMessageCmd.Flags().BoolVarP(&signHash, "sign-hash", "s", false, "sign transaction and return signature hash")
+	SignMessageCmd.Flags().BoolVarP(&signRaw, "sign-raw", "r", false, "sign transaction and return raw signature")
 
-	// Here you will define your flags and configuration settings.
+	SignMessageCmd.Flags().StringVarP(&txRpcUrl, "url", "u", "", "RPC url")
+	SignMessageCmd.Flags().StringVarP(&to, "to", "t", "", "recipient")
+	SignMessageCmd.Flags().StringVarP(&txData, "data", "d", "", "data")
+	SignMessageCmd.Flags().StringVarP(&privKey, "private-key", "p", "", "private key to sign transaction")
+	SignMessageCmd.Flags().Uint64VarP(&wei, "wei", "w", 0, "wei")
+	SignMessageCmd.Flags().Uint64VarP(&nonce, "nonce", "n", 0, "nonce")
+
+	SignMessageCmd.MarkFlagsOneRequired("sign-hash", "sign-raw")
+
+	SignMessageCmd.MarkFlagRequired("url")
+	SignMessageCmd.MarkFlagRequired("to")
+	SignMessageCmd.MarkFlagRequired("data")
+	SignMessageCmd.MarkFlagRequired("private-key")
+	SignMessageCmd.MarkFlagRequired("wei")
+	SignMessageCmd.MarkFlagRequired("nonce")
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:

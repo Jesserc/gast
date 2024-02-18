@@ -9,21 +9,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var (
-	txRpcUrl, from, to, txData string
-	wei                        uint64
-)
-
 // EstimateGasCmd represents the estimateGas command
 var EstimateGasCmd = &cobra.Command{
 	Use:   "estimate-gas",
 	Short: "A brief description of your command",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		// if txRpcUrl == "" || from == "" || to == "" || txData == "" || wei == 0 {
-		// 	cmd.Usage()
-		// 	return
-		// }
 		estimatedTxGas, err := HandleEstimateGas(txRpcUrl, from, to, txData, wei)
 		if err != nil {
 			fmt.Println(err) // TODO: log as error
@@ -38,8 +29,8 @@ func init() {
 	EstimateGasCmd.Flags().StringVarP(&txRpcUrl, "url", "u", "", "RPC url")
 	EstimateGasCmd.Flags().StringVarP(&from, "from", "f", "", "sender")
 	EstimateGasCmd.Flags().StringVarP(&to, "to", "t", "", "recipient")
-	EstimateGasCmd.Flags().StringVarP(&txData, "data", "d", "", "transaction data")
-	EstimateGasCmd.Flags().Uint64VarP(&wei, "wei", "w", 0, "amount in wei")
+	EstimateGasCmd.Flags().StringVarP(&txData, "data", "d", "", "data")
+	EstimateGasCmd.Flags().Uint64VarP(&wei, "wei", "w", 0, "wei")
 
 	EstimateGasCmd.MarkFlagRequired("url")
 	EstimateGasCmd.MarkFlagRequired("from")

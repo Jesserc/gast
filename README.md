@@ -1,3 +1,7 @@
+### TODO
+- add feature to use yaml config data instead of passing data as os arg (especially for sign-message)
+- add feature to efficiently manage private key (gast init will create a .gast.yaml file in root folder, gast add --privKey "privKey" will add privKey to the yaml file, gast create will create a new keypair for signing and sending tx at the root .yaml file and return the pubKey to them, a new gast create will override the existing keypair so warn users first when they do it)
+
 ```shell
 go build .
 ./gast tx estimate-gas -f=0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045 -t=0xbe0eb53f46cd790cd13851d5eff43d12404d33e8 -d=0x -u=https://rpc.mevblocker.io -w=1000000
@@ -8,7 +12,7 @@ go build .
 [//]: # (![img.png]&#40;img.png&#41;)
 
 ```shell
-go run . tx sign-message -r -u "https://optimism.publicnode.com" -t "0x571B102323C3b8B8Afb30619Ac1d36d85359fb84" -d "eth signed message v2" -p "0x2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662" -w 0x9184e72a -n 0
-go run . tx sign-message -s -u "https://optimism.publicnode.com" -t "0x571B102323C3b8B8Afb30619Ac1d36d85359fb84" -d "eth signed message v2" -p "0x2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662" -w 0x9184e72a -n 0
-
+go run . tx create-raw --url "https://optimism.publicnode.com" --to "0x571B102323C3b8B8Afb30619Ac1d36d85359fb84" --data "eth signed message v2" --private-key "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662" --wei 0x9184e72a --nonce 0
+go run . tx sign-message -d "eth signed message v2" -p "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662"
 ```
+

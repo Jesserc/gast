@@ -52,7 +52,10 @@ func gasPrice(denomination, rpcUrl string) (string, error) {
 	ethCl, err := ethclient.Dial(rpcUrl)
 
 	chainIdBigInt, err := ethCl.ChainID(ctx)
-
+	if err != nil {
+		return "", err
+	}
+	
 	chainId := chainIdBigInt.Uint64()
 
 	// Retrieve the network name from the map and print

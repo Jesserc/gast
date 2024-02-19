@@ -1,129 +1,48 @@
 package transaction
 
 import (
-	"bytes"
-	"context"
-	"encoding/hex"
+	"crypto/ecdsa"
 	"fmt"
-	"math/big"
+	"log"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-func handleSignMessageHash(rpcUrl, to, data, privateKey string, wei, nonce uint64) (string, error) {
-	client, err := ethclient.Dial(rpcUrl)
+func handleSignMessageHash(data, privateKey string) (string, error) {
+	ecdsaPrivateKey, err := crypto.HexToECDSA(privateKey)
+	if err != nil {
+		fmt.Println(ecdsaPrivateKey)
+
+		return "", err
+	}
+	pk := ecdsaPrivateKey.Public().(*ecdsa.PublicKey)
+
+	fmt.Println(crypto.PubkeyToAddress(*pk))
+	fmt.Println(len(data))
+	//
+	// message := "\u0019Ethereum Signed Message:\n" + strconv.FormatInt(int64(len(data)), 16) + data
+	// hash := crypto.Keccak256Hash([]byte(message))
+	// fmt.Println(hash.Hex())
+
+	prefix := []byte(fmt.Sprintf("\x19Ethereum Signed Message:\n%d", len(data)))
+
+	// Hash the message using Keccak-256
+	hash := crypto.Keccak256(prefix, []byte(data))
+
+	signature, err := crypto.Sign(hash, ecdsaPrivateKey)
 	if err != nil {
 		return "", err
 	}
 
-	ctx := context.Background()
-	chainID, err := client.ChainID(ctx)
+	sigPublicKey, err := crypto.SigToPub(hash, signature)
 	if err != nil {
-		return "", err
+		log.Fatal(err)
 	}
 
-	toAddr := common.HexToAddress(to)
-	amount := new(big.Int).SetUint64(wei)
-
-	k, err := hexutil.Decode(privateKey)
-	if err != nil {
-		return "", err
-	}
-
-	ecdsaPrivateKey, err := crypto.ToECDSA(k)
-	if err != nil {
-		return "", err
-	}
-
-	h := "0x" + hex.EncodeToString([]byte(data))
-
-	bytesData, err := hexutil.Decode(h)
-	if err != nil {
-		return "", err
-	}
-
-	txData := types.LegacyTx{
-		Nonce: nonce,
-		To:    &toAddr,
-		Value: amount,
-		Data:  bytesData,
-	}
-
-	tx := types.NewTx(&txData)
-
-	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), ecdsaPrivateKey)
-	if err != nil {
-		return "", err
-	}
-
-	hash := hexutil.Encode(signedTx.Hash().Bytes())
-
-	fmt.Println("hash:", hash)
-	return hash, nil
-}
-
-func handleSignMessageRaw(rpcUrl, to, data, privateKey string, wei, nonce uint64) (string, error) {
-	client, err := ethclient.Dial(rpcUrl)
-	if err != nil {
-		return "", err
-	}
-
-	ctx := context.Background()
-	chainID, err := client.ChainID(ctx)
-	if err != nil {
-		return "", err
-	}
-
-	toAddr := common.HexToAddress(to)
-	amount := new(big.Int).SetUint64(wei)
-
-	k, err := hexutil.Decode(privateKey)
-	if err != nil {
-		return "", err
-	}
-
-	ecdsaPrivateKey, err := crypto.ToECDSA(k)
-	if err != nil {
-		return "", err
-	}
-
-	h := "0x" + hex.EncodeToString([]byte(data))
-
-	bytesData, err := hexutil.Decode(h)
-	if err != nil {
-		return "", err
-	}
-
-	txData := types.LegacyTx{
-		Nonce: nonce,
-		To:    &toAddr,
-		Value: amount,
-		Data:  bytesData,
-	}
-
-	tx := types.NewTx(&txData)
-
-	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), ecdsaPrivateKey)
-	if err != nil {
-		return "", err
-	}
-
-	var buf bytes.Buffer
-
-	err = signedTx.EncodeRLP(&buf)
-	if err != nil {
-		return "", err
-	}
-
-	rawTxRLPHex := hex.EncodeToString(buf.Bytes())
-
-	fmt.Println("rlp encoded signed message:", rawTxRLPHex)
-
-	return rawTxRLPHex, nil
+	fmt.Println(crypto.PubkeyToAddress(*sigPublicKey))
+	signature[64] = 0x1c
+	return hexutil.Encode(signature), nil
 }
 
 /*
@@ -140,4 +59,43 @@ func handleSignMessageRaw(rpcUrl, to, data, privateKey string, wei, nonce uint64
 	fmt.Println("buf 2", buf)
 
 0xd7826eefd8fca691249af9775d18626ed87c3892fab580c68332905c0d226f771e6e60713f141e431ba76b26467bd1ce651cb2c2d32d7e0225483ac67f24e6b01b
+
+// handleSignMessageHash
+// client, err := ethclient.Dial(rpcUrl)
+	// if err != nil {
+	// 	return "", err
+	// }
+	//
+	// ctx := context.Background()
+	// chainID, err := client.ChainID(ctx)
+	// if err != nil {
+	// 	return "", err
+	// }
+	//
+	// toAddr := common.HexToAddress(to)
+	// amount := new(big.Int).SetUint64(wei)
+
+
+	// h := "0x" + hex.EncodeToString([]byte(data))
+	//
+	// bytesData, err := hexutil.Decode(h)
+	// if err != nil {
+	// 	return "", err
+	// }
+
+	// txData := types.LegacyTx{
+	// 	Nonce: nonce,
+	// 	To:    &toAddr,
+	// 	Value: amount,
+	// 	Data:  bytesData,
+	// }
+	//
+	// tx := types.NewTx(&txData)
+	//
+	// signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), ecdsaPrivateKey)
+	// if err != nil {
+	// 	return "", err
+	// }
+	//
+	// hash := hexutil.Encode(signedTx.Hash().Bytes())
 */

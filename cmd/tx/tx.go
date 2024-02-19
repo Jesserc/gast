@@ -21,5 +21,6 @@ var TxCmd = &cobra.Command{
 func init() {
 	// Flags and configuration settings.
 	TxCmd.AddCommand(EstimateGasCmd)
-	TxCmd.AddCommand(SignMessageCmd)
+	TxCmd.AddCommand(SignCmd)
+	TxCmd.AddCommand(createRawCmd)
 }

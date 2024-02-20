@@ -12,7 +12,7 @@ go build .
 [//]: # (![img.png]&#40;img.png&#41;)
 
 ```shell
-go run . tx create-raw --url "https://optimism.publicnode.com" --to "0x571B102323C3b8B8Afb30619Ac1d36d85359fb84" --data "eth signed message v2" --private-key "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662" --wei 0x9184e72a --nonce 0
+go run . tx create-raw --url "https://optimism.publicnode.com" --to "0x571B102323C3b8B8Afb30619Ac1d36d85359fb84" --data "eth signed message v2" --private-key "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662" --wei 1000000000000000000 --nonce 0
 go run . tx sign-message -d "eth signed message v2" -p "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662"
 ```
 

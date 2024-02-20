@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/hex"
-	"fmt"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -28,8 +27,6 @@ func handleCreateRawTransaction(rpcUrl, to, data, privateKey string, wei, nonce 
 
 	toAddr := common.HexToAddress(to)
 	amount := new(big.Int).SetUint64(wei)
-
-	fmt.Println(privateKey)
 
 	k, err := hexutil.Decode("0x" + privateKey)
 	if err != nil {
@@ -70,7 +67,6 @@ func handleCreateRawTransaction(rpcUrl, to, data, privateKey string, wei, nonce 
 	}
 
 	rawTxRLPHex := hex.EncodeToString(buf.Bytes())
-	// rawTxRLPHex := "0x" + buf.String()
 
 	return rawTxRLPHex, nil
 }

@@ -17,7 +17,7 @@ var SignCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		signedMessageHash, err := handleSignMessageHash(
+		signedMessageHash, err := signMessage(
 			txData,
 			privKey,
 		)
@@ -25,15 +25,12 @@ var SignCmd = &cobra.Command{
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		fmt.Println("\nsigned message hash:", signedMessageHash)
+		fmt.Println("signed message:\n", signedMessageHash)
 	},
 }
 
 func init() {
 	// Flags and configuration settings.
-	// SignCmd.Flags().BoolVarP(&signHash, "sign", "s", false, "sign transaction and return signature hash")
-	// SignCmd.Flags().BoolVarP(&createRaw, "create-raw", "r", false, "create raw transaction that can be propagated later")
-
 	SignCmd.Flags().StringVarP(&txData, "data", "d", "", "message to sign")
 	SignCmd.Flags().StringVarP(&privKey, "private-key", "p", "", "private key to sign transaction")
 

@@ -1,49 +1,134 @@
 package transaction
 
 import (
+	"bytes"
 	"crypto/ecdsa"
+	"encoding/json"
 	"fmt"
 	"log"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-func handleSignMessageHash(data, privateKey string) (string, error) {
+// SignatureResponse represents the structure of the signature response.
+type SignatureResponse struct {
+	Address string `json:"address,omitempty"`
+	Msg     string `json:"msg,omitempty"`
+	Sig     string `json:"sig,omitempty"`
+	Version string `json:"version,omitempty"`
+}
+
+// signMessage signs a message using the provided private key.
+func signMessage(message, privateKey string) (string, error) {
+	// Convert the private key from hex to ECDSA format
 	ecdsaPrivateKey, err := crypto.HexToECDSA(privateKey)
 	if err != nil {
-		fmt.Println(ecdsaPrivateKey)
-
 		return "", err
 	}
-	pk := ecdsaPrivateKey.Public().(*ecdsa.PublicKey)
 
-	fmt.Println(crypto.PubkeyToAddress(*pk))
-	fmt.Println(len(data))
-	//
-	// message := "\u0019Ethereum Signed Message:\n" + strconv.FormatInt(int64(len(data)), 16) + data
-	// hash := crypto.Keccak256Hash([]byte(message))
-	// fmt.Println(hash.Hex())
+	// Construct the message prefix
+	prefix := []byte(fmt.Sprintf("\x19Ethereum Signed Message:\n%d", len(message)))
+	data := []byte(message)
 
-	prefix := []byte(fmt.Sprintf("\x19Ethereum Signed Message:\n%d", len(data)))
+	// Hash the prefix and data using Keccak-256
+	hash := crypto.Keccak256Hash(prefix, data)
 
-	// Hash the message using Keccak-256
-	hash := crypto.Keccak256(prefix, []byte(data))
-
-	signature, err := crypto.Sign(hash, ecdsaPrivateKey)
+	// Sign the hashed message
+	sig, err := crypto.Sign(hash.Bytes(), ecdsaPrivateKey)
 	if err != nil {
 		return "", err
 	}
 
-	sigPublicKey, err := crypto.SigToPub(hash, signature)
+	// Adjust signature to Ethereum's format
+	sig[64] = sig[64] + 27
+
+	// Derive the public key from the private key
+	publicKeyBytes := crypto.FromECDSAPub(ecdsaPrivateKey.Public().(*ecdsa.PublicKey))
+	pub, err := crypto.UnmarshalPubkey(publicKeyBytes)
+	if err != nil {
+		log.Fatal(err)
+	}
+	rAddress := crypto.PubkeyToAddress(*pub)
+
+	// Construct the signature response
+	res := SignatureResponse{
+		Address: rAddress.String(),
+		Msg:     message,
+		Sig:     hexutil.Encode(sig),
+		Version: "2",
+	}
+
+	// Marshal the response to JSON with proper formatting
+	var w bytes.Buffer
+	var v bytes.Buffer
+	json.NewEncoder(&w).Encode(res)
+	json.Indent(&v, w.Bytes(), " ", "\t")
+
+	return v.String(), nil
+}
+
+// verifySig verifies the signature against the provided public key bytes and hash.
+func verifySig(sig, pubKeyBytes []byte, hash common.Hash) bool {
+	// Adjust signature to standard format
+	sig[64] = sig[64] - 27
+
+	// Recover the public key from the signature
+	sigPublicKey, err := crypto.Ecrecover(hash.Bytes(), sig)
+	if err != nil {
+		log.Fatal(err)
+	}
+	pub, err := crypto.UnmarshalPubkey(sigPublicKey)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(crypto.PubkeyToAddress(*sigPublicKey))
-	signature[64] = 0x1c
-	return hexutil.Encode(signature), nil
+	// Check if the recovered public key matches the provided public key bytes
+	fmt.Println(bytes.Equal(sigPublicKey, pubKeyBytes))
+
+	// Derive the address from the recovered public key
+	rAddress := crypto.PubkeyToAddress(*pub)
+
+	// Print the recovered address
+	fmt.Println("Recovered address:", rAddress)
+
+	// Verify if the recovered public key matches the provided public key bytes
+	return bytes.Equal(sigPublicKey, pubKeyBytes)
 }
+
+// func handleSignMessageHash(data, privateKey string) (string, error) {
+// 	ecdsaPrivateKey, err := crypto.HexToECDSA(privateKey)
+// 	if err != nil {
+// 		return "", err
+// 	}
+//
+// 	fmt.Println(crypto.PubkeyToAddress(*ecdsaPrivateKey.Public().(*ecdsa.PublicKey))) // 0x571B102323C3b8B8Afb30619Ac1d36d85359fb84 // correct address but verification fails, why?
+//
+// 	// Construct the message prefix
+// 	prefix := fmt.Sprintf("\x19Ethereum Signed Message:\n%d", len(data))
+//
+// 	// Concatenate the prefix and data
+// 	message := append([]byte(prefix), []byte(data)...)
+//
+// 	// Hash the message using Keccak-256
+// 	hash := crypto.Keccak256(message)
+//
+// 	// Sign the hashed message
+// 	signature, err := crypto.Sign(hash, ecdsaPrivateKey)
+// 	if err != nil {
+// 		return "", err
+// 	}
+//
+// 	// Ensure that the signature verification is successful
+// 	match := crypto.VerifySignature(crypto.CompressPubkey(ecdsaPrivateKey.Public().(*ecdsa.PublicKey)), hash, signature)
+// 	fmt.Println(match)
+//
+// 	// Modify the signature (if needed)
+// 	signature[64] = 0x1c
+//
+// 	return hexutil.Encode(signature), nil
+// }
 
 /*
 	var buf bytes.Buffer

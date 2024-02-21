@@ -23,4 +23,5 @@ func init() {
 	TxCmd.AddCommand(EstimateGasCmd)
 	TxCmd.AddCommand(SignCmd)
 	TxCmd.AddCommand(createRawCmd)
+	TxCmd.AddCommand(SendRawCmd)
 }

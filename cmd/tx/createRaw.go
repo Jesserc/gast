@@ -21,6 +21,8 @@ var createRawCmd = &cobra.Command{
 			to,
 			txData,
 			privKey,
+			gasPrice,
+			gasLimit,
 			wei,
 			nonce,
 		)
@@ -37,16 +39,18 @@ func init() {
 	// Flags and configuration settings.
 	createRawCmd.Flags().StringVarP(&txRpcUrl, "url", "u", "", "RPC url")
 	createRawCmd.Flags().StringVarP(&to, "to", "t", "", "recipient")
-	createRawCmd.Flags().StringVarP(&txData, "data", "d", "", "data")
+	createRawCmd.Flags().StringVarP(&txData, "data", "d", "", "transaction data (optional)")
 	createRawCmd.Flags().StringVarP(&privKey, "private-key", "p", "", "private key to sign transaction")
-	createRawCmd.Flags().Uint64VarP(&wei, "wei", "w", 0, "wei")
-	createRawCmd.Flags().Uint64VarP(&nonce, "nonce", "n", 0, "nonce")
+	createRawCmd.Flags().Uint64VarP(&gasPrice, "gas-price", "g", 0, "transaction gas price")
+	createRawCmd.Flags().Uint64VarP(&gasLimit, "gas-limit", "l", 0, "max gas limit")
+	createRawCmd.Flags().Uint64VarP(&wei, "wei", "w", 0, "amount to send (optional)")
+	createRawCmd.Flags().Uint64VarP(&nonce, "nonce", "n", 0, "transaction nonce")
 
 	createRawCmd.MarkFlagRequired("url")
 	createRawCmd.MarkFlagRequired("to")
-	createRawCmd.MarkFlagRequired("data")
 	createRawCmd.MarkFlagRequired("private-key")
-	createRawCmd.MarkFlagRequired("wei")
+	createRawCmd.MarkFlagRequired("gas-price")
+	createRawCmd.MarkFlagRequired("gas-limit")
 	createRawCmd.MarkFlagRequired("nonce")
 
 	// Cobra supports Persistent Flags which will work for this command

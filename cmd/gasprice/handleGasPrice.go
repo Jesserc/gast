@@ -55,7 +55,7 @@ func gasPrice(denomination, rpcUrl string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	
+
 	chainId := chainIdBigInt.Uint64()
 
 	// Retrieve the network name from the map and print

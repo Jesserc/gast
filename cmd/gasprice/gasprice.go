@@ -30,7 +30,7 @@ var GaspriceCmd = &cobra.Command{
 		}
 
 		// If flags are provided, get gas price
-		gPrice, err := getGasPrice()
+		gPrice, err := checkGasPrice()
 		if err != nil {
 			log.Printf("%v: run gast help gasprice for all commands\n", err)
 			return
@@ -58,7 +58,7 @@ func init() {
 	// gaspriceCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func getGasPrice() (string, error) {
+func checkGasPrice() (string, error) {
 	var url string
 
 	switch {
@@ -80,5 +80,5 @@ func getGasPrice() (string, error) {
 		return "", fmt.Errorf("no network specified")
 	}
 
-	return handleRPCCommand(url)
+	return gasPrice(url)
 }

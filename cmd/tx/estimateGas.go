@@ -15,7 +15,7 @@ var EstimateGasCmd = &cobra.Command{
 	Short: "A brief description of your command",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		estimatedTxGas, err := HandleEstimateGas(txRpcUrl, from, to, txData, wei)
+		estimatedTxGas, err := estimateGas(txRpcUrl, from, to, txData, wei)
 		if err != nil {
 			fmt.Println(err) // TODO: log as error
 			return

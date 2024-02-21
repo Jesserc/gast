@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/hex"
+	"fmt"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -13,7 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-func handleCreateRawTransaction(rpcUrl, to, data, privateKey string, gasPrice, gasLimit, wei, nonce uint64) (string, error) {
+func createRawTransaction(rpcUrl, to, data, privateKey string, gasPrice, gasLimit, wei, nonce uint64) (string, error) {
 	client, err := ethclient.Dial(rpcUrl)
 	if err != nil {
 		return "", err
@@ -70,6 +71,10 @@ func handleCreateRawTransaction(rpcUrl, to, data, privateKey string, gasPrice, g
 	}
 
 	rawTxRLPHex := hex.EncodeToString(buf.Bytes())
+	err = sendRawTransaction(rawTxRLPHex)
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	return rawTxRLPHex, nil
 }

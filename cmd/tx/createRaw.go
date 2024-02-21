@@ -16,7 +16,7 @@ var createRawCmd = &cobra.Command{
 	Short: "A brief description of your command",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		signedMessageRaw, err := handleCreateRawTransaction(
+		signedMessageRaw, err := createRawTransaction(
 			txRpcUrl,
 			to,
 			txData,

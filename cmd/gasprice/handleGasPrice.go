@@ -34,8 +34,8 @@ var (
 	}
 )
 
-func handleRPCCommand(rpcURL string) (string, error) {
-	gPrice, err := gasPrice("Wei", rpcURL)
+func gasPrice(rpcURL string) (string, error) {
+	gPrice, err := getGasPrice("Wei", rpcURL)
 	if err != nil {
 		return "", err
 	}
@@ -43,7 +43,7 @@ func handleRPCCommand(rpcURL string) (string, error) {
 	return gPrice, nil
 }
 
-func gasPrice(denomination, rpcUrl string) (string, error) {
+func getGasPrice(denomination, rpcUrl string) (string, error) {
 	client, err := rpc.Dial(rpcUrl)
 	if err != nil {
 		return "", err

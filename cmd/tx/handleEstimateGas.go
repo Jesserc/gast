@@ -10,7 +10,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-func HandleEstimateGas(rpcUrl, from, to, data string, value uint64) (uint64, error) {
+func estimateGas(rpcUrl, from, to, data string, value uint64) (uint64, error) {
 	client, err := ethclient.Dial(rpcUrl)
 	if err != nil {
 		return 0, err

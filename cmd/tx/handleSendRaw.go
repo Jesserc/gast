@@ -126,20 +126,6 @@ func sendRawTransaction(rawTx, rpcURL string) (string, error) {
 	return transactionURL, nil
 }
 
-// convertHexToDecimalString converts a hexadecimal string to a decimal string.
-func convertHexToDecimalString(hexStr string) (string, error) {
-	// Parse the hexadecimal string as an integer
-	intV, err := strconv.ParseUint(hexStr[2:], 16, 64)
-	if err != nil {
-		return "", err
-	}
-
-	// Convert the integer to a decimal string
-	decimalStr := strconv.FormatUint(intV, 10)
-
-	return decimalStr, nil
-}
-
 func convertHexField(tx *Transaction, field string) error {
 	// Get the type of the Transaction struct
 	typeOfTx := reflect.TypeOf(*tx)

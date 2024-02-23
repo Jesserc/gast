@@ -24,4 +24,6 @@ func init() {
 	TxCmd.AddCommand(SignCmd)
 	TxCmd.AddCommand(createRawCmd)
 	TxCmd.AddCommand(SendRawCmd)
+	TxCmd.AddCommand(TraceTxCmd)
+
 }

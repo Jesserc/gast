@@ -1,8 +1,11 @@
 ### TODO
 - add feature to use yaml config data instead of passing data as os arg (especially for sign-message)
-- add feature to get account nonce
+- ~~add feature to get account nonce~~
 - receive tx receipts through email (if the email env var is set, receipts will be printed out in os.stdout and also sent to email, else if its "" it'll only be printed out to os.stdout)
 - add feature to efficiently manage private key (gast init will create a .gast.yaml file in root folder, gast add --privKey "privKey" will add privKey to the yaml file, gast create will create a new keypair for signing and sending tx at the root .yaml file and return the pubKey to them, a new gast create will override the existing keypair so warn users first when they do it)
+- add feature to send normal tx using eth_call
+- add feature to trace transaction
+
 
 ```shell
 go build .

@@ -7,6 +7,7 @@ var (
 	To       string
 	From     string
 	TxRpcUrl string
+	TxHash   string
 	GasLimit uint64
 	Nonce    uint64
 	Wei      uint64

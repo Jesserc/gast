@@ -2,6 +2,7 @@ package transaction
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum"
@@ -13,6 +14,7 @@ import (
 func estimateGas(rpcUrl, from, to, data string, value uint64) (uint64, error) {
 	client, err := ethclient.Dial(rpcUrl)
 	if err != nil {
+		fmt.Println("line 17", err)
 		return 0, err
 	}
 
@@ -26,6 +28,7 @@ func estimateGas(rpcUrl, from, to, data string, value uint64) (uint64, error) {
 
 	bytesData, err := hexutil.Decode(data)
 	if err != nil {
+		fmt.Println("line 31", err)
 		return 0, err
 	}
 

@@ -3,6 +3,129 @@ package transaction
 import (
 	"bytes"
 	"context"
+	"crypto/ecdsa"
+	"encoding/hex"
+	"fmt"
+	"log"
+	"math/big"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/ethclient"
+)
+
+// createRawTransaction creates a raw Ethereum transaction.
+func createRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uint64) (string, error) {
+	// Connect to the Ethereum client
+	client, err := ethclient.Dial(rpcURL)
+	if err != nil {
+		return "", err
+	}
+
+	ctx := context.Background()
+
+	// Get chain ID
+	chainID, err := client.ChainID(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	// Get base fee
+	baseFee, err := client.SuggestGasPrice(context.Background())
+	if err != nil {
+		return "", err
+	}
+	fmt.Println("base fee:", baseFee)
+
+	// Get gas tip cap
+	gasTipCap, err := client.SuggestGasTipCap(context.Background())
+	if err != nil {
+		return "", err
+	}
+
+	// Calculate gas fee cap with 2 Gwei margin
+	increment := big.NewInt(1e9) // 4 Gwei
+	gasFeeCap := new(big.Int).Add(gasTipCap, increment)
+
+	fmt.Println("max fee: per gas", gasFeeCap)
+
+	// Decode private key
+	pKeyBytes, err := hexutil.Decode("0x" + privateKey)
+	if err != nil {
+		return "", err
+	}
+
+	// Convert private key to ECDSA format
+	ecdsaPrivateKey, err := crypto.ToECDSA(pKeyBytes)
+	if err != nil {
+		return "", err
+	}
+
+	publicKey := ecdsaPrivateKey.Public()
+
+	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
+	if !ok {
+		log.Fatal("error casting public key to ECDSA")
+	}
+
+	fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
+	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Convert data to hex format
+	hexData := "0x" + hex.EncodeToString([]byte(data))
+	bytesData, err := hexutil.Decode(hexData)
+	if err != nil {
+		return "", err
+	}
+
+	// Create transaction data
+	toAddr := common.HexToAddress(to)
+	amount := new(big.Int).SetUint64(wei)
+	txData := types.DynamicFeeTx{
+		ChainID:   chainID,
+		Nonce:     nonce,
+		GasTipCap: gasTipCap,
+		GasFeeCap: gasFeeCap,
+		Gas:       gasLimit,
+		To:        &toAddr,
+		Value:     amount,
+		Data:      bytesData,
+	}
+
+	tx := types.NewTx(&txData)
+
+	// Sign transaction
+	// signedTx, err := types.SignNewTx(ecdsaPrivateKey, types.NewEIP155Signer(chainID), &txData)
+	// signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), ecdsaPrivateKey)
+	signedTx, err := types.SignTx(tx, types.LatestSignerForChainID(chainID), ecdsaPrivateKey)
+	if err != nil {
+		fmt.Println("line 82:", err)
+		return "", err
+	}
+
+	// Encode signed transaction to RLP hex
+	var buf bytes.Buffer
+	err = signedTx.EncodeRLP(&buf)
+	if err != nil {
+		return "", err
+	}
+
+	rawTxRLPHex := hex.EncodeToString(buf.Bytes())
+
+	return rawTxRLPHex, nil
+}
+
+/*
+package transaction
+
+import (
+	"bytes"
+	"context"
 	"encoding/hex"
 	"fmt"
 	"math/big"
@@ -14,67 +137,88 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-func createRawTransaction(rpcUrl, to, data, privateKey string, gasPrice, gasLimit, wei, nonce uint64) (string, error) {
-	client, err := ethclient.Dial(rpcUrl)
+// createRawTransaction creates a raw Ethereum transaction.
+func createRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei, nonce uint64) (string, error) {
+	// Connect to the Ethereum client
+	client, err := ethclient.Dial(rpcURL)
 	if err != nil {
 		return "", err
 	}
 
 	ctx := context.Background()
+
+	// Get chain ID
 	chainID, err := client.ChainID(ctx)
 	if err != nil {
 		return "", err
 	}
 
-	toAddr := common.HexToAddress(to)
-	amount := new(big.Int).SetUint64(wei)
-	gPrice := new(big.Int).SetUint64(gasPrice)
+	// Get base fee
+	baseFee, err := client.SuggestGasPrice(context.Background())
+	if err != nil {
+		return "", err
+	}
 
+	// Calculate gas fee cap with 2 Gwei margin
+	gasFeeCap := new(big.Int).Add(baseFee, big.NewInt(2*1000000000))
+
+	// Get gas tip cap
+	gasTipCap, err := client.SuggestGasTipCap(context.Background())
+	if err != nil {
+		return "", err
+	}
+
+	// Decode private key
 	pKey, err := hexutil.Decode("0x" + privateKey)
 	if err != nil {
 		return "", err
 	}
 
+	// Convert private key to ECDSA format
 	ecdsaPrivateKey, err := crypto.ToECDSA(pKey)
 	if err != nil {
 		return "", err
 	}
 
+	// Convert data to hex format
 	hexData := "0x" + hex.EncodeToString([]byte(data))
-
 	bytesData, err := hexutil.Decode(hexData)
 	if err != nil {
 		return "", err
 	}
 
-	txData := types.LegacyTx{
-		Nonce:    nonce,
-		To:       &toAddr,
-		Value:    amount,
-		Data:     bytesData,
-		GasPrice: gPrice,
-		Gas:      gasLimit,
+	// Create transaction data
+	toAddr := common.HexToAddress(to)
+	amount := new(big.Int).SetUint64(wei)
+	txData := types.DynamicFeeTx{
+		Nonce:     nonce,
+		To:        &toAddr,
+		Value:     amount,
+		Data:      bytesData,
+		Gas:       gasLimit,
+		GasFeeCap: gasFeeCap,
+		GasTipCap: gasTipCap,
 	}
 
 	tx := types.NewTx(&txData)
 
-	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), ecdsaPrivateKey)
+	// Sign transaction
+	signedTx, err := types.SignTx(tx, types.LatestSignerForChainID(chainID), ecdsaPrivateKey)
 	if err != nil {
+		fmt.Println("line 82:", err)
 		return "", err
 	}
 
+	// Encode signed transaction to RLP hex
 	var buf bytes.Buffer
-
 	err = signedTx.EncodeRLP(&buf)
 	if err != nil {
 		return "", err
 	}
 
 	rawTxRLPHex := hex.EncodeToString(buf.Bytes())
-	err = sendRawTransaction(rawTxRLPHex)
-	if err != nil {
-		fmt.Println(err)
-	}
 
 	return rawTxRLPHex, nil
 }
+
+*/

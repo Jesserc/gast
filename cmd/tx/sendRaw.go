@@ -5,7 +5,9 @@ package transaction
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/Jesserc/gast/cmd/tx/params"
 	"github.com/spf13/cobra"
 )
 
@@ -15,12 +17,23 @@ var SendRawCmd = &cobra.Command{
 	Short: "A brief description of your command",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("sendRaw called")
+		txReceipt, err := sendRawTransaction(params.RawTx, params.TxRpcUrl)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		fmt.Println(txReceipt)
 	},
 }
 
 func init() {
-	// Here you will define your flags and configuration settings.
+	// Flags and configuration settings.
+	SendRawCmd.Flags().StringVarP(&params.RawTx, "raw-tx", "r", "", "raw transaction to send")
+	SendRawCmd.Flags().StringVarP(&params.TxRpcUrl, "rpc-url", "u", "", "specify RPC url for transaction")
+
+	SendRawCmd.MarkFlagRequired("raw-tx")
+	SendRawCmd.MarkFlagRequired("rpc-url")
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:

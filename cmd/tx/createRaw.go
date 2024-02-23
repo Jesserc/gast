@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Jesserc/gast/cmd/tx/params"
 	"github.com/spf13/cobra"
 )
 
@@ -17,14 +18,12 @@ var createRawCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		signedMessageRaw, err := createRawTransaction(
-			txRpcUrl,
-			to,
-			txData,
-			privKey,
-			gasPrice,
-			gasLimit,
-			wei,
-			nonce,
+			params.TxRpcUrl,
+			params.To,
+			params.TxData,
+			params.PrivKey,
+			params.GasLimit,
+			params.Wei,
 		)
 		if err != nil {
 			fmt.Println(err)
@@ -37,21 +36,19 @@ var createRawCmd = &cobra.Command{
 func init() {
 
 	// Flags and configuration settings.
-	createRawCmd.Flags().StringVarP(&txRpcUrl, "url", "u", "", "RPC url")
-	createRawCmd.Flags().StringVarP(&to, "to", "t", "", "recipient")
-	createRawCmd.Flags().StringVarP(&txData, "data", "d", "", "transaction data (optional)")
-	createRawCmd.Flags().StringVarP(&privKey, "private-key", "p", "", "private key to sign transaction")
-	createRawCmd.Flags().Uint64VarP(&gasPrice, "gas-price", "g", 0, "transaction gas price")
-	createRawCmd.Flags().Uint64VarP(&gasLimit, "gas-limit", "l", 0, "max gas limit")
-	createRawCmd.Flags().Uint64VarP(&wei, "wei", "w", 0, "amount to send (optional)")
-	createRawCmd.Flags().Uint64VarP(&nonce, "nonce", "n", 0, "transaction nonce")
+	createRawCmd.Flags().StringVarP(&params.TxRpcUrl, "url", "u", "", "RPC url")
+	createRawCmd.Flags().StringVarP(&params.To, "to", "t", "", "recipient")
+	createRawCmd.Flags().StringVarP(&params.TxData, "data", "d", "", "transaction data (optional)")
+	createRawCmd.Flags().StringVarP(&params.PrivKey, "private-key", "p", "", "private key to sign transaction")
+	// createRawCmd.Flags().Uint64VarP(&params.GasPrice, "gas-price", "g", 0, "transaction gas price")
+	createRawCmd.Flags().Uint64VarP(&params.GasLimit, "gas-limit", "l", 0, "max gas limit")
+	createRawCmd.Flags().Uint64VarP(&params.Wei, "wei", "w", 0, "amount to send (optional)")
+	createRawCmd.Flags().Uint64VarP(&params.Nonce, "nonce", "n", 0, "transaction nonce")
 
 	createRawCmd.MarkFlagRequired("url")
 	createRawCmd.MarkFlagRequired("to")
 	createRawCmd.MarkFlagRequired("private-key")
-	createRawCmd.MarkFlagRequired("gas-price")
 	createRawCmd.MarkFlagRequired("gas-limit")
-	createRawCmd.MarkFlagRequired("nonce")
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:

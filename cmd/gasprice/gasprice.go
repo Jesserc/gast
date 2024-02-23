@@ -30,7 +30,7 @@ var GaspriceCmd = &cobra.Command{
 		}
 
 		// If flags are provided, get gas price
-		gPrice, err := checkGasPrice()
+		gPrice, err := fetchGasPrice()
 		if err != nil {
 			log.Printf("%v: run gast help gasprice for all commands\n", err)
 			return
@@ -47,7 +47,7 @@ func init() {
 	GaspriceCmd.Flags().BoolVarP(&base, "base", "", false, "Use default Base RPC url")
 	GaspriceCmd.Flags().BoolVarP(&linea, "linea", "", false, "Use default Linea RPC url")
 	GaspriceCmd.Flags().BoolVarP(&zkSync, "zksync", "", false, "Use default zkSync RPC URL")
-	GaspriceCmd.Flags().StringVarP(&rpcUrl, "url", "u", "", "The RPC url for gas price")
+	GaspriceCmd.Flags().StringVarP(&rpcUrl, "url", "u", "", "specify RPC url for gas price")
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
@@ -58,7 +58,7 @@ func init() {
 	// gaspriceCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func checkGasPrice() (string, error) {
+func fetchGasPrice() (string, error) {
 	var url string
 
 	switch {
@@ -80,5 +80,5 @@ func checkGasPrice() (string, error) {
 		return "", fmt.Errorf("no network specified")
 	}
 
-	return gasPrice(url)
+	return GetCurrentGasPrice(url)
 }

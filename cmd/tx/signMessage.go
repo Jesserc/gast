@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Jesserc/gast/cmd/tx/params"
 	"github.com/spf13/cobra"
 )
 
@@ -18,8 +19,8 @@ var SignCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		signedMessageHash, err := signMessage(
-			txData,
-			privKey,
+			params.TxData,
+			params.PrivKey,
 		)
 		if err != nil {
 			fmt.Println(err)
@@ -31,8 +32,8 @@ var SignCmd = &cobra.Command{
 
 func init() {
 	// Flags and configuration settings.
-	SignCmd.Flags().StringVarP(&txData, "data", "d", "", "message to sign")
-	SignCmd.Flags().StringVarP(&privKey, "private-key", "p", "", "private key to sign transaction")
+	SignCmd.Flags().StringVarP(&params.TxData, "data", "d", "", "message to sign")
+	SignCmd.Flags().StringVarP(&params.PrivKey, "private-key", "p", "", "private key to sign transaction")
 
 	SignCmd.MarkFlagRequired("data")
 	SignCmd.MarkFlagRequired("private-key")

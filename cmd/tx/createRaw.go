@@ -40,7 +40,6 @@ func init() {
 	createRawCmd.Flags().StringVarP(&params.To, "to", "t", "", "recipient")
 	createRawCmd.Flags().StringVarP(&params.TxData, "data", "d", "", "transaction data (optional)")
 	createRawCmd.Flags().StringVarP(&params.PrivKey, "private-key", "p", "", "private key to sign transaction")
-	// createRawCmd.Flags().Uint64VarP(&params.GasPrice, "gas-price", "g", 0, "transaction gas price")
 	createRawCmd.Flags().Uint64VarP(&params.GasLimit, "gas-limit", "l", 0, "max gas limit")
 	createRawCmd.Flags().Uint64VarP(&params.Wei, "wei", "w", 0, "amount to send (optional)")
 	createRawCmd.Flags().Uint64VarP(&params.Nonce, "nonce", "n", 0, "transaction nonce")
@@ -49,12 +48,4 @@ func init() {
 	createRawCmd.MarkFlagRequired("to")
 	createRawCmd.MarkFlagRequired("private-key")
 	createRawCmd.MarkFlagRequired("gas-limit")
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// createRawCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// createRawCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

@@ -18,13 +18,13 @@ var TraceTxCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		// fmt.Println("traceTx called")
-		tracedTx, err := handleTraceTx(params.TxHash, params.TxRpcUrl)
+		_, err := handleTraceTx(params.TxHash, params.TxRpcUrl)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
-		fmt.Println(tracedTx)
+		// fmt.Println(tracedTx)
 	},
 }
 

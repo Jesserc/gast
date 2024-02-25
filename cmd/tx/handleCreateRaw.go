@@ -14,6 +14,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/ethereum/go-ethereum/params"
 )
 
 // createRawTransaction creates a raw Ethereum transaction.
@@ -46,7 +47,7 @@ func createRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uin
 	}
 
 	// Calculate gas fee cap with 2 Gwei margin
-	increment := big.NewInt(1e9)
+	increment := big.NewInt(params.GWei)
 	gasFeeCap := new(big.Int).Add(gasTipCap, increment)
 
 	fmt.Println("max fee: per gas", gasFeeCap)

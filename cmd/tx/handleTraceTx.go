@@ -9,14 +9,15 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
-type TopCall struct {
-	From    string
-	Gas     string
-	GasUsed string
-	Input   string
-	To      string
-	Type    string
-	Value   string
+type Trace struct {
+	Type     string   `json:"type"`
+	Depth    int      `json:"depth"`
+	From     string   `json:"from"`
+	To       string   `json:"to"`
+	Value    string   `json:"value,omitempty"`
+	Input    string   `json:"input"`
+	Parent   *Trace   `json:"-"` // Exclude from JSON marshaling
+	Children []*Trace `json:"-"`
 }
 
 func handleTraceTx(hash, rpcUrl string) (string, error) {
@@ -27,75 +28,105 @@ func handleTraceTx(hash, rpcUrl string) (string, error) {
 		return "", err
 	}
 
-	params := map[string]interface{}{
-		"tracer": "callTracer",
-		"tracerConfig": map[string]interface{}{
-			"onlyTopCall": false,
-			"withLog":     true,
-		},
-	}
+	// params := map[string]interface{}{
+	// 	"tracer": "callTracer",
+	// 	"tracerConfig": map[string]interface{}{
+	// 		"onlyTopCall": false,
+	// 		"withLog":     true,
+	// 	},
+	// }
 
 	var result json.RawMessage
-	err = client.CallContext(context.Background(), &result, "trace_transaction", hash, params)
+	// err = client.CallContext(context.Background(), &result, "trace_transaction", hash, params)
+	err = client.CallContext(context.Background(), &result, "ots_traceTransaction", hash)
 	if err != nil {
 		return "", err
 	}
 
-	var traces []TraceDetails
-	err = json.Unmarshal(result, &traces)
-	if err != nil {
+	var traces []Trace
+	if err := json.Unmarshal(result, &traces); err != nil {
 		return "", err
 	}
 
-	prettyPrintTraces(traces, 0)
+	// Organize traces into a hierarchical structure
+	traceRoot := buildTraceHierarchy(traces)
+
+	// Pretty print the trace
+	printTrace(traceRoot, 0)
 
 	return "output", nil
 }
 
+func buildTraceHierarchy(traces []Trace) *Trace {
+	var root *Trace
+	lastAtDepth := make(map[int]*Trace)
+
+	for i, trace := range traces {
+		current := &traces[i] // Get a reference to the trace in the slice
+
+		if trace.Depth == 0 {
+			root = current // This is the root trace
+		} else {
+			parent := lastAtDepth[trace.Depth-1] // Parent is the last trace at the previous depth
+			current.Parent = parent
+			parent.Children = append(parent.Children, current)
+		}
+
+		lastAtDepth[trace.Depth] = current // Update the last trace at this depth
+	}
+
+	return root // Return the root of the trace hierarchy
+}
+
+func printTrace(trace *Trace, indentLevel int) {
+	indent := strings.Repeat(" ", indentLevel*4)
+	fmt.Printf("%sType: %s, From: %s, To: %s, Depth: %d\n", indent, trace.Type, trace.From, trace.To, trace.Depth)
+
+	for _, child := range trace.Children {
+		printTrace(child, indentLevel+1) // Recursively print children
+	}
+}
+
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+/*
 func prettyPrintTraces(traces []TraceDetails, indentLevel int) {
 	if traces == nil {
 		return
 	}
 	var output string
 	for i, trace := range traces {
-		output += fmt.Sprintf("%sSubcall %d:\n", strings.Repeat("  ", indentLevel+i), i+1)
-		output += fmt.Sprintf("%sCall Type: %s\n", strings.Repeat("  ", indentLevel+i), trace.Action.CallType)
-		output += fmt.Sprintf("%sFrom: %s\n", strings.Repeat("  ", indentLevel+i), trace.Action.From)
-		output += fmt.Sprintf("%sTo: %s\n", strings.Repeat("  ", indentLevel+i), trace.Action.To)
-		output += fmt.Sprintf("%sGas: %s\n", strings.Repeat("  ", indentLevel+i), trace.Action.Gas)
-		output += fmt.Sprintf("%sValue: %s\n", strings.Repeat("  ", indentLevel+i), trace.Action.Value)
-		// output += fmt.Sprintf("%s  Input: %s\n", strings.Repeat("  ", indentLevel+i), trace.Action.Input)
-		output += fmt.Sprintf("%sOutput: %s\n", strings.Repeat("  ", indentLevel+i), trace.Result.Output)
-		output += fmt.Sprintf("%sGas Used: %s\n", strings.Repeat("  ", indentLevel+i), trace.Result.GasUsed)
+		output += fmt.Sprintf("%sTrace %d:\n", strings.Repeat("\t", indentLevel), i+1)
+		output += fmt.Sprintf("%s\tCall Type: %s\n", strings.Repeat("\t", indentLevel), trace.Action.CallType)
+		output += fmt.Sprintf("%s\tFrom: %s\n", strings.Repeat("\t", indentLevel), trace.Action.From)
+		output += fmt.Sprintf("%s\tTo: %s\n", strings.Repeat("\t", indentLevel), trace.Action.To)
+		output += fmt.Sprintf("%s\tGas: %s\n", strings.Repeat("\t", indentLevel), trace.Action.Gas)
+		output += fmt.Sprintf("%s\tValue: %s\n", strings.Repeat("\t", indentLevel), trace.Action.Value)
+		output += fmt.Sprintf("%s\tInput: %s\n", strings.Repeat("\t", indentLevel), trace.Action.Input)
+		output += fmt.Sprintf("%s\tOutput: %s\n", strings.Repeat("\t", indentLevel), trace.Result.Output)
+		output += fmt.Sprintf("%s\tGas Used: %s\n", strings.Repeat("\t", indentLevel), trace.Result.GasUsed)
 
 	}
 	fmt.Println(output)
 }
+*/
 
-// language=json
-type TraceDetails struct {
-	Action struct {
-		CallType string `json:"callType"`
-		From     string `json:"from"`
-		Gas      string `json:"gas"`
-		Input    string `json:"input"`
-		To       string `json:"to"`
-		Value    string `json:"value"`
-	} `json:"action"`
-	BlockHash   string `json:"blockHash"`
-	BlockNumber int    `json:"blockNumber"`
-	Result      struct {
-		GasUsed string `json:"gasUsed"`
-		Output  string `json:"output"`
-	} `json:"result"`
-	Subtraces           int    `json:"subtraces"`
-	TraceAddress        []int  `json:"traceAddress"`
-	TransactionHash     string `json:"transactionHash"`
-	TransactionPosition int    `json:"transactionPosition"`
-	Type                string `json:"type"`
-}
-
-/*func run(rpcURL, transactionHash string) {
+/*
+func run(rpcURL, transactionHash string)
 
 	// JSON-RPC request payload
 	requestData := fmt.Sprintf(`{"jsonrpc":"2.0","method":"trace_transaction","params":["%s", {}],"id":1}`, transactionHash)

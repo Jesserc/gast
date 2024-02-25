@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/Jesserc/gast/cmd/tx/params"
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
@@ -19,17 +20,6 @@ type Trace struct {
 	Parent   *Trace   `json:"-"` // Exclude from JSON marshaling
 	Children []*Trace `json:"-"`
 }
-
-const (
-	colorReset  = "\033[0m"
-	colorRed    = "\033[31m"
-	colorGreen  = "\033[32m"
-	colorYellow = "\033[33m"
-	colorBlue   = "\033[34m"
-	colorPurple = "\033[35m"
-	colorCyan   = "\033[36m"
-	colorWhite  = "\033[37m"
-)
 
 func handleTraceTx(hash, rpcUrl string) (string, error) {
 	var (
@@ -92,23 +82,23 @@ func printTrace(trace *Trace, indentLevel int, isLastChild bool, prefix string) 
 	if indentLevel > 0 {
 		indent = strings.Repeat("    ", indentLevel-1) // Basic indentation for hierarchy level
 		if isLastChild {
-			currentPrefix = prefix + "└── " + colorGreen + "← " + colorReset
+			currentPrefix = prefix + "└── " + params.ColorGreen + "← " + params.ColorReset
 			prefix += "    " // Extend the prefix for child traces without a connecting line
 		} else {
-			currentPrefix = prefix + "├── " + colorGreen + "← " + colorReset
+			currentPrefix = prefix + "├── " + params.ColorGreen + "← " + params.ColorReset
 			prefix += "│   " // Add a vertical line for child traces
 		}
 	}
 	formattedInput := formatInput(trace.Input) // Format the input field
 	fmt.Printf("%s%s%sType:%s %s, %sFrom:%s %s, %sTo:%s %s, %sDepth:%s %d, %sInput:%s [%s]\n",
 		indent, currentPrefix,
-		colorGreen, colorReset,
-		trace.Type, colorGreen,
-		colorReset, trace.From,
-		colorGreen, colorReset,
-		trace.To, colorGreen,
-		colorReset, trace.Depth,
-		colorGreen, colorReset,
+		params.ColorGreen, params.ColorReset,
+		trace.Type, params.ColorGreen,
+		params.ColorReset, trace.From,
+		params.ColorGreen, params.ColorReset,
+		trace.To, params.ColorGreen,
+		params.ColorReset, trace.Depth,
+		params.ColorGreen, params.ColorReset,
 		formattedInput,
 	)
 

@@ -55,7 +55,7 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// gaspriceCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// gaspriceCmd.Flags().BoolP("toggle", "handleTraceTx", false, "Help message for toggle")
 }
 
 func fetchGasPrice() (string, error) {

@@ -45,5 +45,5 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// estimateGasCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// estimateGasCmd.Flags().BoolP("toggle", "handleTraceTx", false, "Help message for toggle")
 }

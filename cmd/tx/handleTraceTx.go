@@ -20,24 +20,36 @@ type Trace struct {
 	Children []*Trace `json:"-"`
 }
 
-func handleTraceTx(hash, rpcUrl string) (string, error) {
+const (
+	colorReset  = "\033[0m"
+	colorRed    = "\033[31m"
+	colorGreen  = "\033[32m"
+	colorYellow = "\033[33m"
+	colorBlue   = "\033[34m"
+	colorPurple = "\033[35m"
+	colorCyan   = "\033[36m"
+	colorWhite  = "\033[37m"
+)
 
-	client, err := rpc.Dial(rpcUrl)
-	if err != nil {
-		fmt.Println("line 15:", err)
-		return "", err
+func handleTraceTx(hash, rpcUrl string) (string, error) {
+	var (
+		client *rpc.Client
+		err    error
+	)
+
+	if rpcUrl == "" {
+		client, err = rpc.Dial("https://rpc.builder0x69.io/")
+		if err != nil {
+			return "", err
+		}
+	} else {
+		client, err = rpc.Dial(rpcUrl)
+		if err != nil {
+			return "", err
+		}
 	}
 
-	// params := map[string]interface{}{
-	// 	"tracer": "callTracer",
-	// 	"tracerConfig": map[string]interface{}{
-	// 		"onlyTopCall": false,
-	// 		"withLog":     true,
-	// 	},
-	// }
-
 	var result json.RawMessage
-	// err = client.CallContext(context.Background(), &result, "trace_transaction", hash, params)
 	err = client.CallContext(context.Background(), &result, "ots_traceTransaction", hash)
 	if err != nil {
 		return "", err
@@ -48,12 +60,9 @@ func handleTraceTx(hash, rpcUrl string) (string, error) {
 		return "", err
 	}
 
-	// Organize traces into a hierarchical structure
-	traceRoot := buildTraceHierarchy(traces)
+	rootTrace := buildTraceHierarchy(traces)
 
-	// Pretty print the trace
-	printTrace(traceRoot, 0)
-
+	printTrace(rootTrace, 0, false, "")
 	return "output", nil
 }
 
@@ -78,85 +87,40 @@ func buildTraceHierarchy(traces []Trace) *Trace {
 	return root // Return the root of the trace hierarchy
 }
 
-func printTrace(trace *Trace, indentLevel int) {
-	indent := strings.Repeat(" ", indentLevel*4)
-	fmt.Printf("%sType: %s, From: %s, To: %s, Depth: %d\n", indent, trace.Type, trace.From, trace.To, trace.Depth)
+func printTrace(trace *Trace, indentLevel int, isLastChild bool, prefix string) {
+	var indent, currentPrefix string
+	if indentLevel > 0 {
+		indent = strings.Repeat("    ", indentLevel-1) // Basic indentation for hierarchy level
+		if isLastChild {
+			currentPrefix = prefix + "└── " + colorGreen + "← " + colorReset
+			prefix += "    " // Extend the prefix for child traces without a connecting line
+		} else {
+			currentPrefix = prefix + "├── " + colorGreen + "← " + colorReset
+			prefix += "│   " // Add a vertical line for child traces
+		}
+	}
+	formattedInput := formatInput(trace.Input) // Format the input field
+	fmt.Printf("%s%s%sType:%s %s, %sFrom:%s %s, %sTo:%s %s, %sDepth:%s %d, %sInput:%s [%s]\n",
+		indent, currentPrefix,
+		colorGreen, colorReset,
+		trace.Type, colorGreen,
+		colorReset, trace.From,
+		colorGreen, colorReset,
+		trace.To, colorGreen,
+		colorReset, trace.Depth,
+		colorGreen, colorReset,
+		formattedInput,
+	)
 
-	for _, child := range trace.Children {
-		printTrace(child, indentLevel+1) // Recursively print children
+	for i, child := range trace.Children {
+		printTrace(child, indentLevel+1, i == len(trace.Children)-1, prefix) // Recursively print children
 	}
 }
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-/*
-func prettyPrintTraces(traces []TraceDetails, indentLevel int) {
-	if traces == nil {
-		return
+func formatInput(input string) string {
+	if len(input) <= 4 {
+		// If the input is 4 characters or fewer, just return it as is.
+		return input
 	}
-	var output string
-	for i, trace := range traces {
-		output += fmt.Sprintf("%sTrace %d:\n", strings.Repeat("\t", indentLevel), i+1)
-		output += fmt.Sprintf("%s\tCall Type: %s\n", strings.Repeat("\t", indentLevel), trace.Action.CallType)
-		output += fmt.Sprintf("%s\tFrom: %s\n", strings.Repeat("\t", indentLevel), trace.Action.From)
-		output += fmt.Sprintf("%s\tTo: %s\n", strings.Repeat("\t", indentLevel), trace.Action.To)
-		output += fmt.Sprintf("%s\tGas: %s\n", strings.Repeat("\t", indentLevel), trace.Action.Gas)
-		output += fmt.Sprintf("%s\tValue: %s\n", strings.Repeat("\t", indentLevel), trace.Action.Value)
-		output += fmt.Sprintf("%s\tInput: %s\n", strings.Repeat("\t", indentLevel), trace.Action.Input)
-		output += fmt.Sprintf("%s\tOutput: %s\n", strings.Repeat("\t", indentLevel), trace.Result.Output)
-		output += fmt.Sprintf("%s\tGas Used: %s\n", strings.Repeat("\t", indentLevel), trace.Result.GasUsed)
 
-	}
-	fmt.Println(output)
+	return input[:8] + "..." + input[len(input)-4:]
 }
-*/
-
-/*
-func run(rpcURL, transactionHash string)
-
-	// JSON-RPC request payload
-	requestData := fmt.Sprintf(`{"jsonrpc":"2.0","method":"trace_transaction","params":["%s", {}],"id":1}`, transactionHash)
-
-	// Send HTTP POST request to the RPC endpoint
-	response, err := http.Post(rpcURL, "application/json", strings.NewReader(requestData))
-	if err != nil {
-		fmt.Println("Error sending RPC request:", err)
-		return
-	}
-	defer response.Body.Close()
-
-	// Parse the JSON response
-	var result map[string]interface{}
-	if err := json.NewDecoder(response.Body).Decode(&result); err != nil {
-		fmt.Println("Error decoding JSON response:", err)
-		return
-	}
-
-	// Check for RPC errors
-	if errMsg, ok := result["error"].(map[string]interface{}); ok {
-		code := errMsg["code"].(float64)
-		message := errMsg["message"].(string)
-		fmt.Println("RPC error:", code, message)
-		return
-	}
-
-	// Extract the trace result from the response
-	traceResult := result["result"].(map[string]interface{})
-
-	// Print the trace result or handle it as needed
-	fmt.Println("Trace result:", traceResult)
-}*/

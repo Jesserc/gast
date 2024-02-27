@@ -9,7 +9,7 @@ import (
 	"log"
 	"math/big"
 
-	gastParam "github.com/Jesserc/gast/cmd/tx/params"
+	gastParam "github.com/Jesserc/gast/cmd/tx/gastParams"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"

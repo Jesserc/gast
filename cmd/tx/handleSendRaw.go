@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Jesserc/gast/cmd/tx/params"
+	"github.com/Jesserc/gast/cmd/tx/gastParams"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -122,14 +122,14 @@ func sendRawTransaction(rawTx, rpcURL string) (string, error) {
 	}
 
 	// Print the entire JSON with the added fields
-	fmt.Println(params.ColorGreen, "Transaction details:", params.ColorReset)
+	fmt.Println(gastParams.ColorGreen, "Transaction details:", gastParams.ColorReset)
 	fmt.Println(string(txJSON))
-	
+
 	transactionReceipt, err := client.TransactionReceipt(context.Background(), common.HexToHash(txDetails.Hash))
 	if err != nil {
 		return "", err
 	}
-	fmt.Println(params.ColorGreen, "Transaction receipt:", params.ColorReset)
+	fmt.Println(gastParams.ColorGreen, "Transaction receipt:", gastParams.ColorReset)
 	fmt.Println(transactionReceipt)
 
 	return transactionURL, nil

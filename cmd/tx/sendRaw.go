@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Jesserc/gast/cmd/tx/params"
+	"github.com/Jesserc/gast/cmd/tx/gastParams"
 	"github.com/spf13/cobra"
 )
 
@@ -17,20 +17,20 @@ var SendRawCmd = &cobra.Command{
 	Short: "A brief description of your command",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		txReceipt, err := sendRawTransaction(params.RawTxValue, params.TxRpcUrlValue)
+		txReceipt, err := sendRawTransaction(gastParams.RawTxValue, gastParams.TxRpcUrlValue)
 		if err != nil {
-			fmt.Printf("%s%s%s\n", params.ColorRed, err, params.ColorReset)
+			fmt.Printf("%s%s%s\n", gastParams.ColorRed, err, gastParams.ColorReset)
 			os.Exit(1)
 		}
 
-		fmt.Printf("%sReceipt:%s %s\n", params.ColorGreen, params.ColorReset, txReceipt)
+		fmt.Printf("%sReceipt:%s %s\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt)
 	},
 }
 
 func init() {
 	// Flags and configuration settings.
-	SendRawCmd.Flags().StringVarP(&params.RawTxValue, "raw-tx", "r", "", "raw transaction to send")
-	SendRawCmd.Flags().StringVarP(&params.TxRpcUrlValue, "rpc-url", "u", "", "specify RPC url for transaction")
+	SendRawCmd.Flags().StringVarP(&gastParams.RawTxValue, "raw-tx", "r", "", "raw transaction to send")
+	SendRawCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "rpc-url", "u", "", "specify RPC url for transaction")
 
 	SendRawCmd.MarkFlagRequired("raw-tx")
 	SendRawCmd.MarkFlagRequired("rpc-url")

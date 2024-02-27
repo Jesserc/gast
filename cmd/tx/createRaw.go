@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Jesserc/gast/cmd/tx/params"
+	"github.com/Jesserc/gast/cmd/tx/gastParams"
 	"github.com/spf13/cobra"
 )
 
@@ -18,31 +18,31 @@ var createRawCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		signedMessageRaw, err := createRawTransaction(
-			params.TxRpcUrlValue,
-			params.ToValue,
-			params.TxDataValue,
-			params.PrivKeyValue,
-			params.GasLimitValue,
-			params.WeiValue,
+			gastParams.TxRpcUrlValue,
+			gastParams.ToValue,
+			gastParams.TxDataValue,
+			gastParams.PrivKeyValue,
+			gastParams.GasLimitValue,
+			gastParams.WeiValue,
 		)
 		if err != nil {
-			fmt.Printf("%s%s%s\n", params.ColorRed, err, params.ColorReset)
+			fmt.Printf("%s%s%s\n", gastParams.ColorRed, err, gastParams.ColorReset)
 			os.Exit(1)
 		}
-		fmt.Printf("%sraw signed message:%s %s\n", params.ColorGreen, params.ColorReset, signedMessageRaw)
+		fmt.Printf("%sraw signed message:%s %s\n", gastParams.ColorGreen, gastParams.ColorReset, signedMessageRaw)
 	},
 }
 
 func init() {
 
 	// Flags and configuration settings.
-	createRawCmd.Flags().StringVarP(&params.TxRpcUrlValue, "url", "u", "", "RPC url")
-	createRawCmd.Flags().StringVarP(&params.ToValue, "to", "t", "", "recipient")
-	createRawCmd.Flags().StringVarP(&params.TxDataValue, "data", "d", "", "transaction data (optional)")
-	createRawCmd.Flags().StringVarP(&params.PrivKeyValue, "private-key", "p", "", "private key to sign transaction")
-	createRawCmd.Flags().Uint64VarP(&params.GasLimitValue, "gas-limit", "l", 0, "max gas limit")
-	createRawCmd.Flags().Uint64VarP(&params.WeiValue, "wei", "w", 0, "amount to send (optional)")
-	createRawCmd.Flags().Uint64VarP(&params.NonceValue, "nonce", "n", 0, "transaction nonce")
+	createRawCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "url", "u", "", "RPC url")
+	createRawCmd.Flags().StringVarP(&gastParams.ToValue, "to", "t", "", "recipient")
+	createRawCmd.Flags().StringVarP(&gastParams.TxDataValue, "data", "d", "", "transaction data (optional)")
+	createRawCmd.Flags().StringVarP(&gastParams.PrivKeyValue, "private-key", "p", "", "private key to sign transaction")
+	createRawCmd.Flags().Uint64VarP(&gastParams.GasLimitValue, "gas-limit", "l", 0, "max gas limit")
+	createRawCmd.Flags().Uint64VarP(&gastParams.WeiValue, "wei", "w", 0, "amount to send (optional)")
+	createRawCmd.Flags().Uint64VarP(&gastParams.NonceValue, "nonce", "n", 0, "transaction nonce")
 
 	createRawCmd.MarkFlagRequired("url")
 	createRawCmd.MarkFlagRequired("to")

@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Jesserc/gast/cmd/tx/params"
+	"github.com/Jesserc/gast/cmd/tx/gastParams"
 	"github.com/spf13/cobra"
 )
 
@@ -17,22 +17,22 @@ var EstimateGasCmd = &cobra.Command{
 	Short: "A brief description of your command",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		estimatedTxGas, err := estimateGas(params.TxRpcUrlValue, params.FromValue, params.ToValue, params.TxDataValue, params.WeiValue)
+		estimatedTxGas, err := estimateGas(gastParams.TxRpcUrlValue, gastParams.FromValue, gastParams.ToValue, gastParams.TxDataValue, gastParams.WeiValue)
 		if err != nil {
-			fmt.Printf("%s%s%s\n", params.ColorRed, err.Error(), params.ColorReset)
+			fmt.Printf("%s%s%s\n", gastParams.ColorRed, err.Error(), gastParams.ColorReset)
 			os.Exit(1)
 		}
-		fmt.Printf("Estimated gas: %s%d%s\n", params.ColorGreen, estimatedTxGas, params.ColorReset)
+		fmt.Printf("Estimated gas: %s%d%s\n", gastParams.ColorGreen, estimatedTxGas, gastParams.ColorReset)
 	},
 }
 
 func init() {
 	// Flags and configuration settings.
-	EstimateGasCmd.Flags().StringVarP(&params.TxRpcUrlValue, "url", "u", "", "RPC url")
-	EstimateGasCmd.Flags().StringVarP(&params.FromValue, "from", "f", "", "sender")
-	EstimateGasCmd.Flags().StringVarP(&params.ToValue, "to", "t", "", "recipient")
-	EstimateGasCmd.Flags().StringVarP(&params.TxDataValue, "data", "d", "", "data")
-	EstimateGasCmd.Flags().Uint64VarP(&params.WeiValue, "wei", "w", 0, "wei")
+	EstimateGasCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "url", "u", "", "RPC url")
+	EstimateGasCmd.Flags().StringVarP(&gastParams.FromValue, "from", "f", "", "sender")
+	EstimateGasCmd.Flags().StringVarP(&gastParams.ToValue, "to", "t", "", "recipient")
+	EstimateGasCmd.Flags().StringVarP(&gastParams.TxDataValue, "data", "d", "", "data")
+	EstimateGasCmd.Flags().Uint64VarP(&gastParams.WeiValue, "wei", "w", 0, "wei")
 
 	EstimateGasCmd.MarkFlagRequired("url")
 	EstimateGasCmd.MarkFlagRequired("from")

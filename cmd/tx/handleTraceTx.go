@@ -8,7 +8,7 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/Jesserc/gast/cmd/tx/params"
+	"github.com/Jesserc/gast/cmd/tx/gastParams"
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
@@ -87,27 +87,27 @@ func printTrace(trace *Trace, indentLevel int, isLastChild bool, prefix string) 
 	if indentLevel > 0 {
 		indent = strings.Repeat("", indentLevel-1) // Basic indentation for hierarchy level
 		if isLastChild {
-			currentPrefix = prefix + "└── " + params.ColorGreen + "← " + params.ColorReset
+			currentPrefix = prefix + "└── " + gastParams.ColorGreen + "← " + gastParams.ColorReset
 			prefix += "    " // Extend the prefix for child traces without a connecting line
 		} else {
-			currentPrefix = prefix + "├── " + params.ColorGreen + "← " + params.ColorReset
+			currentPrefix = prefix + "├── " + gastParams.ColorGreen + "← " + gastParams.ColorReset
 			prefix += "│   " // Add a vertical line for child traces
 		}
 	}
 	formattedInput := formatInput(trace.Input) // Format the input field
 	fmt.Printf("%s%s%sType:%s %s, %sFrom:%s %s, %sTo:%s %s, %sDepth:%s %d, %sValue:%s %s, %sInput:%s [%s]\n",
 		indent, currentPrefix,
-		params.ColorGreen, params.ColorReset,
+		gastParams.ColorGreen, gastParams.ColorReset,
 		trace.Type,
-		params.ColorGreen, params.ColorReset,
+		gastParams.ColorGreen, gastParams.ColorReset,
 		trace.From,
-		params.ColorGreen, params.ColorReset,
+		gastParams.ColorGreen, gastParams.ColorReset,
 		trace.To,
-		params.ColorGreen, params.ColorReset,
+		gastParams.ColorGreen, gastParams.ColorReset,
 		trace.Depth,
-		params.ColorGreen, params.ColorReset,
+		gastParams.ColorGreen, gastParams.ColorReset,
 		hexToEther(trace.Value),
-		params.ColorGreen, params.ColorReset,
+		gastParams.ColorGreen, gastParams.ColorReset,
 		formattedInput,
 	)
 

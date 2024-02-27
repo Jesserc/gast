@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Jesserc/gast/cmd/tx/params"
+	"github.com/Jesserc/gast/cmd/tx/gastParams"
 	"github.com/spf13/cobra"
 )
 
@@ -18,9 +18,9 @@ var TraceTxCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		// fmt.Println("traceTx called")
-		_, err := handleTraceTx(params.TxHashValue, params.TxRpcUrlValue)
+		_, err := handleTraceTx(gastParams.TxHashValue, gastParams.TxRpcUrlValue)
 		if err != nil {
-			fmt.Printf("%s%s%s\n", params.ColorRed, err.Error(), params.ColorReset)
+			fmt.Printf("%s%s%s\n", gastParams.ColorRed, err.Error(), gastParams.ColorReset)
 			os.Exit(1)
 		}
 
@@ -30,8 +30,8 @@ var TraceTxCmd = &cobra.Command{
 
 func init() {
 	// Flags and configuration settings.
-	TraceTxCmd.Flags().StringVar(&params.TxHashValue, "hash", "", "Transaction hash to trace")
-	TraceTxCmd.Flags().StringVarP(&params.TxRpcUrlValue, "url", "u", "", "RPC url")
+	TraceTxCmd.Flags().StringVar(&gastParams.TxHashValue, "hash", "", "Transaction hash to trace")
+	TraceTxCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "url", "u", "", "RPC url")
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:

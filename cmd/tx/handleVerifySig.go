@@ -1,43 +1,39 @@
 package transaction
 
 import (
-	"bytes"
-	"fmt"
 	"log"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
 // handleVerifySig verifies the signature against the provided public key bytes and hash.
-func handleVerifySig(sigString, pubKey string, hash common.Hash) bool {
-	crypto.DecompressPubkey([]byte(pubKey))
+func handleVerifySig(signature, address, hashStr string) bool {
+	sig := []byte(signature)
 
-	pubKeyBytes := []byte(pubKey)
-	sig := []byte(sigString)
-
-	// Adjust signature to standard format
+	// Adjust signature to standard format (remove Ethereum's recovery ID)
 	sig[64] = sig[64] - 27
 
-	// Recover the public key from the signature
-	sigPublicKey, err := crypto.Ecrecover(hash.Bytes(), sig)
-	if err != nil {
-		log.Fatal(err)
-	}
-	pub, err := crypto.UnmarshalPubkey(sigPublicKey)
-	if err != nil {
-		log.Fatal(err)
-	}
+	// Convert hash string to common.Hash (github.com/ethereum/go-ethereum/common)
+	hash := common.HexToHash(hashStr)
 
-	// Check if the recovered public key matches the provided public key bytes
-	fmt.Println(bytes.Equal(sigPublicKey, pubKeyBytes))
+	// Recover the public key bytes from the signature
+	sigPublicKeyBytes, err := crypto.Ecrecover(hash.Bytes(), sig)
+	if err != nil {
+		log.Fatal(err)
+	}
+	ecdsaPublicKey, err := crypto.UnmarshalPubkey(sigPublicKeyBytes)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Derive the address from the recovered public key
-	rAddress := crypto.PubkeyToAddress(*pub)
+	rAddress := crypto.PubkeyToAddress(*ecdsaPublicKey)
 
-	// Print the recovered address
-	fmt.Println("Recovered address:", rAddress)
+	// Check if the recovered address matches the provided address
+	equals := strings.EqualFold(rAddress.String(), address)
 
 	// Verify if the recovered public key matches the provided public key bytes
-	return bytes.Equal(sigPublicKey, pubKeyBytes)
+	return equals
 }

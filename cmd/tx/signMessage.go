@@ -19,11 +19,11 @@ var SignCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		signedMessageHash, err := signMessage(
-			params.TxData,
-			params.PrivKey,
+			params.TxDataValue,
+			params.PrivKeyValue,
 		)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Printf("%s%s%s\n", params.ColorRed, err.Error(), params.ColorReset)
 			os.Exit(1)
 		}
 		fmt.Println("signed message:\n", signedMessageHash)
@@ -32,8 +32,8 @@ var SignCmd = &cobra.Command{
 
 func init() {
 	// Flags and configuration settings.
-	SignCmd.Flags().StringVarP(&params.TxData, "data", "d", "", "message to sign")
-	SignCmd.Flags().StringVarP(&params.PrivKey, "private-key", "p", "", "private key to sign transaction")
+	SignCmd.Flags().StringVarP(&params.TxDataValue, "data", "d", "", "message to sign")
+	SignCmd.Flags().StringVarP(&params.PrivKeyValue, "private-key", "p", "", "private key to sign transaction")
 
 	SignCmd.MarkFlagRequired("data")
 	SignCmd.MarkFlagRequired("private-key")

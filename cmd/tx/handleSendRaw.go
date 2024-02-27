@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/Jesserc/gast/cmd/tx/params"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rlp"
@@ -120,8 +122,15 @@ func sendRawTransaction(rawTx, rpcURL string) (string, error) {
 	}
 
 	// Print the entire JSON with the added fields
-	fmt.Println("Transaction details:")
+	fmt.Println(params.ColorGreen, "Transaction details:", params.ColorReset)
 	fmt.Println(string(txJSON))
+	
+	transactionReceipt, err := client.TransactionReceipt(context.Background(), common.HexToHash(txDetails.Hash))
+	if err != nil {
+		return "", err
+	}
+	fmt.Println(params.ColorGreen, "Transaction receipt:", params.ColorReset)
+	fmt.Println(transactionReceipt)
 
 	return transactionURL, nil
 }
@@ -154,4 +163,24 @@ func convertHexField(tx *Transaction, field string) error {
 	txValue.FieldByName(field).SetString(decimalStr)
 
 	return nil
+}
+
+type Tx struct {
+	Type                 string        `json:"type"`
+	ChainId              string        `json:"chainId"`
+	Nonce                string        `json:"nonce"`
+	To                   string        `json:"to"`
+	Gas                  string        `json:"gas"`
+	MaxPriorityFeePerGas string        `json:"maxPriorityFeePerGas"`
+	MaxFeePerGas         string        `json:"maxFeePerGas"`
+	Value                string        `json:"value"`
+	Input                string        `json:"input"`
+	AccessList           []interface{} `json:"accessList"`
+	V                    string        `json:"v"`
+	R                    string        `json:"r"`
+	S                    string        `json:"s"`
+	YParity              string        `json:"yParity"`
+	Hash                 string        `json:"hash"`
+	TransactionTime      string        `json:"transactionTime"`
+	TransactionCost      string        `json:"transactionCost"`
 }

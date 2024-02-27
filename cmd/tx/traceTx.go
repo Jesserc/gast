@@ -18,9 +18,9 @@ var TraceTxCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		// fmt.Println("traceTx called")
-		_, err := handleTraceTx(params.TxHash, params.TxRpcUrl)
+		_, err := handleTraceTx(params.TxHashValue, params.TxRpcUrlValue)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Printf("%s%s%s\n", params.ColorRed, err.Error(), params.ColorReset)
 			os.Exit(1)
 		}
 
@@ -30,8 +30,8 @@ var TraceTxCmd = &cobra.Command{
 
 func init() {
 	// Flags and configuration settings.
-	TraceTxCmd.Flags().StringVar(&params.TxHash, "hash", "", "Transaction hash to trace")
-	TraceTxCmd.Flags().StringVarP(&params.TxRpcUrl, "url", "u", "", "RPC url")
+	TraceTxCmd.Flags().StringVar(&params.TxHashValue, "hash", "", "Transaction hash to trace")
+	TraceTxCmd.Flags().StringVarP(&params.TxRpcUrlValue, "url", "u", "", "RPC url")
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:

@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
+	"math/big"
 	"strings"
 
 	"github.com/Jesserc/gast/cmd/tx/params"
@@ -44,6 +46,9 @@ func handleTraceTx(hash, rpcUrl string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	// indent, _ := json.MarshalIndent(result, " ", "\t")
+	//
+	// fmt.Println(string(indent))
 
 	var traces []Trace
 	if err := json.Unmarshal(result, &traces); err != nil {
@@ -80,7 +85,7 @@ func buildTraceHierarchy(traces []Trace) *Trace {
 func printTrace(trace *Trace, indentLevel int, isLastChild bool, prefix string) {
 	var indent, currentPrefix string
 	if indentLevel > 0 {
-		indent = strings.Repeat("    ", indentLevel-1) // Basic indentation for hierarchy level
+		indent = strings.Repeat("", indentLevel-1) // Basic indentation for hierarchy level
 		if isLastChild {
 			currentPrefix = prefix + "└── " + params.ColorGreen + "← " + params.ColorReset
 			prefix += "    " // Extend the prefix for child traces without a connecting line
@@ -90,14 +95,18 @@ func printTrace(trace *Trace, indentLevel int, isLastChild bool, prefix string) 
 		}
 	}
 	formattedInput := formatInput(trace.Input) // Format the input field
-	fmt.Printf("%s%s%sType:%s %s, %sFrom:%s %s, %sTo:%s %s, %sDepth:%s %d, %sInput:%s [%s]\n",
+	fmt.Printf("%s%s%sType:%s %s, %sFrom:%s %s, %sTo:%s %s, %sDepth:%s %d, %sValue:%s %s, %sInput:%s [%s]\n",
 		indent, currentPrefix,
 		params.ColorGreen, params.ColorReset,
-		trace.Type, params.ColorGreen,
-		params.ColorReset, trace.From,
+		trace.Type,
 		params.ColorGreen, params.ColorReset,
-		trace.To, params.ColorGreen,
-		params.ColorReset, trace.Depth,
+		trace.From,
+		params.ColorGreen, params.ColorReset,
+		trace.To,
+		params.ColorGreen, params.ColorReset,
+		trace.Depth,
+		params.ColorGreen, params.ColorReset,
+		hexToEther(trace.Value),
 		params.ColorGreen, params.ColorReset,
 		formattedInput,
 	)
@@ -106,11 +115,40 @@ func printTrace(trace *Trace, indentLevel int, isLastChild bool, prefix string) 
 		printTrace(child, indentLevel+1, i == len(trace.Children)-1, prefix) // Recursively print children
 	}
 }
+
 func formatInput(input string) string {
 	if len(input) <= 4 {
 		// If the input is 4 characters or fewer, just return it as is.
 		return input
 	}
 
-	return input[:8] + "..." + input[len(input)-4:]
+	return input[:8] + "..." + input[len(input)-2:]
+}
+
+func hexToEther(hexValueStr string) string {
+	// Check if hexValueStr is empty or invalid
+	if hexValueStr == "" || (len(hexValueStr) > 2 && hexValueStr[:2] != "0x") {
+		return "0 ETH"
+	}
+
+	// Remove leading "0x" if present
+	if len(hexValueStr) > 2 {
+		hexValueStr = hexValueStr[2:]
+	}
+
+	// Use big.Int for accuracy throughout
+	hexValueBig, ok := new(big.Int).SetString(hexValueStr, 16)
+	if !ok {
+		log.Fatalf("hexToEther - failed to convert hex to Ether value: %s", hexValueStr)
+	}
+
+	// Check if the value is zero before performing division
+	if hexValueBig.Cmp(big.NewInt(0)) == 0 {
+		return "0 ETH"
+	}
+
+	// Use big.Rat for precise division, then convert to string with formatting
+	Ether := new(big.Rat).SetInt(big.NewInt(1e18))
+	valueInEther := new(big.Rat).Quo(new(big.Rat).SetInt(hexValueBig), Ether)
+	return valueInEther.FloatString(9) + " ETH"
 }

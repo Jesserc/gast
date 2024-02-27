@@ -1,16 +1,16 @@
 package params
 
 var (
-	RawTx    string
-	PrivKey  string
-	TxData   string
-	To       string
-	From     string
-	TxRpcUrl string
-	TxHash   string
-	GasLimit uint64
-	Nonce    uint64
-	Wei      uint64
+	RawTxValue    string
+	PrivKeyValue  string
+	TxDataValue   string
+	ToValue       string
+	FromValue     string
+	TxRpcUrlValue string
+	TxHashValue   string
+	GasLimitValue uint64
+	NonceValue    uint64
+	WeiValue      uint64
 )
 
 const (

@@ -18,31 +18,31 @@ var createRawCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		signedMessageRaw, err := createRawTransaction(
-			params.TxRpcUrl,
-			params.To,
-			params.TxData,
-			params.PrivKey,
-			params.GasLimit,
-			params.Wei,
+			params.TxRpcUrlValue,
+			params.ToValue,
+			params.TxDataValue,
+			params.PrivKeyValue,
+			params.GasLimitValue,
+			params.WeiValue,
 		)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Printf("%s%s%s\n", params.ColorRed, err, params.ColorReset)
 			os.Exit(1)
 		}
-		fmt.Println("\nraw signed message:", signedMessageRaw)
+		fmt.Printf("%sraw signed message:%s %s\n", params.ColorGreen, params.ColorReset, signedMessageRaw)
 	},
 }
 
 func init() {
 
 	// Flags and configuration settings.
-	createRawCmd.Flags().StringVarP(&params.TxRpcUrl, "url", "u", "", "RPC url")
-	createRawCmd.Flags().StringVarP(&params.To, "to", "t", "", "recipient")
-	createRawCmd.Flags().StringVarP(&params.TxData, "data", "d", "", "transaction data (optional)")
-	createRawCmd.Flags().StringVarP(&params.PrivKey, "private-key", "p", "", "private key to sign transaction")
-	createRawCmd.Flags().Uint64VarP(&params.GasLimit, "gas-limit", "l", 0, "max gas limit")
-	createRawCmd.Flags().Uint64VarP(&params.Wei, "wei", "w", 0, "amount to send (optional)")
-	createRawCmd.Flags().Uint64VarP(&params.Nonce, "nonce", "n", 0, "transaction nonce")
+	createRawCmd.Flags().StringVarP(&params.TxRpcUrlValue, "url", "u", "", "RPC url")
+	createRawCmd.Flags().StringVarP(&params.ToValue, "to", "t", "", "recipient")
+	createRawCmd.Flags().StringVarP(&params.TxDataValue, "data", "d", "", "transaction data (optional)")
+	createRawCmd.Flags().StringVarP(&params.PrivKeyValue, "private-key", "p", "", "private key to sign transaction")
+	createRawCmd.Flags().Uint64VarP(&params.GasLimitValue, "gas-limit", "l", 0, "max gas limit")
+	createRawCmd.Flags().Uint64VarP(&params.WeiValue, "wei", "w", 0, "amount to send (optional)")
+	createRawCmd.Flags().Uint64VarP(&params.NonceValue, "nonce", "n", 0, "transaction nonce")
 
 	createRawCmd.MarkFlagRequired("url")
 	createRawCmd.MarkFlagRequired("to")

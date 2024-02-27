@@ -9,6 +9,7 @@ import (
 	"log"
 	"math/big"
 
+	gastParam "github.com/Jesserc/gast/cmd/tx/params"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -26,7 +27,14 @@ func createRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uin
 	}
 
 	ctx := context.Background()
+	fmt.Println(len([]byte("0x4924Fb92285Cb10BC440E6fb4A53c2B94f2930c5")))
+	pubkey, err := crypto.DecompressPubkey([]byte("0x4924Fb92285Cb10BC440E6fb4A53c2B94f2930c5"))
+	if err != nil {
+		fmt.Println(err)
+	}
 
+	fmt.Println(pubkey)
+	common.HexToAddress("0x4924Fb92285Cb10BC440E6fb4A53c2B94f2930c5")
 	// Get chain ID
 	chainID, err := client.ChainID(ctx)
 	if err != nil {
@@ -38,19 +46,21 @@ func createRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uin
 	if err != nil {
 		return "", err
 	}
-	fmt.Println("base fee:", baseFee)
+	fmt.Printf("%sbase fee:%s %s\n", gastParam.ColorGreen, gastParam.ColorReset, baseFee)
 
-	// Get gas tip cap
-	gasTipCap, err := client.SuggestGasTipCap(context.Background())
+	// Get priority fee
+	priorityFee, err := client.SuggestGasTipCap(context.Background())
 	if err != nil {
 		return "", err
 	}
+	fmt.Printf("%spriority fee:%s %s\n", gastParam.ColorGreen, gastParam.ColorReset, priorityFee)
 
 	// Calculate gas fee cap with 2 Gwei margin
-	increment := big.NewInt(params.GWei)
-	gasFeeCap := new(big.Int).Add(gasTipCap, increment)
+	increment := new(big.Int).Add(baseFee, big.NewInt(2*params.GWei))
+	fmt.Println(increment)
+	gasFeeCap := new(big.Int).Add(increment, priorityFee) /* .Add(increment, big.NewInt(0)) */
 
-	fmt.Println("max fee: per gas", gasFeeCap)
+	fmt.Printf("%smax fee per gas:%s %s\n", gastParam.ColorGreen, gastParam.ColorReset, gasFeeCap)
 
 	// Decode private key
 	pKeyBytes, err := hexutil.Decode("0x" + privateKey)
@@ -90,7 +100,7 @@ func createRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uin
 	txData := types.DynamicFeeTx{
 		ChainID:   chainID,
 		Nonce:     nonce,
-		GasTipCap: gasTipCap,
+		GasTipCap: priorityFee,
 		GasFeeCap: gasFeeCap,
 		Gas:       gasLimit,
 		To:        &toAddr,
@@ -102,7 +112,6 @@ func createRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uin
 
 	signedTx, err := types.SignTx(tx, types.LatestSignerForChainID(chainID), ecdsaPrivateKey)
 	if err != nil {
-		fmt.Println("line 82:", err)
 		return "", err
 	}
 

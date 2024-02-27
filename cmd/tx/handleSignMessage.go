@@ -1,7 +1,6 @@
 package transaction
 
 import (
-	"bytes"
 	"crypto/ecdsa"
 	"encoding/json"
 	"fmt"
@@ -39,7 +38,7 @@ func signMessage(message, privateKey string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
+	fmt.Println(len(sig))
 	// Adjust signature to Ethereum's format
 	sig[64] = sig[64] + 27
 
@@ -60,10 +59,10 @@ func signMessage(message, privateKey string) (string, error) {
 	}
 
 	// Marshal the response to JSON with proper formatting
-	var w bytes.Buffer
-	var v bytes.Buffer
-	json.NewEncoder(&w).Encode(res)
-	json.Indent(&v, w.Bytes(), " ", "\t")
+	resBytes, err := json.MarshalIndent(res, " ", "\t")
+	if err != nil {
+		return "", err
+	}
 
-	return v.String(), nil
+	return string(resBytes), nil
 }

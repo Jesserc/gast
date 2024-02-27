@@ -15,7 +15,7 @@ var (
 	TxHashValue string // used for transaction tracing
 
 	SigValue        string
-	SigHashValue    string
+	SigMsgValue     string
 	SigAddressValue string
 )
 

@@ -23,7 +23,7 @@ type Trace struct {
 	Children []*Trace `json:"-"`
 }
 
-func handleTraceTx(hash, rpcUrl string) (string, error) {
+func handleTraceTx(hash, rpcUrl string) (*Trace, error) {
 	var (
 		client *rpc.Client
 		err    error
@@ -32,33 +32,29 @@ func handleTraceTx(hash, rpcUrl string) (string, error) {
 	if rpcUrl == "" {
 		client, err = rpc.Dial("https://rpc.builder0x69.io/")
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 	} else {
 		client, err = rpc.Dial(rpcUrl)
 		if err != nil {
-			return "", err
+			return nil, err
 		}
 	}
 
 	var result json.RawMessage
 	err = client.CallContext(context.Background(), &result, "ots_traceTransaction", hash)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	// indent, _ := json.MarshalIndent(result, " ", "\t")
-	//
-	// fmt.Println(string(indent))
 
 	var traces []Trace
 	if err := json.Unmarshal(result, &traces); err != nil {
-		return "", err
+		return nil, err
 	}
 
 	rootTrace := buildTraceHierarchy(traces)
 
-	printTrace(rootTrace, 0, false, "")
-	return "output", nil
+	return rootTrace, nil
 }
 
 func buildTraceHierarchy(traces []Trace) *Trace {

@@ -19,7 +19,7 @@ var cfgFile string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "gast",
-	Short: "A brief description of your application",
+	Short: "Gast is an Ethereum toolkit designed to streamline the management of transactions and gas prices directly from the command line",
 	Long:  ``,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:

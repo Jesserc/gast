@@ -14,7 +14,7 @@ import (
 // createRawCmd represents the createRaw command
 var createRawCmd = &cobra.Command{
 	Use:   "create-raw",
-	Short: "A brief description of your command",
+	Short: "Generates a raw, unsigned EIP-1559 transaction",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		signedMessageRaw, err := createRawTransaction(
@@ -44,8 +44,6 @@ func init() {
 	createRawCmd.Flags().Uint64VarP(&gastParams.WeiValue, "wei", "w", 0, "amount to send (optional)")
 	createRawCmd.Flags().Uint64VarP(&gastParams.NonceValue, "nonce", "n", 0, "transaction nonce")
 
-	createRawCmd.MarkFlagRequired("url")
-	createRawCmd.MarkFlagRequired("to")
-	createRawCmd.MarkFlagRequired("private-key")
-	createRawCmd.MarkFlagRequired("gas-limit")
+	// Mark flags required
+	createRawCmd.MarkFlagsRequiredTogether("url", "to", "private-key", "gas-limit")
 }

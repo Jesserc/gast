@@ -26,17 +26,8 @@ func createRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uin
 		return "", err
 	}
 
-	ctx := context.Background()
-	fmt.Println(len([]byte("0x4924Fb92285Cb10BC440E6fb4A53c2B94f2930c5")))
-	pubkey, err := crypto.DecompressPubkey([]byte("0x4924Fb92285Cb10BC440E6fb4A53c2B94f2930c5"))
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println(pubkey)
-	common.HexToAddress("0x4924Fb92285Cb10BC440E6fb4A53c2B94f2930c5")
 	// Get chain ID
-	chainID, err := client.ChainID(ctx)
+	chainID, err := client.ChainID(context.Background())
 	if err != nil {
 		return "", err
 	}
@@ -57,7 +48,6 @@ func createRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uin
 
 	// Calculate gas fee cap with 2 Gwei margin
 	increment := new(big.Int).Add(baseFee, big.NewInt(2*params.GWei))
-	fmt.Println(increment)
 	gasFeeCap := new(big.Int).Add(increment, priorityFee) /* .Add(increment, big.NewInt(0)) */
 
 	fmt.Printf("%smax fee per gas:%s %s\n", gastParam.ColorGreen, gastParam.ColorReset, gasFeeCap)

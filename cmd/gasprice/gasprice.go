@@ -6,8 +6,9 @@ package gasprice
 
 import (
 	"fmt"
-	"log"
+	"os"
 
+	"github.com/Jesserc/gast/cmd/tx/gastParams"
 	"github.com/spf13/cobra"
 )
 
@@ -19,23 +20,15 @@ var (
 // GaspriceCmd represents the gasprice command
 var GaspriceCmd = &cobra.Command{
 	Use:   "gas-price",
-	Short: "Get the current gas price",
-	Long:  "Get the current gas price",
+	Short: "Fetches the current gas price from specified Ethereum networks",
+	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
-		// Check if any flag is provided
-		if !(eth || op || arb || base || linea || zkSync) && rpcUrl == "" {
-			// If no flag is provided, print usage and return
-			cmd.Usage()
-			return
-		}
-
-		// If flags are provided, get gas price
 		gPrice, err := fetchGasPrice()
 		if err != nil {
-			log.Printf("%v: run gast help gasprice for all commands\n", err)
-			return
+			fmt.Printf("%s%s%s\n", gastParams.ColorRed, err, gastParams.ColorReset)
+			os.Exit(1)
 		}
-		fmt.Printf("Current gas price: %v\n", gPrice)
+		fmt.Printf("%ssuggested gas price: %s%v\n", gastParams.ColorGreen, gastParams.ColorReset, gPrice)
 	},
 }
 
@@ -49,13 +42,7 @@ func init() {
 	GaspriceCmd.Flags().BoolVarP(&zkSync, "zksync", "", false, "Use default zkSync RPC URL")
 	GaspriceCmd.Flags().StringVarP(&rpcUrl, "url", "u", "", "specify RPC url for gas price")
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// gaspriceCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// gaspriceCmd.Flags().BoolP("toggle", "handleTraceTx", false, "Help message for toggle")
+	GaspriceCmd.MarkFlagsOneRequired("eth", "op", "arb", "base", "linea", "zksync", "url")
 }
 
 func fetchGasPrice() (string, error) {

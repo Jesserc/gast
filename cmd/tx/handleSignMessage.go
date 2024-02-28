@@ -38,7 +38,7 @@ func signMessage(message, privateKey string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	fmt.Println(len(sig))
+
 	// Adjust signature to Ethereum's format
 	sig[64] = sig[64] + 27
 

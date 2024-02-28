@@ -14,7 +14,7 @@ import (
 // VerifySigCmd represents the verifySig command
 var VerifySigCmd = &cobra.Command{
 	Use:   "verify-sig",
-	Short: "A brief description of your command",
+	Short: "Verifies the signature of a signed message (can be created with the sign-message command)",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		isSigner, err := handleVerifySig(gastParams.SigValue, gastParams.SigAddressValue, gastParams.SigMsgValue)
@@ -22,7 +22,6 @@ var VerifySigCmd = &cobra.Command{
 			fmt.Printf("%s%s%s\n", gastParams.ColorRed, err, gastParams.ColorReset)
 			os.Exit(1)
 		}
-
 		if isSigner {
 			fmt.Printf("%s %ssigned%s \"%s\"\n", gastParams.SigAddressValue, gastParams.ColorGreen, gastParams.ColorReset, gastParams.SigMsgValue)
 		} else {
@@ -33,7 +32,7 @@ var VerifySigCmd = &cobra.Command{
 }
 
 func init() {
-	// Flags and configuration settings.
+	// Flags and configuration settings
 	VerifySigCmd.Flags().StringVarP(&gastParams.SigValue, "sig", "s", "", "Signed message to verify")
 	VerifySigCmd.Flags().StringVarP(&gastParams.SigAddressValue, "address", "a", "", "Message signer address")
 	VerifySigCmd.Flags().StringVarP(&gastParams.SigMsgValue, "msg", "m", "", "Original message")

@@ -14,10 +14,9 @@ import (
 // SignCmd represents the signMessage command
 var SignCmd = &cobra.Command{
 	Use:   "sign-message",
-	Short: "A brief description of your command",
+	Short: "Signs a given message with the private key",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-
 		signedMessageHash, err := signMessage(
 			gastParams.TxDataValue,
 			gastParams.PrivKeyValue,
@@ -32,9 +31,9 @@ var SignCmd = &cobra.Command{
 
 func init() {
 	// Flags and configuration settings.
-	SignCmd.Flags().StringVarP(&gastParams.TxDataValue, "data", "d", "", "message to sign")
+	SignCmd.Flags().StringVarP(&gastParams.TxDataValue, "message", "m", "", "message to sign")
 	SignCmd.Flags().StringVarP(&gastParams.PrivKeyValue, "private-key", "p", "", "private key to sign transaction")
 
 	// Mark flags required
-	SignCmd.MarkFlagsRequiredTogether("data", "private-key")
+	SignCmd.MarkFlagsRequiredTogether("message", "private-key")
 }

@@ -11,8 +11,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// SendRawCmd represents the sendRaw command
-var SendRawCmd = &cobra.Command{
+// sendRawCmd represents the sendRaw command
+var sendRawCmd = &cobra.Command{
 	Use:   "send-raw",
 	Short: "Submits a raw, signed transaction to the Ethereum network",
 	Long:  ``,
@@ -29,9 +29,9 @@ var SendRawCmd = &cobra.Command{
 
 func init() {
 	// Flags and configuration settings.
-	SendRawCmd.Flags().StringVarP(&gastParams.RawTxValue, "raw-tx", "r", "", "raw transaction to send")
-	SendRawCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "rpc-url", "u", "", "specify RPC url for transaction")
+	sendRawCmd.Flags().StringVarP(&gastParams.RawTxValue, "raw-tx", "r", "", "raw transaction to send")
+	sendRawCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "rpc-url", "u", "", "specify RPC url for transaction")
 
 	// Mark flags required
-	SendRawCmd.MarkFlagsRequiredTogether("raw-tx", "rpc-url")
+	sendRawCmd.MarkFlagsRequiredTogether("raw-tx", "rpc-url")
 }

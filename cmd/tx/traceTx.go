@@ -11,8 +11,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// TraceTxCmd represents the traceTx command
-var TraceTxCmd = &cobra.Command{
+// traceTxCmd represents the traceTx command
+var traceTxCmd = &cobra.Command{
 	Use:   "trace",
 	Short: "Retrieves and displays the execution trace (path) of a given transaction hash",
 	Long:  ``,
@@ -28,9 +28,9 @@ var TraceTxCmd = &cobra.Command{
 
 func init() {
 	// Flags and configuration settings.
-	TraceTxCmd.Flags().StringVar(&gastParams.TxHashValue, "hash", "", "Transaction hash to trace")
-	TraceTxCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "url", "u", "", "RPC url")
+	traceTxCmd.Flags().StringVar(&gastParams.TxHashValue, "hash", "", "Transaction hash to trace")
+	traceTxCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "url", "u", "", "RPC url")
 
 	// Mark flags required
-	TraceTxCmd.MarkFlagsRequiredTogether("hash", "url")
+	traceTxCmd.MarkFlagsRequiredTogether("hash", "url")
 }

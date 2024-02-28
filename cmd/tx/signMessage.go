@@ -11,8 +11,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// SignCmd represents the signMessage command
-var SignCmd = &cobra.Command{
+// signCmd represents the signMessage command
+var signCmd = &cobra.Command{
 	Use:   "sign-message",
 	Short: "Signs a given message with the private key",
 	Long:  ``,
@@ -31,9 +31,9 @@ var SignCmd = &cobra.Command{
 
 func init() {
 	// Flags and configuration settings.
-	SignCmd.Flags().StringVarP(&gastParams.TxDataValue, "message", "m", "", "message to sign")
-	SignCmd.Flags().StringVarP(&gastParams.PrivKeyValue, "private-key", "p", "", "private key to sign transaction")
+	signCmd.Flags().StringVarP(&gastParams.TxDataValue, "message", "m", "", "message to sign")
+	signCmd.Flags().StringVarP(&gastParams.PrivKeyValue, "private-key", "p", "", "private key to sign transaction")
 
 	// Mark flags required
-	SignCmd.MarkFlagsRequiredTogether("message", "private-key")
+	signCmd.MarkFlagsRequiredTogether("message", "private-key")
 }

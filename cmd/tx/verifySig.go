@@ -11,8 +11,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// VerifySigCmd represents the verifySig command
-var VerifySigCmd = &cobra.Command{
+// verifySigCmd represents the verifySig command
+var verifySigCmd = &cobra.Command{
 	Use:   "verify-sig",
 	Short: "Verifies the signature of a signed message (can be created with the sign-message command)",
 	Long:  ``,
@@ -33,10 +33,10 @@ var VerifySigCmd = &cobra.Command{
 
 func init() {
 	// Flags and configuration settings
-	VerifySigCmd.Flags().StringVarP(&gastParams.SigValue, "sig", "s", "", "Signed message to verify")
-	VerifySigCmd.Flags().StringVarP(&gastParams.SigAddressValue, "address", "a", "", "Message signer address")
-	VerifySigCmd.Flags().StringVarP(&gastParams.SigMsgValue, "msg", "m", "", "Original message")
+	verifySigCmd.Flags().StringVarP(&gastParams.SigValue, "sig", "s", "", "Signed message to verify")
+	verifySigCmd.Flags().StringVarP(&gastParams.SigAddressValue, "address", "a", "", "Message signer address")
+	verifySigCmd.Flags().StringVarP(&gastParams.SigMsgValue, "msg", "m", "", "Original message")
 
 	// Mark flags required
-	VerifySigCmd.MarkFlagsRequiredTogether("sig", "address", "msg")
+	verifySigCmd.MarkFlagsRequiredTogether("sig", "address", "msg")
 }

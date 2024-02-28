@@ -1,0 +1,5 @@
+package transaction
+
+func handleCreateContract() {
+
+}

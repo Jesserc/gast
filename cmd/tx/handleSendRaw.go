@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/Jesserc/gast/cmd/tx/gastParams"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rlp"
@@ -120,24 +122,17 @@ func sendRawTransaction(rawTx, rpcURL string) (string, error) {
 	}
 
 	// Print the entire JSON with the added fields
-	fmt.Println("Transaction details:")
+	fmt.Println(gastParams.ColorGreen, "Transaction details:", gastParams.ColorReset)
 	fmt.Println(string(txJSON))
 
-	return transactionURL, nil
-}
-
-// convertHexToDecimalString converts a hexadecimal string to a decimal string.
-func convertHexToDecimalString(hexStr string) (string, error) {
-	// Parse the hexadecimal string as an integer
-	intV, err := strconv.ParseUint(hexStr[2:], 16, 64)
+	transactionReceipt, err := client.TransactionReceipt(context.Background(), common.HexToHash(txDetails.Hash))
 	if err != nil {
 		return "", err
 	}
+	fmt.Println(gastParams.ColorGreen, "Transaction receipt:", gastParams.ColorReset)
+	fmt.Println(transactionReceipt)
 
-	// Convert the integer to a decimal string
-	decimalStr := strconv.FormatUint(intV, 10)
-
-	return decimalStr, nil
+	return transactionURL, nil
 }
 
 func convertHexField(tx *Transaction, field string) error {
@@ -168,4 +163,24 @@ func convertHexField(tx *Transaction, field string) error {
 	txValue.FieldByName(field).SetString(decimalStr)
 
 	return nil
+}
+
+type Tx struct {
+	Type                 string        `json:"type"`
+	ChainId              string        `json:"chainId"`
+	Nonce                string        `json:"nonce"`
+	To                   string        `json:"to"`
+	Gas                  string        `json:"gas"`
+	MaxPriorityFeePerGas string        `json:"maxPriorityFeePerGas"`
+	MaxFeePerGas         string        `json:"maxFeePerGas"`
+	Value                string        `json:"value"`
+	Input                string        `json:"input"`
+	AccessList           []interface{} `json:"accessList"`
+	V                    string        `json:"v"`
+	R                    string        `json:"r"`
+	S                    string        `json:"s"`
+	YParity              string        `json:"yParity"`
+	Hash                 string        `json:"hash"`
+	TransactionTime      string        `json:"transactionTime"`
+	TransactionCost      string        `json:"transactionCost"`
 }

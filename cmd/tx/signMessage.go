@@ -7,42 +7,33 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Jesserc/gast/cmd/tx/params"
+	"github.com/Jesserc/gast/cmd/tx/gastParams"
 	"github.com/spf13/cobra"
 )
 
 // SignCmd represents the signMessage command
 var SignCmd = &cobra.Command{
 	Use:   "sign-message",
-	Short: "A brief description of your command",
+	Short: "Signs a given message with the private key",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-
 		signedMessageHash, err := signMessage(
-			params.TxData,
-			params.PrivKey,
+			gastParams.TxDataValue,
+			gastParams.PrivKeyValue,
 		)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Printf("%s%s%s\n", gastParams.ColorRed, err.Error(), gastParams.ColorReset)
 			os.Exit(1)
 		}
-		fmt.Println("signed message:\n", signedMessageHash)
+		fmt.Printf("%ssigned message:%s\n %s\n", gastParams.ColorGreen, gastParams.ColorReset, signedMessageHash)
 	},
 }
 
 func init() {
 	// Flags and configuration settings.
-	SignCmd.Flags().StringVarP(&params.TxData, "data", "d", "", "message to sign")
-	SignCmd.Flags().StringVarP(&params.PrivKey, "private-key", "p", "", "private key to sign transaction")
+	SignCmd.Flags().StringVarP(&gastParams.TxDataValue, "message", "m", "", "message to sign")
+	SignCmd.Flags().StringVarP(&gastParams.PrivKeyValue, "private-key", "p", "", "private key to sign transaction")
 
-	SignCmd.MarkFlagRequired("data")
-	SignCmd.MarkFlagRequired("private-key")
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// signMessageCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// signMessageCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// Mark flags required
+	SignCmd.MarkFlagsRequiredTogether("message", "private-key")
 }

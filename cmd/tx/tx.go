@@ -11,17 +11,20 @@ import (
 // TxCmd represents the tx command
 var TxCmd = &cobra.Command{
 	Use:   "tx",
-	Short: "A brief description of your command",
+	Short: "Manages Ethereum transactions, including creation, signing, and tracing",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Usage()
 	},
 }
 
+// TODO: work on command descriptions (also start with a case)
 func init() {
 	// Flags and configuration settings.
 	TxCmd.AddCommand(EstimateGasCmd)
 	TxCmd.AddCommand(SignCmd)
 	TxCmd.AddCommand(createRawCmd)
 	TxCmd.AddCommand(SendRawCmd)
+	TxCmd.AddCommand(TraceTxCmd)
+	TxCmd.AddCommand(VerifySigCmd)
 }

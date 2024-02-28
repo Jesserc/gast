@@ -5,45 +5,35 @@ package transaction
 
 import (
 	"fmt"
+	"os"
 
-	"github.com/Jesserc/gast/cmd/tx/params"
+	"github.com/Jesserc/gast/cmd/tx/gastParams"
 	"github.com/spf13/cobra"
 )
 
 // EstimateGasCmd represents the estimateGas command
 var EstimateGasCmd = &cobra.Command{
 	Use:   "estimate-gas",
-	Short: "A brief description of your command",
+	Short: "Provides an estimate of the gas required to execute a given transaction",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		estimatedTxGas, err := estimateGas(params.TxRpcUrl, params.From, params.To, params.TxData, params.Wei)
+		estimatedTxGas, err := estimateGas(gastParams.TxRpcUrlValue, gastParams.FromValue, gastParams.ToValue, gastParams.TxDataValue, gastParams.WeiValue)
 		if err != nil {
-			fmt.Println(err) // TODO: log as error
-			return
+			fmt.Printf("%s%s%s\n", gastParams.ColorRed, err.Error(), gastParams.ColorReset)
+			os.Exit(1)
 		}
-		fmt.Println("Estimated gas:", estimatedTxGas)
+		fmt.Printf("Estimated gas: %s%d%s\n", gastParams.ColorGreen, estimatedTxGas, gastParams.ColorReset)
 	},
 }
 
 func init() {
 	// Flags and configuration settings.
-	EstimateGasCmd.Flags().StringVarP(&params.TxRpcUrl, "url", "u", "", "RPC url")
-	EstimateGasCmd.Flags().StringVarP(&params.From, "from", "f", "", "sender")
-	EstimateGasCmd.Flags().StringVarP(&params.To, "to", "t", "", "recipient")
-	EstimateGasCmd.Flags().StringVarP(&params.TxData, "data", "d", "", "data")
-	EstimateGasCmd.Flags().Uint64VarP(&params.Wei, "wei", "w", 0, "wei")
+	EstimateGasCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "url", "u", "", "RPC url")
+	EstimateGasCmd.Flags().StringVarP(&gastParams.FromValue, "from", "f", "", "sender")
+	EstimateGasCmd.Flags().StringVarP(&gastParams.ToValue, "to", "t", "", "recipient")
+	EstimateGasCmd.Flags().StringVarP(&gastParams.TxDataValue, "data", "d", "", "data")
+	EstimateGasCmd.Flags().Uint64VarP(&gastParams.WeiValue, "wei", "w", 0, "wei")
 
-	EstimateGasCmd.MarkFlagRequired("url")
-	EstimateGasCmd.MarkFlagRequired("from")
-	EstimateGasCmd.MarkFlagRequired("to")
-	EstimateGasCmd.MarkFlagRequired("data")
-	EstimateGasCmd.MarkFlagRequired("wei")
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// estimateGasCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// estimateGasCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// Mark flags required
+	EstimateGasCmd.MarkFlagsRequiredTogether("url", "from", "to", "data", "wei")
 }

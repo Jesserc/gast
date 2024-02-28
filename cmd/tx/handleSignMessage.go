@@ -1,13 +1,11 @@
 package transaction
 
 import (
-	"bytes"
 	"crypto/ecdsa"
 	"encoding/json"
 	"fmt"
 	"log"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 )
@@ -61,38 +59,10 @@ func signMessage(message, privateKey string) (string, error) {
 	}
 
 	// Marshal the response to JSON with proper formatting
-	var w bytes.Buffer
-	var v bytes.Buffer
-	json.NewEncoder(&w).Encode(res)
-	json.Indent(&v, w.Bytes(), " ", "\t")
-
-	return v.String(), nil
-}
-
-// verifySig verifies the signature against the provided public key bytes and hash.
-func verifySig(sig, pubKeyBytes []byte, hash common.Hash) bool {
-	// Adjust signature to standard format
-	sig[64] = sig[64] - 27
-
-	// Recover the public key from the signature
-	sigPublicKey, err := crypto.Ecrecover(hash.Bytes(), sig)
+	resBytes, err := json.MarshalIndent(res, " ", "\t")
 	if err != nil {
-		log.Fatal(err)
-	}
-	pub, err := crypto.UnmarshalPubkey(sigPublicKey)
-	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
-	// Check if the recovered public key matches the provided public key bytes
-	fmt.Println(bytes.Equal(sigPublicKey, pubKeyBytes))
-
-	// Derive the address from the recovered public key
-	rAddress := crypto.PubkeyToAddress(*pub)
-
-	// Print the recovered address
-	fmt.Println("Recovered address:", rAddress)
-
-	// Verify if the recovered public key matches the provided public key bytes
-	return bytes.Equal(sigPublicKey, pubKeyBytes)
+	return string(resBytes), nil
 }

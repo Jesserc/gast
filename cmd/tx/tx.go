@@ -21,10 +21,11 @@ var TxCmd = &cobra.Command{
 // TODO: work on command descriptions (also start with a case)
 func init() {
 	// Flags and configuration settings.
-	TxCmd.AddCommand(EstimateGasCmd)
-	TxCmd.AddCommand(SignCmd)
+	TxCmd.AddCommand(estimateGasCmd)
+	TxCmd.AddCommand(signCmd)
 	TxCmd.AddCommand(createRawCmd)
-	TxCmd.AddCommand(SendRawCmd)
-	TxCmd.AddCommand(TraceTxCmd)
-	TxCmd.AddCommand(VerifySigCmd)
+	TxCmd.AddCommand(sendRawCmd)
+	TxCmd.AddCommand(traceTxCmd)
+	TxCmd.AddCommand(verifySigCmd)
+	TxCmd.AddCommand(getNonceCmd)
 }

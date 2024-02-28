@@ -8,8 +8,8 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
-// handleVerifySig verifies the signature against the provided public key bytes and hash.
-func handleVerifySig(signature, address, message string) (bool, error) {
+// VerifySig verifies the signature against the provided public key bytes and hash.
+func VerifySig(signature, address, message string) (bool, error) {
 	sig, err := hexutil.Decode(signature)
 	if err != nil {
 		return false, err

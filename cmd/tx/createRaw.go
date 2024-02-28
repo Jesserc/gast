@@ -17,7 +17,7 @@ var createRawCmd = &cobra.Command{
 	Short: "Generates a raw, unsigned EIP-1559 transaction",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		signedMessageRaw, err := createRawTransaction(
+		signedMessageRaw, err := CreateRawTransaction(
 			gastParams.TxRpcUrlValue,
 			gastParams.ToValue,
 			gastParams.TxDataValue,

@@ -23,7 +23,7 @@ type Trace struct {
 	Children []*Trace `json:"-"`
 }
 
-func handleTraceTx(hash, rpcUrl string) (*Trace, error) {
+func TraceTx(hash, rpcUrl string) (*Trace, error) {
 	var (
 		client *rpc.Client
 		err    error

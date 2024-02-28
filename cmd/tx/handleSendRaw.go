@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/Jesserc/gast/cmd/tx/gastParams"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rlp"
@@ -58,8 +57,8 @@ type Transaction struct {
 	TransactionCost      string   `json:"transactionCost,omitempty"`
 }
 
-// sendRawTransaction sends a raw Ethereum transaction.
-func sendRawTransaction(rawTx, rpcURL string) (string, error) {
+// SendRawTransaction sends a raw Ethereum transaction.
+func SendRawTransaction(rawTx, rpcURL string) (string, error) {
 	rawTxBytes, err := hex.DecodeString(rawTx)
 	if err != nil {
 		return "", err
@@ -125,12 +124,13 @@ func sendRawTransaction(rawTx, rpcURL string) (string, error) {
 	fmt.Println(gastParams.ColorGreen, "Transaction details:", gastParams.ColorReset)
 	fmt.Println(string(txJSON))
 
-	transactionReceipt, err := client.TransactionReceipt(context.Background(), common.HexToHash(txDetails.Hash))
-	if err != nil {
-		return "", err
-	}
-	fmt.Println(gastParams.ColorGreen, "Transaction receipt:", gastParams.ColorReset)
-	fmt.Println(transactionReceipt)
+	// time.Sleep(3 * time.Second)
+	// transactionReceipt, err := client.TransactionReceipt(context.Background(), common.HexToHash(txDetails.Hash))
+	// if err != nil {
+	// 	return "", err
+	// }
+	// fmt.Println(gastParams.ColorGreen, "Transaction receipt:", gastParams.ColorReset)
+	// fmt.Println(transactionReceipt)
 
 	return transactionURL, nil
 }
@@ -163,24 +163,4 @@ func convertHexField(tx *Transaction, field string) error {
 	txValue.FieldByName(field).SetString(decimalStr)
 
 	return nil
-}
-
-type Tx struct {
-	Type                 string        `json:"type"`
-	ChainId              string        `json:"chainId"`
-	Nonce                string        `json:"nonce"`
-	To                   string        `json:"to"`
-	Gas                  string        `json:"gas"`
-	MaxPriorityFeePerGas string        `json:"maxPriorityFeePerGas"`
-	MaxFeePerGas         string        `json:"maxFeePerGas"`
-	Value                string        `json:"value"`
-	Input                string        `json:"input"`
-	AccessList           []interface{} `json:"accessList"`
-	V                    string        `json:"v"`
-	R                    string        `json:"r"`
-	S                    string        `json:"s"`
-	YParity              string        `json:"yParity"`
-	Hash                 string        `json:"hash"`
-	TransactionTime      string        `json:"transactionTime"`
-	TransactionCost      string        `json:"transactionCost"`
 }

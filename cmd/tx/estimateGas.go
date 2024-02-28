@@ -11,13 +11,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// estimateGasCmd represents the estimateGas command
+// estimateGasCmd represents the TryEstimateGas command
 var estimateGasCmd = &cobra.Command{
 	Use:   "estimate-gas",
 	Short: "Provides an estimate of the gas required to execute a given transaction",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		estimatedTxGas, err := estimateGas(gastParams.TxRpcUrlValue, gastParams.FromValue, gastParams.ToValue, gastParams.TxDataValue, gastParams.WeiValue)
+		estimatedTxGas, err := TryEstimateGas(gastParams.TxRpcUrlValue, gastParams.FromValue, gastParams.ToValue, gastParams.TxDataValue, gastParams.WeiValue)
 		if err != nil {
 			fmt.Printf("%s%s%s\n", gastParams.ColorRed, err.Error(), gastParams.ColorReset)
 			os.Exit(1)

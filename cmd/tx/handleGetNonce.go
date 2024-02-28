@@ -7,7 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-func handleGetNonce(address, rpcUrl string) (uint64, uint64, error) {
+func GetNonce(address, rpcUrl string) (uint64, uint64, error) {
 	client, err := ethclient.Dial(rpcUrl)
 	if err != nil {
 		return 0, 0, err
@@ -22,6 +22,6 @@ func handleGetNonce(address, rpcUrl string) (uint64, uint64, error) {
 	if nextNonce > 0 {
 		currentNonce = nextNonce - 1
 	}
-	
+
 	return currentNonce, nextNonce, nil
 }

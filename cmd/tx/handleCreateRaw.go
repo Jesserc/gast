@@ -18,8 +18,8 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 )
 
-// createRawTransaction creates a raw Ethereum transaction.
-func createRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uint64) (string, error) {
+// CreateRawTransaction creates a raw Ethereum transaction.
+func CreateRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uint64) (string, error) {
 	// Connect to the Ethereum client
 	client, err := ethclient.Dial(rpcURL)
 	if err != nil {

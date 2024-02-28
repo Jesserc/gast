@@ -9,7 +9,7 @@ import (
 	"log"
 	"math/big"
 
-	gastParam "github.com/Jesserc/gast/cmd/tx/gastParams"
+	"github.com/Jesserc/gast/cmd/tx/gastParams"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -37,20 +37,20 @@ func createRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uin
 	if err != nil {
 		return "", err
 	}
-	fmt.Printf("%sbase fee:%s %s\n", gastParam.ColorGreen, gastParam.ColorReset, baseFee)
+	fmt.Printf("%sbase fee:%s %s\n", gastParams.ColorGreen, gastParams.ColorReset, baseFee)
 
 	// Get priority fee
 	priorityFee, err := client.SuggestGasTipCap(context.Background())
 	if err != nil {
 		return "", err
 	}
-	fmt.Printf("%spriority fee:%s %s\n", gastParam.ColorGreen, gastParam.ColorReset, priorityFee)
+	fmt.Printf("%spriority fee:%s %s\n", gastParams.ColorGreen, gastParams.ColorReset, priorityFee)
 
 	// Calculate gas fee cap with 2 Gwei margin
 	increment := new(big.Int).Add(baseFee, big.NewInt(2*params.GWei))
 	gasFeeCap := new(big.Int).Add(increment, priorityFee) /* .Add(increment, big.NewInt(0)) */
 
-	fmt.Printf("%smax fee per gas:%s %s\n", gastParam.ColorGreen, gastParam.ColorReset, gasFeeCap)
+	fmt.Printf("%smax fee per gas:%s %s\n", gastParams.ColorGreen, gastParams.ColorReset, gasFeeCap)
 
 	// Decode private key
 	pKeyBytes, err := hexutil.Decode("0x" + privateKey)

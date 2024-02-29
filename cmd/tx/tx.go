@@ -14,7 +14,7 @@ var TxCmd = &cobra.Command{
 	Short: "Manages Ethereum transactions, including creation, signing, and tracing",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Usage()
+		cmd.Help()
 	},
 }
 
@@ -28,4 +28,5 @@ func init() {
 	TxCmd.AddCommand(traceTxCmd)
 	TxCmd.AddCommand(verifySigCmd)
 	TxCmd.AddCommand(getNonceCmd)
+	TxCmd.AddCommand(createContractCmd)
 }

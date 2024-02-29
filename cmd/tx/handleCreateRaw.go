@@ -8,8 +8,10 @@ import (
 	"fmt"
 	"log"
 	"math/big"
+	"strings"
 
 	"github.com/Jesserc/gast/cmd/tx/gastParams"
+	"github.com/Jesserc/gast/utils"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -78,7 +80,16 @@ func CreateRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uin
 	}
 
 	// Convert data to hex format
-	hexData := "0x" + hex.EncodeToString([]byte(data))
+
+	var hexData string
+	if !utils.IsHexWithOrWithout0xPrefix(data) {
+		hexData = hexutil.Encode([]byte(data))
+	} else if strings.HasPrefix(data, "0x") {
+		hexData = data
+	} else {
+		hexData = "0x" + data
+	}
+
 	bytesData, err := hexutil.Decode(hexData)
 	if err != nil {
 		return "", err

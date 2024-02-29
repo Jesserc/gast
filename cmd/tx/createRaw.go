@@ -34,16 +34,14 @@ var createRawCmd = &cobra.Command{
 }
 
 func init() {
-
 	// Flags and configuration settings.
 	createRawCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "url", "u", "", "RPC url")
 	createRawCmd.Flags().StringVarP(&gastParams.ToValue, "to", "t", "", "recipient")
 	createRawCmd.Flags().StringVarP(&gastParams.TxDataValue, "data", "d", "", "transaction data (optional)")
 	createRawCmd.Flags().StringVarP(&gastParams.PrivKeyValue, "private-key", "p", "", "private key to sign transaction")
-	createRawCmd.Flags().Uint64VarP(&gastParams.GasLimitValue, "gas-limit", "l", 0, "max gas limit")
+	createRawCmd.Flags().Uint64VarP(&gastParams.GasLimitValue, "gas-limit", "l", 0, "transaction gas limit")
 	createRawCmd.Flags().Uint64VarP(&gastParams.WeiValue, "wei", "w", 0, "amount to send (optional)")
-	createRawCmd.Flags().Uint64VarP(&gastParams.NonceValue, "nonce", "n", 0, "transaction nonce")
 
 	// Mark flags required
-	createRawCmd.MarkFlagsRequiredTogether("url", "to", "private-key", "gas-limit")
+	createRawCmd.MarkFlagsRequiredTogether("url", "private-key", "gas-limit")
 }

@@ -40,7 +40,7 @@ func SignETHMessage(message, privateKey string) (string, error) {
 	}
 
 	// Adjust signature to Ethereum's format
-	sig[64] = sig[64] + 27
+	sig[64] += 27
 
 	// Derive the public key from the private key
 	publicKeyBytes := crypto.FromECDSAPub(ecdsaPrivateKey.Public().(*ecdsa.PublicKey))

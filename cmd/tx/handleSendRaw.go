@@ -71,6 +71,7 @@ func SendRawTransaction(rawTx, rpcURL string) (string, error) {
 	}
 
 	client, err := ethclient.Dial(rpcURL)
+	defer client.Close()
 	if err != nil {
 		return "", err
 	}

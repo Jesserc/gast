@@ -31,11 +31,13 @@ func TraceTx(hash, rpcUrl string) (*Trace, error) {
 
 	if rpcUrl == "" {
 		client, err = rpc.Dial("https://rpc.builder0x69.io/")
+		defer client.Close()
 		if err != nil {
 			return nil, err
 		}
 	} else {
 		client, err = rpc.Dial(rpcUrl)
+		defer client.Close()
 		if err != nil {
 			return nil, err
 		}

@@ -17,6 +17,8 @@ var (
 	SigValue        string
 	SigMsgValue     string
 	SigAddressValue string
+
+	DirValue string
 )
 
 // Terminal outputs colours

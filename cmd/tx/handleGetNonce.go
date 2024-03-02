@@ -9,6 +9,7 @@ import (
 
 func GetNonce(address, rpcUrl string) (uint64, uint64, error) {
 	client, err := ethclient.Dial(rpcUrl)
+	defer client.Close()
 	if err != nil {
 		return 0, 0, err
 	}

@@ -24,6 +24,7 @@ import (
 func CreateRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uint64) (string, error) {
 	// Connect to the Ethereum client
 	client, err := ethclient.Dial(rpcURL)
+	defer client.Close()
 	if err != nil {
 		return "", err
 	}
@@ -80,7 +81,6 @@ func CreateRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uin
 	}
 
 	// Convert data to hex format
-
 	var hexData string
 	if !utils.IsHexWithOrWithout0xPrefix(data) {
 		hexData = hexutil.Encode([]byte(data))

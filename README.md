@@ -32,7 +32,7 @@ gast [command]
 For more information about a command, use:
 
 ```shell
-gast tx --help
+gast [command] --help
 ```
 
 ### Transaction Management

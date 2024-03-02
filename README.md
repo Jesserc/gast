@@ -1,5 +1,7 @@
 # Gast - Ethereum Toolkit
 
+## (STILL IN DEVELOPMENT)
+
 Gast is a command-line toolkit designed to streamline the management of Ethereum transactions and gas prices. It provides a suite of commands for fetching current gas prices, managing transactions (including creation, signing, and tracing), and much more directly from your terminal.
 
 ## Installation
@@ -30,12 +32,15 @@ gast [command]
 For more information about a command, use:
 
 ```shell
-gast [command] --help
+gast tx --help
 ```
 
 ### Transaction Management
 
 Manage Ethereum transactions with ease. The `tx` command supports a variety of subcommands:
+```shell
+gast tx [sub-command] [flags]
+```
 
 - `create-contract`: Deploy Solidity contract (solc must be installed).
 - `create-raw`: Generates a raw, unsigned EIP-1559 transaction.

@@ -2,8 +2,8 @@ package transaction
 
 import (
 	"context"
-	"fmt"
 	"math/big"
+	"strings"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
@@ -11,25 +11,32 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
-func estimateGas(rpcUrl, from, to, data string, value uint64) (uint64, error) {
+// TryEstimateGas tries to estimate the gas needed to execute a specific transaction based on the current pending state of the backend blockchain. There is no guarantee that this is the true gas limit requiremen
+func TryEstimateGas(rpcUrl, from, to, data string, value uint64) (uint64, error) {
 	client, err := ethclient.Dial(rpcUrl)
+	defer client.Close()
 	if err != nil {
-		fmt.Println("line 17", err)
 		return 0, err
 	}
 
 	var ctx = context.Background()
 
 	var (
-		fromAddr = common.HexToAddress(from)
-		toAddr   = common.HexToAddress(to)
-		amount   = new(big.Int).SetUint64(value)
+		fromAddr  = common.HexToAddress(from)
+		toAddr    = common.HexToAddress(to)
+		amount    = new(big.Int).SetUint64(value)
+		bytesData []byte
 	)
 
-	bytesData, err := hexutil.Decode(data)
-	if err != nil {
-		fmt.Println("line 31", err)
-		return 0, err
+	if data != "" {
+		if ok := strings.HasPrefix(data, "0x"); !ok {
+			data = hexutil.Encode([]byte(data))
+		}
+
+		bytesData, err = hexutil.Decode(data)
+		if err != nil {
+			return 0, err
+		}
 	}
 
 	msg := ethereum.CallMsg{

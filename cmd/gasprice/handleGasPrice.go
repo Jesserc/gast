@@ -31,24 +31,13 @@ var (
 	}
 )
 
-func GetCurrentGasPrice(rpcURL string) (string, error) {
-	gPrice, err := gasPrice(rpcURL)
-	if err != nil {
-		return "", err
-	}
-
-	return gPrice, nil
-}
-
-func gasPrice(rpcUrl string) (string, error) {
+func GetCurrentGasPrice(rpcUrl string) (string, error) {
 	client, err := ethclient.Dial(rpcUrl)
 	if err != nil {
 		return "", err
 	}
 
-	ethCl, err := ethclient.Dial(rpcUrl)
-
-	chainIdBigInt, err := ethCl.ChainID(ctx)
+	chainIdBigInt, err := client.ChainID(ctx)
 	if err != nil {
 		return "", err
 	}

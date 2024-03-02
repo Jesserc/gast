@@ -11,13 +11,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// traceTxCmd represents the traceTx command
+// traceTxCmd represents the trace command
 var traceTxCmd = &cobra.Command{
 	Use:   "trace",
 	Short: "Retrieves and displays the execution trace (path) of a given transaction hash",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		rootTrace, err := handleTraceTx(gastParams.TxHashValue, gastParams.TxRpcUrlValue)
+		rootTrace, err := TraceTx(gastParams.TxHashValue, gastParams.TxRpcUrlValue)
 		if err != nil {
 			fmt.Printf("%s%s%s\n", gastParams.ColorRed, err.Error(), gastParams.ColorReset)
 			os.Exit(1)
@@ -29,8 +29,8 @@ var traceTxCmd = &cobra.Command{
 func init() {
 	// Flags and configuration settings.
 	traceTxCmd.Flags().StringVar(&gastParams.TxHashValue, "hash", "", "Transaction hash to trace")
-	traceTxCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "url", "u", "", "RPC url")
+	traceTxCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "url", "u", "", "RPC url (optional, but must support Otterscan's ots_traceTransaction")
 
 	// Mark flags required
-	traceTxCmd.MarkFlagsRequiredTogether("hash", "url")
+	traceTxCmd.MarkFlagRequired("hash")
 }

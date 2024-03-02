@@ -17,7 +17,7 @@ var verifySigCmd = &cobra.Command{
 	Short: "Verifies the signature of a signed message (can be created with the sign-message command)",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		isSigner, err := handleVerifySig(gastParams.SigValue, gastParams.SigAddressValue, gastParams.SigMsgValue)
+		isSigner, err := VerifySig(gastParams.SigValue, gastParams.SigAddressValue, gastParams.SigMsgValue)
 		if err != nil {
 			fmt.Printf("%s%s%s\n", gastParams.ColorRed, err, gastParams.ColorReset)
 			os.Exit(1)

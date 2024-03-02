@@ -18,8 +18,8 @@ type SignatureResponse struct {
 	Version string `json:"version,omitempty"`
 }
 
-// signMessage signs a message using the provided private key.
-func signMessage(message, privateKey string) (string, error) {
+// SignETHMessage signs a message using the provided private key.
+func SignETHMessage(message, privateKey string) (string, error) {
 	// Convert the private key from hex to ECDSA format
 	ecdsaPrivateKey, err := crypto.HexToECDSA(privateKey)
 	if err != nil {
@@ -40,7 +40,7 @@ func signMessage(message, privateKey string) (string, error) {
 	}
 
 	// Adjust signature to Ethereum's format
-	sig[64] = sig[64] + 27
+	sig[64] += 27
 
 	// Derive the public key from the private key
 	publicKeyBytes := crypto.FromECDSAPub(ecdsaPrivateKey.Public().(*ecdsa.PublicKey))

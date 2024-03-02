@@ -8,8 +8,10 @@ import (
 	"fmt"
 	"log"
 	"math/big"
+	"strings"
 
 	"github.com/Jesserc/gast/cmd/tx/gastParams"
+	"github.com/Jesserc/gast/utils"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -18,10 +20,11 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 )
 
-// createRawTransaction creates a raw Ethereum transaction.
-func createRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uint64) (string, error) {
+// CreateRawTransaction creates a raw Ethereum transaction.
+func CreateRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uint64) (string, error) {
 	// Connect to the Ethereum client
 	client, err := ethclient.Dial(rpcURL)
+	defer client.Close()
 	if err != nil {
 		return "", err
 	}
@@ -78,7 +81,15 @@ func createRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uin
 	}
 
 	// Convert data to hex format
-	hexData := "0x" + hex.EncodeToString([]byte(data))
+	var hexData string
+	if !utils.IsHexWithOrWithout0xPrefix(data) {
+		hexData = hexutil.Encode([]byte(data))
+	} else if strings.HasPrefix(data, "0x") {
+		hexData = data
+	} else {
+		hexData = "0x" + data
+	}
+
 	bytesData, err := hexutil.Decode(hexData)
 	if err != nil {
 		return "", err

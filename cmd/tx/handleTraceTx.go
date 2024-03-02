@@ -23,7 +23,7 @@ type Trace struct {
 	Children []*Trace `json:"-"`
 }
 
-func handleTraceTx(hash, rpcUrl string) (*Trace, error) {
+func TraceTx(hash, rpcUrl string) (*Trace, error) {
 	var (
 		client *rpc.Client
 		err    error
@@ -31,11 +31,13 @@ func handleTraceTx(hash, rpcUrl string) (*Trace, error) {
 
 	if rpcUrl == "" {
 		client, err = rpc.Dial("https://rpc.builder0x69.io/")
+		defer client.Close()
 		if err != nil {
 			return nil, err
 		}
 	} else {
 		client, err = rpc.Dial(rpcUrl)
+		defer client.Close()
 		if err != nil {
 			return nil, err
 		}

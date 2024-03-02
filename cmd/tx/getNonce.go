@@ -17,7 +17,7 @@ var getNonceCmd = &cobra.Command{
 	Short: "",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		currentNonce, nextNonce, err := handleGetNonce(gastParams.FromValue, gastParams.TxRpcUrlValue)
+		currentNonce, nextNonce, err := GetNonce(gastParams.FromValue, gastParams.TxRpcUrlValue)
 		if err != nil {
 			fmt.Printf("%s%s%s\n", gastParams.ColorRed, err, gastParams.ColorReset)
 			os.Exit(1)

@@ -10,31 +10,10 @@ import (
 	"time"
 
 	"github.com/Jesserc/gast/cmd/tx/gastParams"
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rlp"
 )
-
-// networkExplorers maps network IDs to their respective explorers.
-var networkExplorers = map[uint64]string{
-	0x01:     "https://etherscan.io/",                          // Ethereum Mainnet
-	0x05:     "https://goerli.etherscan.io/",                   // Goerli Testnet
-	0xAA36A7: "https://sepolia.etherscan.io/",                  // Sepolia Testnet
-	0x89:     "https://polygonscan.com/",                       // Polygon Mainnet
-	0x13881:  "https://mumbai.polygonscan.com/",                // Polygon Mumbai Testnet
-	0x0A:     "https://optimistic.etherscan.io/",               // Optimism Mainnet
-	0x1A4:    "https://goerli-optimism.etherscan.io/",          // Optimism Goerli Testnet
-	0xA4B1:   "https://arbiscan.io/",                           // Arbitrum One Mainnet
-	0x66EEE:  "https://sepolia.arbiscan.io/",                   // Arbitrum Sepolia Testnet
-	0x38:     "https://bscscan.com/",                           // Binance Smart Chain Mainnet
-	0x61:     "https://testnet.bscscan.com/",                   // Binance Smart Chain Testnet
-	0x421611: "https://explorer.celo.org/",                     // Celo Mainnet
-	0xA4EC:   "https://alfajores-blockscout.celo-testnet.org/", // Celo Alfajores Testnet
-	0x2105:   "https://basescan.org/",                          // Base Mainnet
-	0xE708:   "https://lineascan.build/",                       // Linea Mainnet
-	0x144:    "https://explorer.zksync.io/",                    // zkSync Mainnet
-}
 
 // Transaction represents the structure of the transaction JSON.
 type Transaction struct {
@@ -58,38 +37,40 @@ type Transaction struct {
 	TransactionCost      string   `json:"transactionCost,omitempty"`
 }
 
-// sendRawTransaction sends a raw Ethereum transaction.
-func sendRawTransaction(rawTx, rpcURL string) (string, error) {
+// SendRawTransaction sends a raw Ethereum transaction.
+func SendRawTransaction(rawTx, rpcURL string) (string, string, error) {
 	rawTxBytes, err := hex.DecodeString(rawTx)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	tx := new(types.Transaction)
 	err = rlp.DecodeBytes(rawTxBytes, &tx)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	client, err := ethclient.Dial(rpcURL)
+	defer client.Close()
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	err = client.SendTransaction(context.Background(), tx)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	chainID, err := client.ChainID(context.Background())
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	var transactionURL string
-	for id, explorer := range networkExplorers {
+	for id, explorer := range gastParams.NetworkExplorers {
 		if chainID.Uint64() == id {
 			transactionURL = fmt.Sprintf("%vtx/%v", explorer, tx.Hash().Hex())
+			break
 		}
 	}
 
@@ -97,10 +78,10 @@ func sendRawTransaction(rawTx, rpcURL string) (string, error) {
 	var txDetails Transaction
 	txBytes, err := tx.MarshalJSON()
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 	if err := json.Unmarshal(txBytes, &txDetails); err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	// Add additional transaction details
@@ -111,28 +92,17 @@ func sendRawTransaction(rawTx, rpcURL string) (string, error) {
 	convertFields := []string{"Nonce", "MaxPriorityFeePerGas", "MaxFeePerGas", "Value", "Type", "Gas"}
 	for _, field := range convertFields {
 		if err := convertHexField(&txDetails, field); err != nil {
-			return "", err
+			return "", "", err
 		}
 	}
 
 	// Marshal the struct back to JSON
 	txJSON, err := json.MarshalIndent(txDetails, "", "\t")
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	// Print the entire JSON with the added fields
-	fmt.Println(gastParams.ColorGreen, "Transaction details:", gastParams.ColorReset)
-	fmt.Println(string(txJSON))
-
-	transactionReceipt, err := client.TransactionReceipt(context.Background(), common.HexToHash(txDetails.Hash))
-	if err != nil {
-		return "", err
-	}
-	fmt.Println(gastParams.ColorGreen, "Transaction receipt:", gastParams.ColorReset)
-	fmt.Println(transactionReceipt)
-
-	return transactionURL, nil
+	return transactionURL, string(txJSON), nil
 }
 
 func convertHexField(tx *Transaction, field string) error {
@@ -163,24 +133,4 @@ func convertHexField(tx *Transaction, field string) error {
 	txValue.FieldByName(field).SetString(decimalStr)
 
 	return nil
-}
-
-type Tx struct {
-	Type                 string        `json:"type"`
-	ChainId              string        `json:"chainId"`
-	Nonce                string        `json:"nonce"`
-	To                   string        `json:"to"`
-	Gas                  string        `json:"gas"`
-	MaxPriorityFeePerGas string        `json:"maxPriorityFeePerGas"`
-	MaxFeePerGas         string        `json:"maxFeePerGas"`
-	Value                string        `json:"value"`
-	Input                string        `json:"input"`
-	AccessList           []interface{} `json:"accessList"`
-	V                    string        `json:"v"`
-	R                    string        `json:"r"`
-	S                    string        `json:"s"`
-	YParity              string        `json:"yParity"`
-	Hash                 string        `json:"hash"`
-	TransactionTime      string        `json:"transactionTime"`
-	TransactionCost      string        `json:"transactionCost"`
 }

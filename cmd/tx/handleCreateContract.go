@@ -37,12 +37,11 @@ type TxReceipt struct {
 	BlockHash         string        `json:"blockHash"`
 	BlockNumber       uint64        `json:"blockNumber"`
 	TransactionIndex  uint64        `json:"transactionIndex"`
+	TransactionURL    string        `json:"-"`
 }
 
 func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) (TxReceipt, error) {
-	var (
-		receipt TxReceipt
-	)
+	var receipt TxReceipt
 
 	// Connect to the Ethereum client
 	client, err := ethclient.Dial(rpcURL)
@@ -161,10 +160,18 @@ func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) (TxRe
 		return TxReceipt{}, err
 	}
 
+	var transactionURL string
+	for id, explorer := range gastParams.NetworkExplorers {
+		if chainID.Uint64() == id {
+			transactionURL = fmt.Sprintf("%vtx/%v", explorer, tx.Hash().Hex())
+			break
+		}
+	}
+
 	select {
 	case val := <-time.After(30 * time.Second):
 		fmt.Println("timeout:", val.Format(time.Kitchen))
-		fmt.Println("tx hash:", tx.Hash().String())
+		fmt.Println("tx receipt:", transactionURL)
 		os.Exit(0)
 	case <-ctx.Done():
 		_, isPending, err := client.TransactionByHash(context.Background(), tx.Hash())
@@ -174,8 +181,7 @@ func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) (TxRe
 
 		if isPending {
 			fmt.Println("transaction is still pending")
-			txHash := tx.Hash().String()
-			fmt.Printf("transaction hash: %s\n", txHash)
+			fmt.Println("tx receipt:", transactionURL)
 			os.Exit(0)
 		} else {
 			tr, err := client.TransactionReceipt(context.Background(), tx.Hash())
@@ -192,6 +198,7 @@ func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) (TxRe
 			if err != nil {
 				return TxReceipt{}, err
 			}
+			receipt.TransactionURL = transactionURL
 		}
 	}
 

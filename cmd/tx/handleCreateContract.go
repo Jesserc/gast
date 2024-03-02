@@ -167,7 +167,7 @@ func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) (TxRe
 			break
 		}
 	}
-
+	
 	select {
 	case val := <-time.After(30 * time.Second):
 		fmt.Println("timeout:", val.Format(time.Kitchen))

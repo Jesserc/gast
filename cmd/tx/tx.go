@@ -18,7 +18,6 @@ var TxCmd = &cobra.Command{
 	},
 }
 
-// TODO: work on command descriptions (also start with a case)
 func init() {
 	// Flags and configuration settings.
 	TxCmd.AddCommand(estimateGasCmd)

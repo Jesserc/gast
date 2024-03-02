@@ -14,7 +14,7 @@ import (
 // getNonceCmd represents the getNonce command
 var getNonceCmd = &cobra.Command{
 	Use:   "get-nonce",
-	Short: "",
+	Short: "Get transaction count of an account",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		currentNonce, nextNonce, err := GetNonce(gastParams.FromValue, gastParams.TxRpcUrlValue)

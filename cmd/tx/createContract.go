@@ -15,7 +15,7 @@ import (
 // createContractCmd represents the createContract command
 var createContractCmd = &cobra.Command{
 	Use:   "create-contract",
-	Short: "A brief description of your command",
+	Short: "Deploy Solidity contract",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 

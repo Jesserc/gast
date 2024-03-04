@@ -6,9 +6,10 @@ package gasprice
 
 import (
 	"context"
-	"fmt"
 
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/ethereum/go-ethereum/log"
 )
 
 var (
@@ -46,9 +47,9 @@ func GetCurrentGasPrice(rpcUrl string) (string, error) {
 
 	// Retrieve the network name from the map and print
 	if networkName, ok := networkNames[chainId]; ok {
-		fmt.Printf("Retrieving Gas Price on %s\n", networkName)
+		log.Info("Retrieving Gas Price", "network", networkName)
 	} else {
-		fmt.Printf("Retrieving Gas Price on network with chain ID: 0x%x\n", chainId)
+		log.Info("Retrieving Gas Price", "network with chain ID", hexutil.EncodeUint64(chainId))
 	}
 
 	gasPrice, err := client.SuggestGasPrice(context.Background())

@@ -8,7 +8,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Jesserc/gast/cmd/tx/gastParams"
+	"github.com/Jesserc/gast/cmd/gastParams"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/spf13/cobra"
 )
 
@@ -25,7 +26,7 @@ var GaspriceCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		gPrice, err := fetchGasPrice()
 		if err != nil {
-			fmt.Printf("%s%s%s\n", gastParams.ColorRed, err, gastParams.ColorReset)
+			log.Error("An error occurred", "err", err)
 			os.Exit(1)
 		}
 		fmt.Printf("%ssuggested gas price: %s%v\n", gastParams.ColorGreen, gastParams.ColorReset, gPrice)

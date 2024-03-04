@@ -7,7 +7,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Jesserc/gast/cmd/tx/gastParams"
+	"github.com/Jesserc/gast/cmd/gastParams"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/spf13/cobra"
 )
 
@@ -19,7 +20,7 @@ var getNonceCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		currentNonce, nextNonce, err := GetNonce(gastParams.FromValue, gastParams.TxRpcUrlValue)
 		if err != nil {
-			fmt.Printf("%s%s%s\n", gastParams.ColorRed, err, gastParams.ColorReset)
+			log.Error("An error occurred", "err", err)
 			os.Exit(1)
 		}
 

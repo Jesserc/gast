@@ -7,7 +7,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Jesserc/gast/cmd/tx/gastParams"
+	"github.com/Jesserc/gast/cmd/gastParams"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/spf13/cobra"
 )
 
@@ -26,7 +27,7 @@ var createRawCmd = &cobra.Command{
 			gastParams.WeiValue,
 		)
 		if err != nil {
-			fmt.Printf("%s%s%s\n", gastParams.ColorRed, err, gastParams.ColorReset)
+			log.Error("An error occurred", "err", err)
 			os.Exit(1)
 		}
 		fmt.Printf("%sraw signed message:%s %s\n", gastParams.ColorGreen, gastParams.ColorReset, signedMessageRaw)

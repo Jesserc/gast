@@ -13,11 +13,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Jesserc/gast/cmd/tx/gastParams"
+	"github.com/Jesserc/gast/cmd/gastParams"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rlp"
 )
@@ -61,20 +62,21 @@ func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) (TxRe
 	if err != nil {
 		return TxReceipt{}, err
 	}
-	fmt.Printf("%sbase fee:%s %s\n", gastParams.ColorGreen, gastParams.ColorReset, baseFee)
+	log.Info("base fee", "value", baseFee)
 
 	// Get priority fee
 	priorityFee, err := client.SuggestGasTipCap(context.Background())
 	if err != nil {
 		return TxReceipt{}, err
 	}
-	fmt.Printf("%spriority fee:%s %s\n", gastParams.ColorGreen, gastParams.ColorReset, priorityFee)
+	log.Info("priority fee", "value", priorityFee)
 
 	// Calculate gas fee cap with 2 Gwei margin
 	increment := new(big.Int).Add(baseFee, big.NewInt(2*params.GWei))
 	gasFeeCap := new(big.Int).Add(increment, priorityFee) /* .Add(increment, big.NewInt(0)) */
 
-	fmt.Printf("%smax fee per gas:%s %s\n", gastParams.ColorGreen, gastParams.ColorReset, gasFeeCap)
+	// fmt.Printf("%smax fee per gas:%s %s\n", gastParams.ColorGreen, gastParams.ColorReset, gasFeeCap)
+	log.Info("max fee per gas", "value", gasFeeCap)
 
 	// Decode private key
 	pKeyBytes, err := hexutil.Decode("0x" + privateKey)
@@ -102,8 +104,7 @@ func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) (TxRe
 		return TxReceipt{}, err
 	}
 
-	strings.Trim(data, "\n")
-	strings.Trim(data, "\n")
+	data = strings.Trim(data, "\n")
 
 	// Add 0x prefix
 	data = "0x" + data
@@ -152,13 +153,17 @@ func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) (TxRe
 		return TxReceipt{}, err
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 25*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
+	timer := time.Now()
 	err = client.SendTransaction(ctx, tx)
 	if err != nil {
 		return TxReceipt{}, err
 	}
+
+	fmt.Println()                                                    // spacing
+	log.Warn("sending transaction, please wait for confirmation...") // TODO: add this in handleSendRaw.go
 
 	var transactionURL string
 	for id, explorer := range gastParams.NetworkExplorers {
@@ -167,12 +172,10 @@ func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) (TxRe
 			break
 		}
 	}
-	
+
 	select {
-	case val := <-time.After(30 * time.Second):
-		fmt.Println("timeout:", val.Format(time.Kitchen))
-		fmt.Println("tx receipt:", transactionURL)
-		os.Exit(0)
+	case <-time.After(2 * time.Second):
+		log.Crit("timeout:", "time taken", time.Since(timer))
 	case <-ctx.Done():
 		_, isPending, err := client.TransactionByHash(context.Background(), tx.Hash())
 		if err != nil {

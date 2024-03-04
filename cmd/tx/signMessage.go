@@ -7,7 +7,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Jesserc/gast/cmd/tx/gastParams"
+	"github.com/Jesserc/gast/cmd/gastParams"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/spf13/cobra"
 )
 
@@ -22,7 +23,7 @@ var signCmd = &cobra.Command{
 			gastParams.PrivKeyValue,
 		)
 		if err != nil {
-			fmt.Printf("%s%s%s\n", gastParams.ColorRed, err.Error(), gastParams.ColorReset)
+			log.Error("An error occurred", "err", err)
 			os.Exit(1)
 		}
 		fmt.Printf("%ssigned message:%s\n %s\n", gastParams.ColorGreen, gastParams.ColorReset, signedMessageHash)

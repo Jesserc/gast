@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"math/big"
 	"strings"
 
-	"github.com/Jesserc/gast/cmd/tx/gastParams"
+	"github.com/Jesserc/gast/cmd/gastParams"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
@@ -137,7 +137,7 @@ func hexToEther(hexValueStr string) string {
 	// Use big.Int for accuracy throughout
 	hexValueBig, ok := new(big.Int).SetString(hexValueStr, 16)
 	if !ok {
-		log.Fatalf("hexToEther - failed to convert hex to Ether value: %s", hexValueStr)
+		log.Crit("hexToEther - failed to format tx hex Ether value -", "value", hexValueStr)
 	}
 
 	// Check if the value is zero before performing division

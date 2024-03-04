@@ -28,4 +28,5 @@ func init() {
 	TxCmd.AddCommand(verifySigCmd)
 	TxCmd.AddCommand(getNonceCmd)
 	TxCmd.AddCommand(createContractCmd)
+	TxCmd.AddCommand(sendBlobTxCmd)
 }

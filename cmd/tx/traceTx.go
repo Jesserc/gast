@@ -4,10 +4,10 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package transaction
 
 import (
-	"fmt"
 	"os"
 
-	"github.com/Jesserc/gast/cmd/tx/gastParams"
+	"github.com/Jesserc/gast/cmd/gastParams"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/spf13/cobra"
 )
 
@@ -19,7 +19,7 @@ var traceTxCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		rootTrace, err := TraceTx(gastParams.TxHashValue, gastParams.TxRpcUrlValue)
 		if err != nil {
-			fmt.Printf("%s%s%s\n", gastParams.ColorRed, err.Error(), gastParams.ColorReset)
+			log.Error("An error occurred", "err", err)
 			os.Exit(1)
 		}
 		printTrace(rootTrace, 0, false, "")

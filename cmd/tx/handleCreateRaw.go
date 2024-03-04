@@ -10,7 +10,7 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/Jesserc/gast/cmd/tx/gastParams"
+	"github.com/Jesserc/gast/cmd/gastParams"
 	"github.com/Jesserc/gast/utils"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -71,7 +71,7 @@ func CreateRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uin
 
 	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
 	if !ok {
-		log.Fatal("error casting public key to ECDSA")
+		return "", fmt.Errorf("error casting public key to ECDSA pubKey")
 	}
 
 	fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)

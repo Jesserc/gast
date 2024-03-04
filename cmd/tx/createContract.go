@@ -7,8 +7,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Jesserc/gast/cmd/tx/gastParams"
+	"github.com/Jesserc/gast/cmd/gastParams"
 	"github.com/Jesserc/gast/utils"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/spf13/cobra"
 )
 
@@ -21,8 +22,7 @@ var createContractCmd = &cobra.Command{
 
 		bytecode, err := utils.CompileSol(gastParams.DirValue)
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			log.Crit("An error occurred", "err", err)
 		}
 
 		txReceipt, err := CreateContract(
@@ -34,7 +34,7 @@ var createContractCmd = &cobra.Command{
 		)
 
 		if err != nil {
-			fmt.Println(err)
+			log.Error("An error occurred", "err", err)
 			os.Exit(1)
 		}
 

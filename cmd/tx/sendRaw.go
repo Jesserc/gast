@@ -7,7 +7,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Jesserc/gast/cmd/tx/gastParams"
+	"github.com/Jesserc/gast/cmd/gastParams"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/spf13/cobra"
 )
 
@@ -19,7 +20,7 @@ var sendRawCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		txReceipt, txDetails, err := SendRawTransaction(gastParams.RawTxValue, gastParams.TxRpcUrlValue)
 		if err != nil {
-			fmt.Printf("%s%s%s\n", gastParams.ColorRed, err, gastParams.ColorReset)
+			log.Error("An error occurred", "err", err)
 			os.Exit(1)
 		}
 		// Print the entire JSON with the added fields
@@ -33,7 +34,7 @@ var sendRawCmd = &cobra.Command{
 func init() {
 	// Flags and configuration settings.
 	sendRawCmd.Flags().StringVarP(&gastParams.RawTxValue, "raw-tx", "r", "", "raw transaction to send")
-	sendRawCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "rpc-url", "u", "", "specify RPC url for transaction")
+	sendRawCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "rpc-url", "u", "", "RPC url for transaction")
 
 	// Mark flags required
 	sendRawCmd.MarkFlagsRequiredTogether("raw-tx", "rpc-url")

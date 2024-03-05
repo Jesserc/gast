@@ -8,7 +8,6 @@ import (
 	"os"
 
 	"github.com/Jesserc/gast/cmd/gastParams"
-	"github.com/ethereum/go-ethereum/log"
 	"github.com/spf13/cobra"
 )
 
@@ -18,11 +17,8 @@ var verifySigCmd = &cobra.Command{
 	Short: "Verifies the signature of a signed message (can be created with the sign-message command)",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		isSigner, err := VerifySig(gastParams.SigValue, gastParams.SigAddressValue, gastParams.SigMsgValue)
-		if err != nil {
-			log.Error("An error occurred", "err", err)
-			os.Exit(1)
-		}
+		isSigner := VerifySig(gastParams.SigValue, gastParams.SigAddressValue, gastParams.SigMsgValue)
+		
 		if isSigner {
 			fmt.Printf("%s %ssigned%s \"%s\"\n", gastParams.SigAddressValue, gastParams.ColorGreen, gastParams.ColorReset, gastParams.SigMsgValue)
 		} else {

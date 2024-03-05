@@ -1,10 +1,7 @@
 package transaction
 
 import (
-	"bytes"
 	"context"
-	"crypto/ecdsa"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"math/big"
@@ -20,7 +17,6 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params"
-	"github.com/ethereum/go-ethereum/rlp"
 )
 
 type TxReceipt struct {
@@ -41,67 +37,59 @@ type TxReceipt struct {
 	TransactionURL    string        `json:"-"`
 }
 
-func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) (TxReceipt, error) {
+func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) TxReceipt {
 	var receipt TxReceipt
 
 	// Connect to the Ethereum client
 	client, err := ethclient.Dial(rpcURL)
 	defer client.Close()
 	if err != nil {
-		return TxReceipt{}, err
+		log.Crit("Failed to dial RPC client", "error", err)
 	}
 
 	// Get chain ID
 	chainID, err := client.ChainID(context.Background())
 	if err != nil {
-		return TxReceipt{}, err
+		log.Crit("Failed to get chain ID", "error", err)
 	}
 
 	// Get base fee
 	baseFee, err := client.SuggestGasPrice(context.Background())
 	if err != nil {
-		return TxReceipt{}, err
+		log.Crit("Failed to get base fee", "error", err)
 	}
 	log.Info("base fee", "value", baseFee)
 
 	// Get priority fee
 	priorityFee, err := client.SuggestGasTipCap(context.Background())
 	if err != nil {
-		return TxReceipt{}, err
+		log.Crit("Failed to get priority fee", "error", err)
 	}
 	log.Info("priority fee", "value", priorityFee)
 
 	// Calculate gas fee cap with 2 Gwei margin
 	increment := new(big.Int).Add(baseFee, big.NewInt(2*params.GWei))
-	gasFeeCap := new(big.Int).Add(increment, priorityFee) /* .Add(increment, big.NewInt(0)) */
+	gasFeeCap := new(big.Int).Add(increment, priorityFee)
 
-	// fmt.Printf("%smax fee per gas:%s %s\n", gastParams.ColorGreen, gastParams.ColorReset, gasFeeCap)
 	log.Info("max fee per gas", "value", gasFeeCap)
 
 	// Decode private key
 	pKeyBytes, err := hexutil.Decode("0x" + privateKey)
 	if err != nil {
-		return TxReceipt{}, err
+		log.Crit("Failed to decode private key", "error", err)
 	}
 
 	// Convert private key to ECDSA format
 	ecdsaPrivateKey, err := crypto.ToECDSA(pKeyBytes)
 	if err != nil {
-		return TxReceipt{}, err
+		log.Crit("Failed to convert private key to ECDSA", "error", err)
 	}
 
-	publicKey := ecdsaPrivateKey.Public()
+	fromAddress := crypto.PubkeyToAddress(ecdsaPrivateKey.PublicKey)
 
-	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey)
-	if !ok {
-		err := fmt.Errorf("error casting public key to ECDSA")
-		return TxReceipt{}, err
-	}
-
-	fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
 	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
 	if err != nil {
-		return TxReceipt{}, err
+		log.Crit("Failed to get nonce", "error", err)
 	}
 
 	data = strings.Trim(data, "\n")
@@ -111,13 +99,13 @@ func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) (TxRe
 
 	bytesData, err := hexutil.Decode(data)
 	if err != nil {
-		return TxReceipt{}, err
+		log.Crit("Failed to decode data", "error", err)
 	}
 
 	// Create transaction data
 	amount := new(big.Int).SetUint64(wei)
 
-	txData := types.DynamicFeeTx{
+	tx, err := types.NewTx(&types.DynamicFeeTx{
 		ChainID:   chainID,
 		Nonce:     nonce,
 		GasTipCap: priorityFee,
@@ -125,87 +113,69 @@ func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) (TxRe
 		Gas:       gasLimit,
 		Value:     amount,
 		Data:      bytesData,
+	}), nil
+	if err != nil {
+		log.Crit("Failed to create transaction", "error", err)
 	}
-
-	tx := types.NewTx(&txData)
 
 	signedTx, err := types.SignTx(tx, types.LatestSignerForChainID(chainID), ecdsaPrivateKey)
 	if err != nil {
-		return TxReceipt{}, err
-	}
-
-	// Encode signed transaction to RLP hex
-	var buf bytes.Buffer
-	err = signedTx.EncodeRLP(&buf)
-	if err != nil {
-		return TxReceipt{}, err
-	}
-
-	rawTxRLPHex := hex.EncodeToString(buf.Bytes())
-
-	rawTxBytes, err := hex.DecodeString(rawTxRLPHex)
-	if err != nil {
-		return TxReceipt{}, err
-	}
-
-	err = rlp.DecodeBytes(rawTxBytes, &tx)
-	if err != nil {
-		return TxReceipt{}, err
+		log.Crit("Failed to sign transaction", "error", err)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	timer := time.Now()
-	err = client.SendTransaction(ctx, tx)
+	err = client.SendTransaction(ctx, signedTx)
 	if err != nil {
-		return TxReceipt{}, err
+		log.Crit("Failed to send transaction", "error", err)
 	}
 
-	fmt.Println()                                                    // spacing
-	log.Warn("sending transaction, please wait for confirmation...") // TODO: add this in handleSendRaw.go
+	fmt.Println() // spacing
+	log.Warn("Sending transaction, please wait for confirmation...")
 
 	var transactionURL string
 	for id, explorer := range gastParams.NetworkExplorers {
 		if chainID.Uint64() == id {
-			transactionURL = fmt.Sprintf("%vtx/%v", explorer, tx.Hash().Hex())
+			transactionURL = fmt.Sprintf("%vtx/%v", explorer, signedTx.Hash().Hex())
 			break
 		}
 	}
 
 	select {
-	case <-time.After(2 * time.Second):
-		log.Crit("timeout:", "time taken", time.Since(timer))
+	case <-time.After(35 * time.Second):
+		log.Crit("Timeout:", "time taken", time.Since(timer))
 	case <-ctx.Done():
-		_, isPending, err := client.TransactionByHash(context.Background(), tx.Hash())
+		_, isPending, err := client.TransactionByHash(context.Background(), signedTx.Hash())
 		if err != nil {
-			return TxReceipt{}, err
+			log.Crit("Failed to get transaction status", "error", err)
 		}
 
 		if isPending {
-			fmt.Println("transaction is still pending")
-			fmt.Println("tx receipt:", transactionURL)
+			log.Info("Transaction update", "", "Transaction is still pending")
+			fmt.Println("Tx receipt:", transactionURL)
 			os.Exit(0)
 		} else {
-			tr, err := client.TransactionReceipt(context.Background(), tx.Hash())
+			tr, err := client.TransactionReceipt(context.Background(), signedTx.Hash())
 			if err != nil {
-				return TxReceipt{}, err
+				log.Crit("Failed to get transaction receipt", "error", err)
 			}
 
 			trBytes, err := tr.MarshalJSON()
 			if err != nil {
-				return TxReceipt{}, err
+				log.Crit("Failed to marshal transaction receipt", "error", err)
 			}
 
 			err = receipt.UnmarshalJSON(trBytes)
 			if err != nil {
-				return TxReceipt{}, err
+				log.Crit("Failed to unmarshal transaction bytes to type Go TxReceipt", "error", err)
 			}
 			receipt.TransactionURL = transactionURL
 		}
 	}
 
-	return receipt, nil
+	return receipt
 }
 
 // UnmarshalJSON customizes the unmarshalling of a TxReceipt.

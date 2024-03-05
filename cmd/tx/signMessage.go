@@ -5,10 +5,8 @@ package transaction
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/Jesserc/gast/cmd/gastParams"
-	"github.com/ethereum/go-ethereum/log"
 	"github.com/spf13/cobra"
 )
 
@@ -18,14 +16,11 @@ var signCmd = &cobra.Command{
 	Short: "Signs a given message with the private key",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		signedMessageHash, err := SignETHMessage(
+		signedMessageHash := SignETHMessage(
 			gastParams.TxDataValue,
 			gastParams.PrivKeyValue,
 		)
-		if err != nil {
-			log.Error("An error occurred", "err", err)
-			os.Exit(1)
-		}
+		
 		fmt.Printf("%ssigned message:%s\n %s\n", gastParams.ColorGreen, gastParams.ColorReset, signedMessageHash)
 	},
 }

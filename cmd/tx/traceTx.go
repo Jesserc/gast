@@ -4,10 +4,7 @@ Copyright © 2024 NAME HERE <EMAIL ADDRESS>
 package transaction
 
 import (
-	"os"
-
 	"github.com/Jesserc/gast/cmd/gastParams"
-	"github.com/ethereum/go-ethereum/log"
 	"github.com/spf13/cobra"
 )
 
@@ -17,11 +14,8 @@ var traceTxCmd = &cobra.Command{
 	Short: "Retrieves and displays the execution trace (path) of a given transaction hash",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		rootTrace, err := TraceTx(gastParams.TxHashValue, gastParams.TxRpcUrlValue)
-		if err != nil {
-			log.Error("An error occurred", "err", err)
-			os.Exit(1)
-		}
+		rootTrace := TraceTx(gastParams.TxHashValue, gastParams.TxRpcUrlValue)
+		
 		printTrace(rootTrace, 0, false, "")
 	},
 }

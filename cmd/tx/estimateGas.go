@@ -5,10 +5,8 @@ package transaction
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/Jesserc/gast/cmd/gastParams"
-	"github.com/ethereum/go-ethereum/log"
 	"github.com/spf13/cobra"
 )
 
@@ -18,11 +16,7 @@ var estimateGasCmd = &cobra.Command{
 	Short: "Provides an estimate of the gas required to execute a given transaction",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		estimatedTxGas, err := TryEstimateGas(gastParams.TxRpcUrlValue, gastParams.FromValue, gastParams.ToValue, gastParams.TxDataValue, gastParams.WeiValue)
-		if err != nil {
-			log.Error("An error occurred", "err", err)
-			os.Exit(1)
-		}
+		estimatedTxGas := TryEstimateGas(gastParams.TxRpcUrlValue, gastParams.FromValue, gastParams.ToValue, gastParams.TxDataValue, gastParams.WeiValue)
 		fmt.Printf("Estimated gas: %s%d%s\n", gastParams.ColorGreen, estimatedTxGas, gastParams.ColorReset)
 	},
 }

@@ -22,22 +22,19 @@ import (
 func SendBlobTX(rpcURL, data, privateKey, toAddress, dir string) string {
 	client, err := ethclient.Dial(rpcURL)
 	if err != nil {
-		log.Error("Failed to dial RPC client", "error", err)
-		return ""
+		log.Crit("Failed to dial RPC client", "error", err)
 	}
 
 	chainID, err := client.ChainID(context.Background())
 	if err != nil {
-		log.Error("Failed to get chain ID", "error", err)
-		return ""
+		log.Crit("Failed to get chain ID", "error", err)
 	}
 
 	var Blob [131072]byte
 	if strings.HasPrefix(data, "0x") {
 		bytesData, err := hexutil.Decode(data)
 		if err != nil {
-			log.Error("Failed to decode data", "error", err)
-			return ""
+			log.Crit("Failed to decode data", "error", err)
 		}
 		copy(Blob[:], bytesData)
 	} else {
@@ -46,8 +43,7 @@ func SendBlobTX(rpcURL, data, privateKey, toAddress, dir string) string {
 
 	BlobCommitment, err := kzg4844.BlobToCommitment(Blob)
 	if err != nil {
-		log.Error("Failed to compute blob commitment", "error", err)
-		return ""
+		log.Crit("Failed to compute blob commitment", "error", err)
 	}
 
 	BlobProof, err := kzg4844.ComputeBlobProof(Blob, BlobCommitment)
@@ -91,7 +87,6 @@ func SendBlobTX(rpcURL, data, privateKey, toAddress, dir string) string {
 		BlobHashes: sidecar.BlobHashes(),
 		Sidecar:    &sidecar,
 	}), nil
-
 	if err != nil {
 		log.Crit("Failed to create transaction", "error", err)
 	}
@@ -105,34 +100,35 @@ func SendBlobTX(rpcURL, data, privateKey, toAddress, dir string) string {
 		log.Crit("Failed to send transaction", "error", err)
 	}
 
-	d, err := json.MarshalIndent(signedTx, "", "\t")
-	if err != nil {
-		log.Error("Failed to marshal indent transaction", "error", err)
-	}
+	if dir != "" {
+		d, err := json.MarshalIndent(signedTx, "", "\t")
+		if err != nil {
+			log.Error("Failed to marshal indent transaction", "error", err)
+		}
 
-	hd, err := homedir.Dir()
-	if err != nil {
-		log.Error("Failed to get home directory", "error", err)
-	}
+		hd, err := homedir.Dir()
+		if err != nil {
+			log.Error("Failed to get home directory", "error", err)
+		}
 
-	path := filepath.Join(hd, dir)
-	if err = os.MkdirAll(path, 0755); err != nil {
-		log.Error("Failed to create directory", "error", err)
-	}
+		path := filepath.Join(hd, dir)
+		if err = os.MkdirAll(path, 0755); err != nil {
+			log.Error("Failed to create directory", "error", err)
+		}
 
-	n := fmt.Sprintf("blob_%v", signedTx.Hash().Hex()[0:6])
-	f, err := os.Create(filepath.Join(path, n))
-	if err != nil {
-		log.Error("Failed to create file", "error", err)
-	}
+		n := fmt.Sprintf("blob_%v", signedTx.Hash().Hex()[0:6])
+		f, err := os.Create(filepath.Join(path, n))
+		if err != nil {
+			log.Error("Failed to create file", "error", err)
+		}
 
-	_, err = f.Write(d)
-	if err != nil {
-		log.Error("Failed to write blob tx details to file", "error", err)
-	} else {
-		log.Info("Blob transaction details saved", "filepath", f.Name())
+		_, err = f.Write(d)
+		if err != nil {
+			log.Error("Failed to write blob tx details to file", "error", err)
+		} else {
+			log.Info("Blob transaction details saved", "filepath", f.Name())
+		}
 	}
-
 	txHash := signedTx.Hash().Hex()
 
 	return txHash

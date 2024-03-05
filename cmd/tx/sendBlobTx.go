@@ -15,7 +15,7 @@ var sendBlobTxCmd = &cobra.Command{
 	Short: "A brief description of your command",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		blobTxHash := SendBlobTX(gastParams.TxRpcUrlValue, gastParams.TxDataValue, gastParams.PrivKeyValue, gastParams.ToValue)
+		blobTxHash := SendBlobTX(gastParams.TxRpcUrlValue, gastParams.TxDataValue, gastParams.PrivKeyValue, gastParams.ToValue, "gast/blob-tx/")
 		log.Info("Successfully sent blob transaction", "hash", " "+blobTxHash)
 
 	},

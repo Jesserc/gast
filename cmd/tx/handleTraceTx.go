@@ -23,7 +23,7 @@ type Trace struct {
 	Children []*Trace `json:"-"`
 }
 
-func TraceTx(hash, rpcUrl string) (*Trace, error) {
+func TraceTx(hash, rpcUrl string) *Trace {
 	var (
 		client *rpc.Client
 		err    error
@@ -33,30 +33,30 @@ func TraceTx(hash, rpcUrl string) (*Trace, error) {
 		client, err = rpc.Dial("https://rpc.builder0x69.io/")
 		defer client.Close()
 		if err != nil {
-			return nil, err
+			log.Crit("Failed to dial RPC client", "error", err)
 		}
 	} else {
 		client, err = rpc.Dial(rpcUrl)
 		defer client.Close()
 		if err != nil {
-			return nil, err
+			log.Crit("Failed to dial RPC client", "error", err)
 		}
 	}
 
 	var result json.RawMessage
 	err = client.CallContext(context.Background(), &result, "ots_traceTransaction", hash)
 	if err != nil {
-		return nil, err
+		log.Crit("Failed to trace transaction", "error", err)
 	}
 
 	var traces []Trace
-	if err := json.Unmarshal(result, &traces); err != nil {
-		return nil, err
+	if err = json.Unmarshal(result, &traces); err != nil {
+		log.Crit("Failed to unmarshal trace result to Go type []Trace", "error", err)
 	}
 
 	rootTrace := buildTraceHierarchy(traces)
 
-	return rootTrace, nil
+	return rootTrace
 }
 
 func buildTraceHierarchy(traces []Trace) *Trace {

@@ -5,7 +5,6 @@ package transaction
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/Jesserc/gast/cmd/gastParams"
 	"github.com/Jesserc/gast/utils"
@@ -22,21 +21,16 @@ var createContractCmd = &cobra.Command{
 
 		bytecode, err := utils.CompileSol(gastParams.DirValue)
 		if err != nil {
-			log.Crit("An error occurred", "err", err)
+			log.Crit("Failed to compile contract", "err", err)
 		}
 
-		txReceipt, err := CreateContract(
+		txReceipt := CreateContract(
 			gastParams.TxRpcUrlValue,
 			bytecode,
 			gastParams.PrivKeyValue,
 			gastParams.GasLimitValue,
 			gastParams.WeiValue,
 		)
-
-		if err != nil {
-			log.Error("An error occurred", "err", err)
-			os.Exit(1)
-		}
 
 		fmt.Printf("\nTransaction Receipt:\n")
 		fmt.Printf("%sTransaction Hash%s: %s\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.TransactionHash)

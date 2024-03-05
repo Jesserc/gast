@@ -9,17 +9,16 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/ethereum/go-ethereum/log"
 )
 
 // TryEstimateGas tries to estimate the gas needed to execute a specific transaction based on the current pending state of the backend blockchain. There is no guarantee that this is the true gas limit requiremen
-func TryEstimateGas(rpcUrl, from, to, data string, value uint64) (uint64, error) {
+func TryEstimateGas(rpcUrl, from, to, data string, value uint64) uint64 {
 	client, err := ethclient.Dial(rpcUrl)
 	defer client.Close()
 	if err != nil {
-		return 0, err
+		log.Crit("Failed to dial RPC client", "error", err)
 	}
-
-	var ctx = context.Background()
 
 	var (
 		fromAddr  = common.HexToAddress(from)
@@ -35,7 +34,7 @@ func TryEstimateGas(rpcUrl, from, to, data string, value uint64) (uint64, error)
 
 		bytesData, err = hexutil.Decode(data)
 		if err != nil {
-			return 0, err
+			log.Crit("Failed to decode data", "error", err)
 		}
 	}
 
@@ -47,10 +46,10 @@ func TryEstimateGas(rpcUrl, from, to, data string, value uint64) (uint64, error)
 		Data:  bytesData,
 	}
 
-	gas, err := client.EstimateGas(ctx, msg)
+	gas, err := client.EstimateGas(context.Background(), msg)
 	if err != nil {
-		return 0, err
+		log.Crit("Failed estimate gas", "error", err)
 	}
 
-	return gas, nil
+	return gas
 }

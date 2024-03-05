@@ -15,7 +15,7 @@ var sendBlobTxCmd = &cobra.Command{
 	Short: "A brief description of your command",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		blobTxHash := SendBlobTX(gastParams.TxRpcUrlValue, gastParams.TxDataValue, gastParams.PrivKeyValue, gastParams.ToValue)
+		blobTxHash := SendBlobTX(gastParams.TxRpcUrlValue, gastParams.TxDataValue, gastParams.PrivKeyValue, gastParams.ToValue, gastParams.DirValue)
 		log.Info("Successfully sent blob transaction", "hash", " "+blobTxHash)
 
 	},
@@ -27,4 +27,7 @@ func init() {
 	sendBlobTxCmd.Flags().StringVarP(&gastParams.TxDataValue, "blob-data", "b", "", "blob data (hex or string)")
 	sendBlobTxCmd.Flags().StringVarP(&gastParams.PrivKeyValue, "private-key", "p", "", "private key to sign transaction")
 	sendBlobTxCmd.Flags().StringVarP(&gastParams.ToValue, "to", "t", "", "blob transaction recipient")
+	sendBlobTxCmd.Flags().StringVarP(&gastParams.DirValue, "dir", "d", "", "directory for saving blob transaction details. e.g, 'gast/blob-tx' => $HOME/gast/blob-tx (optional)")
+
+	sendBlobTxCmd.MarkFlagsRequiredTogether("rpc-url", "blob-data", "private-key", "to")
 }

@@ -12,6 +12,7 @@ import (
 	"github.com/Jesserc/gast/cmd/gastParams"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/rlp"
 )
 
@@ -38,32 +39,35 @@ type Transaction struct {
 }
 
 // SendRawTransaction sends a raw Ethereum transaction.
-func SendRawTransaction(rawTx, rpcURL string) (string, string, error) {
+func SendRawTransaction(rawTx, rpcURL string) (string, string) {
+	client, err := ethclient.Dial(rpcURL)
+	defer client.Close()
+	if err != nil {
+		log.Crit("Failed to dial RPC client", "error", err)
+	}
+
 	rawTxBytes, err := hex.DecodeString(rawTx)
 	if err != nil {
-		return "", "", err
+		log.Crit("Failed to decode raw transaction to rlp decoded bytes", "error", err)
 	}
 
 	tx := new(types.Transaction)
 	err = rlp.DecodeBytes(rawTxBytes, &tx)
 	if err != nil {
-		return "", "", err
+		log.Crit("Failed to decode transaction rlp bytes to types.Transaction", "error", err)
 	}
 
-	client, err := ethclient.Dial(rpcURL)
-	defer client.Close()
-	if err != nil {
-		return "", "", err
-	}
+	fmt.Println() // spacing
+	log.Warn("Sending transaction, please wait for confirmation...")
 
 	err = client.SendTransaction(context.Background(), tx)
 	if err != nil {
-		return "", "", err
+		log.Crit("Failed to send transaction", "error", err)
 	}
 
 	chainID, err := client.ChainID(context.Background())
 	if err != nil {
-		return "", "", err
+		log.Crit("Failed to get chain ID", "error", err)
 	}
 
 	var transactionURL string
@@ -78,10 +82,10 @@ func SendRawTransaction(rawTx, rpcURL string) (string, string, error) {
 	var txDetails Transaction
 	txBytes, err := tx.MarshalJSON()
 	if err != nil {
-		return "", "", err
+		log.Crit("Failed to marshal transaction", "error", err)
 	}
 	if err := json.Unmarshal(txBytes, &txDetails); err != nil {
-		return "", "", err
+		log.Crit("Failed to unmarshal transaction bytes to type Go Transaction", "error", err)
 	}
 
 	// Add additional transaction details
@@ -91,21 +95,21 @@ func SendRawTransaction(rawTx, rpcURL string) (string, string, error) {
 	// Convert some hexadecimal string fields to decimal string
 	convertFields := []string{"Nonce", "MaxPriorityFeePerGas", "MaxFeePerGas", "Value", "Type", "Gas"}
 	for _, field := range convertFields {
-		if err := convertHexField(&txDetails, field); err != nil {
-			return "", "", err
+		if err := convertHexFieldToDecimalString(&txDetails, field); err != nil {
+			log.Error("Failed to convert hex fields to decimal string", "error", err)
 		}
 	}
 
 	// Marshal the struct back to JSON
 	txJSON, err := json.MarshalIndent(txDetails, "", "\t")
 	if err != nil {
-		return "", "", err
+		log.Crit("Failed to marshal indent transaction details", "error", err)
 	}
 
-	return transactionURL, string(txJSON), nil
+	return transactionURL, string(txJSON)
 }
 
-func convertHexField(tx *Transaction, field string) error {
+func convertHexFieldToDecimalString(tx *Transaction, field string) error {
 	// Get the type of the Transaction struct
 	typeOfTx := reflect.TypeOf(*tx)
 

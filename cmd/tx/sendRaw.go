@@ -14,15 +14,15 @@ import (
 // sendRawCmd represents the sendRaw command
 var sendRawCmd = &cobra.Command{
 	Use:   "send-raw",
-	Short: "Submits a raw, signed transaction to the Ethereum network",
+	Short: "Submit a raw, signed transaction",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		txReceipt, txDetails := SendRawTransaction(gastParams.RawTxValue, gastParams.TxRpcUrlValue)
+		txReceiptUrl, txDetails := SendRawTransaction(gastParams.RawTxValue, gastParams.TxRpcUrlValue)
 
 		// Print the entire JSON with the added fields
 		log.Info("Transaction details:")
 		fmt.Println(txDetails)
-		fmt.Printf("%sTx Receipt:%s %s\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt)
+		fmt.Printf("%sTx Receipt:%s %s\n", gastParams.ColorGreen, gastParams.ColorReset, txReceiptUrl)
 
 	},
 }

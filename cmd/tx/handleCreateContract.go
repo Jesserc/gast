@@ -127,13 +127,14 @@ func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) TxRec
 	defer cancel()
 
 	timer := time.Now()
+
+	fmt.Println() // spacing
+	log.Warn("Sending transaction, please wait for confirmation...")
+	
 	err = client.SendTransaction(ctx, signedTx)
 	if err != nil {
 		log.Crit("Failed to send transaction", "error", err)
 	}
-
-	fmt.Println() // spacing
-	log.Warn("Sending transaction, please wait for confirmation...")
 
 	var transactionURL string
 	for id, explorer := range gastParams.NetworkExplorers {

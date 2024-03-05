@@ -13,14 +13,14 @@ import (
 // signCmd represents the SignETHMessage command
 var signCmd = &cobra.Command{
 	Use:   "sign-message",
-	Short: "Signs a given message with the private key",
+	Short: "Sign a given message with a private key",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		signedMessageHash := SignETHMessage(
 			gastParams.TxDataValue,
 			gastParams.PrivKeyValue,
 		)
-		
+
 		fmt.Printf("%ssigned message:%s\n %s\n", gastParams.ColorGreen, gastParams.ColorReset, signedMessageHash)
 	},
 }

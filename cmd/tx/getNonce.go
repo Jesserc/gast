@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/Jesserc/gast/cmd/gastParams"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +17,10 @@ var getNonceCmd = &cobra.Command{
 	Short: "Get the transaction count of an account",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		currentNonce, nextNonce := GetNonce(gastParams.FromValue, gastParams.TxRpcUrlValue)
+		currentNonce, nextNonce, err := GetNonce(gastParams.FromValue, gastParams.TxRpcUrlValue)
+		if err != nil {
+			log.Crit("Failed to get nonce", "Error", err)
+		}
 		fmt.Printf("%sCurrent nonce:%s %v, %sNext nonce:%s %v\n", gastParams.ColorGreen, gastParams.ColorReset, currentNonce, gastParams.ColorGreen, gastParams.ColorReset, nextNonce)
 	},
 }

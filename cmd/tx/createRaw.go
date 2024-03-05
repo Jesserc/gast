@@ -13,7 +13,7 @@ import (
 // createRawCmd represents the createRaw command
 var createRawCmd = &cobra.Command{
 	Use:   "create-raw",
-	Short: "Generates a raw, unsigned EIP-1559 transaction",
+	Short: "Generate a raw, signed EIP-1559 transaction",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		rawTransaction := CreateRawTransaction(

@@ -14,11 +14,11 @@ import (
 // verifySigCmd represents the verifySig command
 var verifySigCmd = &cobra.Command{
 	Use:   "verify-sig",
-	Short: "Verifies the signature of a signed message (can be created with the sign-message command)",
+	Short: "Verify the signature of a signed message (can be created with the sign-message command)",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		isSigner := VerifySig(gastParams.SigValue, gastParams.SigAddressValue, gastParams.SigMsgValue)
-		
+
 		if isSigner {
 			fmt.Printf("%s %ssigned%s \"%s\"\n", gastParams.SigAddressValue, gastParams.ColorGreen, gastParams.ColorReset, gastParams.SigMsgValue)
 		} else {

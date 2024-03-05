@@ -13,7 +13,7 @@ import (
 // estimateGasCmd represents the TryEstimateGas command
 var estimateGasCmd = &cobra.Command{
 	Use:   "estimate-gas",
-	Short: "Provides an estimate of the gas required to execute a given transaction",
+	Short: "Estimate the gas required to execute a given transaction",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		estimatedTxGas := TryEstimateGas(gastParams.TxRpcUrlValue, gastParams.FromValue, gastParams.ToValue, gastParams.TxDataValue, gastParams.WeiValue)

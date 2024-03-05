@@ -11,11 +11,11 @@ import (
 // traceTxCmd represents the trace command
 var traceTxCmd = &cobra.Command{
 	Use:   "trace",
-	Short: "Retrieves and displays the execution trace (path) of a given transaction hash",
+	Short: "Retrieve and display the execution trace (path) of a given transaction hash",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		rootTrace := TraceTx(gastParams.TxHashValue, gastParams.TxRpcUrlValue)
-		
+
 		printTrace(rootTrace, 0, false, "")
 	},
 }

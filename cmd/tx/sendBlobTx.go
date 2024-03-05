@@ -12,7 +12,7 @@ import (
 // sendBlobTxCmd represents the sendBlobTx command
 var sendBlobTxCmd = &cobra.Command{
 	Use:   "send-blob",
-	Short: "A brief description of your command",
+	Short: "Create and send an EIP-4844 blob transaction",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		blobTxHash := SendBlobTX(gastParams.TxRpcUrlValue, gastParams.TxDataValue, gastParams.PrivKeyValue, gastParams.ToValue, gastParams.DirValue)

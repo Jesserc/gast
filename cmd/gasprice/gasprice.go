@@ -21,7 +21,7 @@ var (
 // GaspriceCmd represents the gasprice command
 var GaspriceCmd = &cobra.Command{
 	Use:   "gas-price",
-	Short: "Fetches the current gas price from specified Ethereum networks",
+	Short: "Fetch the current gas price",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
 		gPrice, err := fetchGasPrice()

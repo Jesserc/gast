@@ -1,12 +1,12 @@
 package transaction
 
 import (
-	"bytes"
 	"context"
-	"encoding/hex"
+	"fmt"
 	"math/big"
 	"strings"
 
+	"github.com/Jesserc/gast/cmd/gastParams"
 	"github.com/Jesserc/gast/utils"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -17,8 +17,8 @@ import (
 	"github.com/ethereum/go-ethereum/params"
 )
 
-// CreateRawTransaction creates a raw Ethereum transaction.
-func CreateRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uint64) string {
+// SendTransaction sends an Ethereum transaction.
+func SendTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uint64) string {
 	// Connect to the Ethereum client
 	client, err := ethclient.Dial(rpcURL)
 	defer client.Close()
@@ -81,7 +81,7 @@ func CreateRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uin
 		} else {
 			hexData = "0x" + data
 		}
-		
+
 		bytesData, err = hexutil.Decode(hexData)
 		if err != nil {
 			log.Crit("Failed to decode data", "error", err)
@@ -111,14 +111,20 @@ func CreateRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uin
 		log.Crit("Failed to sign transaction", "error", err)
 	}
 
-	// Encode signed transaction to RLP hex
-	var buf bytes.Buffer
-	err = signedTx.EncodeRLP(&buf)
+	fmt.Println() // spacing
+	log.Warn("Sending transaction...")
+
+	err = client.SendTransaction(context.Background(), signedTx)
 	if err != nil {
-		log.Crit("Failed get rlp encoded raw transaction", "error", err)
+		log.Crit("Failed to send transaction", "error", err)
 	}
 
-	rawTxRLPHex := hex.EncodeToString(buf.Bytes())
-
-	return rawTxRLPHex
+	var transactionURL string
+	for id, explorer := range gastParams.NetworkExplorers {
+		if chainID.Uint64() == id {
+			transactionURL = fmt.Sprintf("%vtx/%v", explorer, signedTx.Hash().Hex())
+			break
+		}
+	}
+	return transactionURL
 }

@@ -41,12 +41,12 @@ func TestTryEstimateGasThree(t *testing.T) {
 		"https://rpc.mevblocker.io",
 		"0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
 		"0xbe0eb53f46cd790cd13851d5eff43d12404d33e8",
-		"0xf4gg",       // Invalid hex data
+		"0xf4gg",       // Invalid hex data, this should return an error
 		params.GWei*20, // 20 gwei
 	)
 
 	require.NotNil(t, err)
-	require.Zero(t, gas) // should be greater zero
+	require.Zero(t, gas) // should be zero
 	require.ErrorContains(t, err, "failed to decode data")
 }
 

@@ -23,7 +23,7 @@ type Trace struct {
 	Children []*Trace `json:"-"`
 }
 
-func TraceTx(hash, rpcUrl string) *Trace {
+func TraceTx(hash, rpcUrl string) (*Trace, error) {
 	var (
 		client *rpc.Client
 		err    error
@@ -31,32 +31,32 @@ func TraceTx(hash, rpcUrl string) *Trace {
 
 	if rpcUrl == "" {
 		client, err = rpc.Dial("https://rpc.builder0x69.io/")
-		defer client.Close()
 		if err != nil {
-			log.Crit("Failed to dial RPC client", "error", err)
+			return nil, fmt.Errorf("failed to dial RPC client: %s", err)
 		}
+		defer client.Close()
 	} else {
 		client, err = rpc.Dial(rpcUrl)
-		defer client.Close()
 		if err != nil {
-			log.Crit("Failed to dial RPC client", "error", err)
+			return nil, fmt.Errorf("failed to dial RPC client: %s", err)
 		}
+		defer client.Close()
 	}
 
 	var result json.RawMessage
 	err = client.CallContext(context.Background(), &result, "ots_traceTransaction", hash)
 	if err != nil {
-		log.Crit("Failed to trace transaction", "error", err)
+		return nil, fmt.Errorf("failed to trace transaction: %s", err)
 	}
 
 	var traces []Trace
 	if err = json.Unmarshal(result, &traces); err != nil {
-		log.Crit("Failed to unmarshal trace result to Go type []Trace", "error", err)
+		return nil, fmt.Errorf("failed to unmarshal trace result to Go type []Trace: %s", err)
 	}
 
 	rootTrace := buildTraceHierarchy(traces)
 
-	return rootTrace
+	return rootTrace, nil
 }
 
 func buildTraceHierarchy(traces []Trace) *Trace {
@@ -77,7 +77,7 @@ func buildTraceHierarchy(traces []Trace) *Trace {
 		lastAtDepth[trace.Depth] = current // Update the last trace at this depth
 	}
 
-	return root // Return the root of the trace hierarchy
+	return root
 }
 
 func printTrace(trace *Trace, indentLevel int, isLastChild bool, prefix string) {
@@ -115,8 +115,8 @@ func printTrace(trace *Trace, indentLevel int, isLastChild bool, prefix string) 
 }
 
 func formatInput(input string) string {
-	if len(input) <= 4 {
-		// If the input is 4 characters or fewer, just return it as is.
+	if len(input) <= 9 {
+		// If the input is 9 characters or fewer, just return it as is.
 		return input
 	}
 

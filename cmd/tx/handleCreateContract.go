@@ -130,7 +130,7 @@ func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) TxRec
 
 	fmt.Println() // spacing
 	log.Warn("Sending transaction, please wait for confirmation...")
-	
+
 	err = client.SendTransaction(ctx, signedTx)
 	if err != nil {
 		log.Crit("Failed to send transaction", "error", err)

@@ -81,7 +81,7 @@ func CreateRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uin
 		} else {
 			hexData = "0x" + data
 		}
-		
+
 		bytesData, err = hexutil.Decode(hexData)
 		if err != nil {
 			log.Crit("Failed to decode data", "error", err)

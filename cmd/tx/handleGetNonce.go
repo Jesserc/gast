@@ -17,7 +17,7 @@ func GetNonce(address, rpcUrl string) (uint64, uint64, error) {
 
 	nextNonce, err := client.PendingNonceAt(context.Background(), common.HexToAddress(address))
 	if err != nil {
-		return 0, 0, fmt.Errorf("failed to get nonce: %s", err)
+		return 0, 0, fmt.Errorf("failed to get next nonce: %s", err)
 	}
 
 	var currentNonce uint64

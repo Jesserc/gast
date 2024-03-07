@@ -6,50 +6,45 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetNonceIntegration_FailureDueToWhitespaceInRPCURL(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping integration test")
+func TestGetNonce_Integration(t *testing.T) {
+	testCases := []struct {
+		name          string
+		address       string
+		rpcURL        string
+		expectedError string // Expected error substring
+
+	}{
+		{
+			name:          "Whitespace in RPC URL",
+			address:       "0x571B102323C3b8B8Afb30619Ac1d36d85359fb84",
+			rpcURL:        " https://sepolia.drpc.org ",
+			expectedError: "failed to dial RPC client",
+		},
+		{
+			name:          "Malformed RPC URL",
+			address:       "0x571B102323C3b8B8Afb30619Ac1d36d85359fb84",
+			rpcURL:        "https://sepolia.drpc.or",
+			expectedError: "no such host",
+		},
+		{
+			name:    "Successful retrieval",
+			address: "0x571B102323C3b8B8Afb30619Ac1d36d85359fb84",
+			rpcURL:  "https://sepolia.drpc.org",
+		},
 	}
 
-	address1 := "0x571B102323C3b8B8Afb30619Ac1d36d85359fb84"
-	rpcUrl := " https://sepolia.drpc.org " // Intentional whitespace should cause an error
-
-	cNonce, nNonce, err := GetNonce(address1, rpcUrl)
-
-	require.Error(t, err)
-	require.ErrorContains(t, err, "failed to dial RPC client")
-
-	require.Zero(t, cNonce, "current nonce should be zero for invalid rpc url")
-	require.Zero(t, nNonce, "next nonce should be zero for invalid rpc url")
-}
-
-func TestGetNonceIntegration_FailureWithMalformedRPCURL(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping integration test")
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			nonce, nextNonce, err := GetNonce(tc.address, tc.rpcURL)
+			if tc.expectedError != "" {
+				require.Error(t, err)
+				require.ErrorContains(t, err, tc.expectedError)
+				require.Zero(t, nonce)
+				require.Zero(t, nextNonce)
+			} else {
+				require.NoError(t, err)
+				require.Greater(t, nextNonce, nonce)
+			}
+		})
 	}
-
-	address1 := "0x571B102323C3b8B8Afb30619Ac1d36d85359fb84"
-	rpcUrl := "https://sepolia.drpc.or" // Omit `o` at the end, this should also cause an error
-
-	cNonce, nNonce, err := GetNonce(address1, rpcUrl)
-
-	require.Error(t, err)
-	require.ErrorContains(t, err, "no such host")
-
-	require.Zero(t, cNonce, "current nonce should be zero for invalid rpc url")
-	require.Zero(t, nNonce, "next nonce should be zero for invalid rpc url")
-}
-
-func TestGetNonceIntegration_SuccessfulRetrieval(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
-
-	address1 := "0x571B102323C3b8B8Afb30619Ac1d36d85359fb84"
-	rpcUrl := "https://sepolia.drpc.org"
-
-	cNonce, nNonce, err := GetNonce(address1, rpcUrl)
-
-	require.NoError(t, err)
-	require.Greater(t, nNonce, cNonce)
 }

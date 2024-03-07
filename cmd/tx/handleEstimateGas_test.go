@@ -7,55 +7,49 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestEstGas_Integration_FailureDueToWhitespaceInRPCURL(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping integration test")
+func TestTryEstimateGasGas_Integration(t *testing.T) {
+	testCases := []struct {
+		name          string
+		rpcURL        string // Test input: RPC URL
+		from          string // Other test inputs could be added here
+		to            string
+		data          string
+		gasPrice      uint64
+		expectedError string // Expected error substring
+		wantGas       uint64 // Expected gas estimate (0 for failure cases)
+	}{
+		{
+			name:          "Whitespace in RPC URL",
+			rpcURL:        " https://rpc.mevblocker.io ",
+			expectedError: "failed to dial RPC client",
+		},
+		{
+			name:          "Malformed RPC URL",
+			rpcURL:        "https://rpc.mevblocker.i",
+			expectedError: "no such host",
+		},
+		{
+			name:     "Successful Estimation",
+			rpcURL:   "https://rpc.mevblocker.io",
+			from:     "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+			to:       "0xbe0eb53f46cd790cd13851d5eff43d12404d33e8",
+			data:     "Hello Ethereum!",
+			gasPrice: params.GWei * 20,
+			wantGas:  21000,
+		},
 	}
 
-	gas, err := TryEstimateGas(
-		"https://rpc.mevblocker.io ", // Intentional whitespace should cause an error
-		"0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
-		"0xbe0eb53f46cd790cd13851d5eff43d12404d33e8",
-		"Hello Ethereum!",
-		params.GWei*20, // 20 gwei
-	)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			gas, err := TryEstimateGas(tc.rpcURL, tc.from, tc.to, tc.data, tc.gasPrice)
 
-	require.Error(t, err)
-	require.Zero(t, gas)
-	require.ErrorContains(t, err, "failed to dial RPC client")
-}
-
-func TestEstGas_Integration_FailureWithMalformedRPCURL(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping integration test")
+			if tc.expectedError != "" {
+				require.Error(t, err)
+				require.ErrorContains(t, err, tc.expectedError)
+			} else {
+				require.NoError(t, err)
+				require.Greater(t, gas, tc.wantGas)
+			}
+		})
 	}
-
-	gas, err := TryEstimateGas(
-		"https://rpc.mevblocker.i", // Omit `o` at the end, this should also cause an error
-		"0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
-		"0xbe0eb53f46cd790cd13851d5eff43d12404d33e8",
-		"Hello Ethereum!",
-		params.GWei*20, // 20 gwei
-	)
-
-	require.Error(t, err)
-	require.Zero(t, gas)
-	require.ErrorContains(t, err, "no such host")
-}
-
-func TestEstGas_Integration_SuccessfulEstimation(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
-
-	gas, err := TryEstimateGas(
-		"https://rpc.mevblocker.io",
-		"0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
-		"0xbe0eb53f46cd790cd13851d5eff43d12404d33e8",
-		"Hello Ethereum!",
-		params.GWei*20, // 20 gwei
-	)
-
-	require.NoError(t, err)
-	require.Greater(t, gas, uint64(21000)) // should be greater than 21000 gas because of the data field
 }

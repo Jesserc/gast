@@ -20,7 +20,7 @@ func TestEstGas_Integration_FailureDueToWhitespaceInRPCURL(t *testing.T) {
 		params.GWei*20, // 20 gwei
 	)
 
-	require.NotNil(t, err)
+	require.Error(t, err)
 	require.Zero(t, gas)
 	require.ErrorContains(t, err, "failed to dial RPC client")
 }
@@ -38,7 +38,7 @@ func TestEstGas_Integration_FailureWithMalformedRPCURL(t *testing.T) {
 		params.GWei*20, // 20 gwei
 	)
 
-	require.NotNil(t, err)
+	require.Error(t, err)
 	require.Zero(t, gas)
 	require.ErrorContains(t, err, "no such host")
 }
@@ -56,6 +56,6 @@ func TestEstGas_Integration_SuccessfulEstimation(t *testing.T) {
 		params.GWei*20, // 20 gwei
 	)
 
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Greater(t, gas, uint64(21000)) // should be greater than 21000 gas because of the data field
 }

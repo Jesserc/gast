@@ -6,6 +6,7 @@ package gasprice
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -35,12 +36,12 @@ var (
 func GetCurrentGasPrice(rpcUrl string) (string, error) {
 	client, err := ethclient.Dial(rpcUrl)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to dial RPC client: %s", err)
 	}
 
 	chainIdBigInt, err := client.ChainID(ctx)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to get chain ID: %s", err)
 	}
 
 	chainId := chainIdBigInt.Uint64()
@@ -54,7 +55,7 @@ func GetCurrentGasPrice(rpcUrl string) (string, error) {
 
 	gasPrice, err := client.SuggestGasPrice(context.Background())
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to get gas price: %s", err)
 	}
 
 	return gasPrice.String(), nil

@@ -20,7 +20,7 @@ func TestSendTx_Integration_RPCURLWhitespaceFailure(t *testing.T) {
 		0.5e9, // 0.5 gwei
 	)
 
-	require.NotNil(t, err)
+	require.Error(t, err)
 	require.ErrorContains(t, err, "failed to dial RPC client")
 	require.Equal(t, txReceiptUrl, "") // tx receipt url should be an empty string
 }
@@ -39,7 +39,7 @@ func TestSendTx_Integration_BadRPCURLFailure(t *testing.T) {
 		0.5e9, // 0.5 gwei
 	)
 
-	require.NotNil(t, err)
+	require.Error(t, err)
 	require.ErrorContains(t, err, "failed to get chain ID")
 	require.Equal(t, txReceiptUrl, "")
 }
@@ -58,7 +58,7 @@ func TestSendTx_Integration_InvalidPrivateKeyFailure(t *testing.T) {
 		0.5e9, // 0.5 gwei
 	)
 
-	require.NotNil(t, err)
+	require.Error(t, err)
 	require.ErrorContains(t, err, "failed to decode private key: hex string of odd length")
 	require.Equal(t, txReceiptUrl, "")
 }
@@ -77,7 +77,7 @@ func TestSendTx_Integration_PrivateKeySizeExceedsLimitFailure(t *testing.T) {
 		0.5e9, // 0.5 gwei
 	)
 
-	require.NotNil(t, err)
+	require.Error(t, err)
 	require.ErrorContains(t, err, "failed to convert private key to ECDSA")
 	require.Equal(t, txReceiptUrl, "")
 }
@@ -96,7 +96,7 @@ func TestSendTx_Integration_InsufficientGasFailure(t *testing.T) {
 		0.5e9,
 	)
 
-	require.NotNil(t, err, "returned error should not be nil")
+	require.Error(t, err, "returned error should not be nil")
 	require.ErrorContains(t, err, "failed to send transaction: INTERNAL_ERROR: IntrinsicGas")
 	require.Equal(t, txReceiptUrl, "", "transaction receipt url should be empty")
 }
@@ -115,7 +115,7 @@ func TestSendTx_Integration_SuccessWithHexData(t *testing.T) {
 		0.5e9,
 	)
 
-	require.Nil(t, err, "returned error should be nil")
+	require.NoError(t, err, "returned error should be nil")
 	require.Contains(t, txReceiptUrl, "https://sepolia.etherscan.io")
 }
 
@@ -133,7 +133,7 @@ func TestSendTx_Integration_SuccessHexDataNoPrefix(t *testing.T) {
 		0.5e9,
 	)
 
-	require.Nil(t, err, "returned error should be nil")
+	require.NoError(t, err, "returned error should be nil")
 	require.Contains(t, txReceiptUrl, "https://sepolia.etherscan.io")
 }
 
@@ -151,6 +151,6 @@ func TestSendTx_Integration_SuccessWithStringData(t *testing.T) {
 		0.5e9,
 	)
 
-	require.Nil(t, err, "returned error should be nil")
+	require.NoError(t, err, "returned error should be nil")
 	require.Contains(t, txReceiptUrl, "https://sepolia.etherscan.io")
 }

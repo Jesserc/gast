@@ -20,7 +20,7 @@ func TestTraceTxIntegration_FailureDueToWhitespaceInRPCURL(t *testing.T) {
 	)
 
 	require.Nil(t, trace)
-	require.NotNil(t, err)
+	require.Error(t, err)
 
 	require.ErrorContains(t, err, "failed to dial RPC client")
 }
@@ -36,7 +36,7 @@ func TestTraceTxIntegration_FailureDueToInvalidTransactionHash(t *testing.T) {
 	)
 
 	require.Nil(t, trace)
-	require.NotNil(t, err)
+	require.Error(t, err)
 
 	require.ErrorContains(t, err, "invalid argument")
 }
@@ -51,7 +51,7 @@ func TestTraceTxIntegration_SuccessWithDefaultRPCURL(t *testing.T) {
 	)
 
 	require.NotNil(t, trace)
-	require.Nil(t, err)
+	require.NoError(t, err)
 
 	require.Equal(t, reflect.TypeOf(trace), reflect.TypeOf(&Trace{}))
 }
@@ -63,7 +63,7 @@ func TestTraceTxIntegration_SuccessWithSpecifiedRPCURL(t *testing.T) {
 	)
 
 	require.NotNil(t, trace)
-	require.Nil(t, err)
+	require.NoError(t, err)
 
 	require.Equal(t, reflect.TypeOf(trace), reflect.TypeOf(&Trace{}))
 

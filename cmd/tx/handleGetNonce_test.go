@@ -16,7 +16,7 @@ func TestGetNonceIntegration_FailureDueToWhitespaceInRPCURL(t *testing.T) {
 
 	cNonce, nNonce, err := GetNonce(address1, rpcUrl)
 
-	require.NotNil(t, err)
+	require.Error(t, err)
 	require.ErrorContains(t, err, "failed to dial RPC client")
 
 	require.Zero(t, cNonce, "current nonce should be zero for invalid rpc url")
@@ -33,7 +33,7 @@ func TestGetNonceIntegration_FailureWithMalformedRPCURL(t *testing.T) {
 
 	cNonce, nNonce, err := GetNonce(address1, rpcUrl)
 
-	require.NotNil(t, err)
+	require.Error(t, err)
 	require.ErrorContains(t, err, "no such host")
 
 	require.Zero(t, cNonce, "current nonce should be zero for invalid rpc url")
@@ -50,6 +50,6 @@ func TestGetNonceIntegration_SuccessfulRetrieval(t *testing.T) {
 
 	cNonce, nNonce, err := GetNonce(address1, rpcUrl)
 
-	require.Nil(t, err)
+	require.NoError(t, err)
 	require.Greater(t, nNonce, cNonce)
 }

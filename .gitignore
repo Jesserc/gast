@@ -18,6 +18,7 @@ vendor/*
 *.DS_STORE
 gast
 bin
+blob
 
 cmd/tx/coverage.out
 testData/handleTraceTx

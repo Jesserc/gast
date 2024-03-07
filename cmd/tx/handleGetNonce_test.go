@@ -6,7 +6,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetNonceFailureOne(t *testing.T) {
+func TestGetNonceIntegration_FailureDueToWhitespaceInRPCURL(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+
 	address1 := "0x571B102323C3b8B8Afb30619Ac1d36d85359fb84"
 	rpcUrl := " https://sepolia.drpc.org " // Intentional whitespace should cause an error
 
@@ -19,7 +23,11 @@ func TestGetNonceFailureOne(t *testing.T) {
 	require.Zero(t, nNonce, "next nonce should be zero for invalid rpc url")
 }
 
-func TestGetNonceFailureTwo(t *testing.T) {
+func TestGetNonceIntegration_FailureWithMalformedRPCURL(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+
 	address1 := "0x571B102323C3b8B8Afb30619Ac1d36d85359fb84"
 	rpcUrl := "https://sepolia.drpc.or" // Omit `o` at the end, this should also cause an error
 
@@ -32,7 +40,11 @@ func TestGetNonceFailureTwo(t *testing.T) {
 	require.Zero(t, nNonce, "next nonce should be zero for invalid rpc url")
 }
 
-func TestGetNonce(t *testing.T) {
+func TestGetNonceIntegration_SuccessfulRetrieval(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+
 	address1 := "0x571B102323C3b8B8Afb30619Ac1d36d85359fb84"
 	rpcUrl := "https://sepolia.drpc.org"
 

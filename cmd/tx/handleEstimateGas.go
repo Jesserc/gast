@@ -6,6 +6,7 @@ import (
 	"math/big"
 	"strings"
 
+	"github.com/Jesserc/gast/utils"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -27,13 +28,18 @@ func TryEstimateGas(rpcUrl, from, to, data string, value uint64) (uint64, error)
 		bytesData []byte
 	)
 
+	var hexData string
 	if data != "" {
 		// Convert data to hex if it is not
-		if ok := strings.HasPrefix(data, "0x"); !ok {
-			data = hexutil.Encode([]byte(data))
+		if !utils.IsHexWithOrWithout0xPrefix(data) {
+			hexData = hexutil.Encode([]byte(data))
+		} else if strings.HasPrefix(data, "0x") {
+			hexData = data
+		} else {
+			hexData = "0x" + data
 		}
 
-		bytesData, err = hexutil.Decode(data)
+		bytesData, err = hexutil.Decode(hexData)
 		if err != nil {
 			return 0, fmt.Errorf("failed to decode data: %s", err)
 		}

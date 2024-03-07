@@ -18,3 +18,8 @@ vendor/*
 *.DS_STORE
 gast
 bin
+
+cmd/tx/coverage.out
+testData/handleTraceTx
+testData/file
+testData/res.json

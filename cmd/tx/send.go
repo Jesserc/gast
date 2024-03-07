@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/Jesserc/gast/cmd/gastParams"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +17,7 @@ var sendCmd = &cobra.Command{
 	Short: "Send EIP-1559 transaction",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		txReceiptUrl := SendTransaction(
+		txReceiptUrl, err := SendTransaction(
 			gastParams.TxRpcUrlValue,
 			gastParams.ToValue,
 			gastParams.TxDataValue,
@@ -24,7 +25,9 @@ var sendCmd = &cobra.Command{
 			gastParams.GasLimitValue,
 			gastParams.WeiValue,
 		)
-
+		if err != nil {
+			log.Crit("Failed to send transaction", "error", err)
+		}
 		fmt.Printf("%sTx Receipt:%s %s\n", gastParams.ColorGreen, gastParams.ColorReset, txReceiptUrl)
 	},
 }

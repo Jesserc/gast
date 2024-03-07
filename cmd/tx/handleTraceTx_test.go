@@ -9,9 +9,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// use reflect.typeOf(traceRes) ==type Trace{}
+func TestTraceTxIntegration_FailureDueToWhitespaceInRPCURL(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
 
-func TestTraceTxFailureOne(t *testing.T) {
 	trace, err := TraceTx(
 		"0xd12e31c3274ff32d5a73cc59e8deacbb0f7ac4c095385add3caa2c52d01164c1",
 		"  https://rpc.builder0x69.io/ ", // Intentional whitespace to cause an error
@@ -23,7 +25,11 @@ func TestTraceTxFailureOne(t *testing.T) {
 	require.ErrorContains(t, err, "failed to dial RPC client")
 }
 
-func TestTraceTxFailureTwo(t *testing.T) {
+func TestTraceTxIntegration_FailureDueToInvalidTransactionHash(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+
 	trace, err := TraceTx(
 		"0xd12e31c3274ff32d5a73cc", // Invalid hash
 		"https://rpc.builder0x69.io/",
@@ -35,7 +41,10 @@ func TestTraceTxFailureTwo(t *testing.T) {
 	require.ErrorContains(t, err, "invalid argument")
 }
 
-func TestTraceTxSuccessOne(t *testing.T) {
+func TestTraceTxIntegration_SuccessWithDefaultRPCURL(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
 	trace, err := TraceTx(
 		"0xd12e31c3274ff32d5a73cc59e8deacbb0f7ac4c095385add3caa2c52d01164c1", // invalid hash
 		"", // Use default RPC URL by leaving this empty
@@ -47,7 +56,7 @@ func TestTraceTxSuccessOne(t *testing.T) {
 	require.Equal(t, reflect.TypeOf(trace), reflect.TypeOf(&Trace{}))
 }
 
-func TestTraceTxSuccessTwo(t *testing.T) {
+func TestTraceTxIntegration_SuccessWithSpecifiedRPCURL(t *testing.T) {
 	trace, err := TraceTx(
 		"0xd12e31c3274ff32d5a73cc59e8deacbb0f7ac4c095385add3caa2c52d01164c1",
 		"https://rpc.builder0x69.io/",
@@ -60,52 +69,18 @@ func TestTraceTxSuccessTwo(t *testing.T) {
 
 }
 
-func TestTraceTxFormatInput(t *testing.T) {
-	cases := []struct {
-		input    string
-		expected string
-	}{
-		{"0xcoffebabe", "0xcoffeb...be"},
-		{"", ""},
-		{"0xdeAdBeef", "0xdeAdBe...ef"},
-		{"0xbeef", "0xbeef"},
+func TestTraceTxIntegration_PrintTrace(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
 	}
-
-	for _, c := range cases {
-		out := formatInput(c.input)
-		require.Equal(t, c.expected, out)
-	}
-}
-
-func TestTraceTxHexToEther(t *testing.T) {
-	cases := []struct {
-		hexValueStr string
-		expected    string
-	}{
-		{"0x0", "0 ETH"},
-		{"0xde0b6b3a7640000", "1.000000000 ETH"}, // 10^18 in hex
-		{"0xdead0b6b3a7640000", "256.727897641 ETH"},
-		{"", "0 ETH"},
-	}
-
-	for _, c := range cases {
-		eth := hexToEther(c.hexValueStr)
-		require.Equal(t, c.expected, eth)
-	}
-}
-
-func TestTraceTxPrintTrace(t *testing.T) {
-	// Attempt to retrieve a trace for a given transaction hash, expecting success.
 	trace, err := TraceTx(
 		"0xd12e31c3274ff32d5a73cc59e8deacbb0f7ac4c095385add3caa2c52d01164c1", // Example hash
 		"", // Use default RPC URL by leaving this empty
 	)
 
-	// Ensure that the trace was successfully retrieved and no error occurred.
 	require.NotNil(t, trace, "Trace should not be nil.")
 	require.Nil(t, err, "Should not error while tracing transaction.")
 
-	// Verify that the returned object is of the expected *Trace type.
 	require.Equal(t, reflect.TypeOf(trace), reflect.TypeOf(&Trace{}), "Expected a *Trace type.")
 
 	// Save the original os.Stdout to restore it later.
@@ -124,6 +99,39 @@ func TestTraceTxPrintTrace(t *testing.T) {
 	out, _ := io.ReadAll(r)
 	os.Stdout = originalStdout // Restore the original stdout to avoid side effects on test outputs
 
-	// Assertions on expected output
 	require.Contains(t, string(out), "\033[32mType:\033[0m CALL, \033[32mFrom:\033[0m 0x734bce0ca8f39c2f9768267390adf7df0d615db7, \033[32mTo:\033[0m 0x3fc91a3afd70395cd496c647d5a6cc9d4b2b7fad, \033[32mDepth:\033[0m 0, \033[32mValue:\033[0m 0 ETH, \033[32mInput:\033[0m [0x359356...00]\n", "Output should contain trace information.")
+}
+
+func TestTraceTx_FormatInput(t *testing.T) {
+	cases := []struct {
+		input    string
+		expected string
+	}{
+		{"0xc0ffebabe", "0xc0ffeb...be"},
+		{"", ""},
+		{"0xdeAdBeef", "0xdeAdBe...ef"},
+		{"0xbeef", "0xbeef"},
+	}
+
+	for _, c := range cases {
+		out := formatInput(c.input)
+		require.Equal(t, c.expected, out)
+	}
+}
+
+func TestTraceTx_HexToEtherConversion(t *testing.T) {
+	cases := []struct {
+		hexValueStr string
+		expected    string
+	}{
+		{"0x0", "0 ETH"},
+		{"0xde0b6b3a7640000", "1.000000000 ETH"}, // 10^18 in hex
+		{"0xdead0b6b3a7640000", "256.727897641 ETH"},
+		{"", "0 ETH"},
+	}
+
+	for _, c := range cases {
+		eth := hexToEther(c.hexValueStr)
+		require.Equal(t, c.expected, eth)
+	}
 }

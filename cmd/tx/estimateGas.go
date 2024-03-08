@@ -34,7 +34,7 @@ func init() {
 	estimateGasCmd.Flags().Uint64VarP(&gastParams.WeiValue, "wei", "w", 0, "wei (optional)")
 
 	// Mark flags required
-	estimateGasCmd.MarkFlagRequired("url")
+	estimateGasCmd.MarkFlagRequired("rpc-url")
 	estimateGasCmd.MarkFlagRequired("from")
 	estimateGasCmd.MarkFlagRequired("to")
 	estimateGasCmd.MarkFlagsRequiredTogether("url", "from", "to")

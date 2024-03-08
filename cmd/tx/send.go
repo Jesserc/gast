@@ -42,7 +42,7 @@ func init() {
 	sendCmd.Flags().Uint64VarP(&gastParams.WeiValue, "wei", "w", 0, "amount to send (optional)")
 
 	// Mark flags required
-	sendCmd.MarkFlagRequired("url")
+	sendCmd.MarkFlagRequired("rpc-url")
 	sendCmd.MarkFlagRequired("to")
 	sendCmd.MarkFlagRequired("private-key")
 	sendCmd.MarkFlagRequired("gas-limit")

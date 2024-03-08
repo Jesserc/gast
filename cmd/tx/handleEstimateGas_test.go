@@ -8,6 +8,10 @@ import (
 )
 
 func TestTryEstimateGasGas_Integration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+	
 	testCases := []struct {
 		name          string
 		rpcURL        string // Test input: RPC URL

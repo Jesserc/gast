@@ -42,5 +42,9 @@ func init() {
 	sendCmd.Flags().Uint64VarP(&gastParams.WeiValue, "wei", "w", 0, "amount to send (optional)")
 
 	// Mark flags required
-	sendCmd.MarkFlagsRequiredTogether("url", "private-key", "gas-limit")
+	sendCmd.MarkFlagRequired("url")
+	sendCmd.MarkFlagRequired("to")
+	sendCmd.MarkFlagRequired("private-key")
+	sendCmd.MarkFlagRequired("gas-limit")
+	sendCmd.MarkFlagsRequiredTogether("url", "private-key", "gas-limit", "to")
 }

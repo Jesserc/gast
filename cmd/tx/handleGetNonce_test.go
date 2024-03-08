@@ -7,6 +7,9 @@ import (
 )
 
 func TestGetNonce_Integration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
 	testCases := []struct {
 		name          string
 		address       string

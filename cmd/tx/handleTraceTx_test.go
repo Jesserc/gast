@@ -10,6 +10,10 @@ import (
 )
 
 func TestTraceTx_Integration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+	
 	testCases := []struct {
 		name         string
 		txHash       string
@@ -47,7 +51,6 @@ func TestTraceTx_Integration(t *testing.T) {
 			rpcURL:   "https://rpc.builder0x69.io/",
 			wantType: reflect.TypeOf(&Trace{}),
 		},
-		// Add more test cases here as needed
 	}
 
 	for _, tc := range testCases {
@@ -72,7 +75,7 @@ func TestTraceTxIntegration_PrintTrace(t *testing.T) {
 	}
 	trace, err := TraceTx(
 		"0xd12e31c3274ff32d5a73cc59e8deacbb0f7ac4c095385add3caa2c52d01164c1", // Example hash
-		"", // Use default RPC URL by leaving this empty
+		"",                                                                   // Use default RPC URL by leaving this empty
 	)
 
 	require.NotNil(t, trace, "Trace should not be nil.")

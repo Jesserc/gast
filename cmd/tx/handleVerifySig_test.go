@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestVerifySig_Integration(t *testing.T) {
+func TestVerifySig(t *testing.T) {
 	testCases := []struct {
 		name    string
 		sig     string

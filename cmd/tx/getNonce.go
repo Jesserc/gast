@@ -30,5 +30,7 @@ func init() {
 	getNonceCmd.Flags().StringVarP(&gastParams.FromValue, "address", "a", "", "Address to get nonce")
 	getNonceCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "url", "u", "", "RPC url")
 
+	getNonceCmd.MarkFlagRequired("address")
+	getNonceCmd.MarkFlagRequired("url")
 	getNonceCmd.MarkFlagsRequiredTogether("address", "url")
 }

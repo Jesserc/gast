@@ -35,5 +35,7 @@ func init() {
 	sendRawCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "rpc-url", "u", "", "RPC url for transaction")
 
 	// Mark flags required
+	sendRawCmd.MarkFlagRequired("rpc-url")
+	sendRawCmd.MarkFlagRequired("raw-tx")
 	sendRawCmd.MarkFlagsRequiredTogether("raw-tx", "rpc-url")
 }

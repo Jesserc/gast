@@ -32,5 +32,6 @@ func init() {
 
 	getNonceCmd.MarkFlagRequired("address")
 	getNonceCmd.MarkFlagRequired("rpc-url")
+
 	getNonceCmd.MarkFlagsRequiredTogether("address", "rpc-url")
 }

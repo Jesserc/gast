@@ -34,24 +34,27 @@ var createContractCmd = &cobra.Command{
 		if err != nil {
 			log.Crit("Failed to deploy contract", "err", err)
 		}
-
-		fmt.Printf("\nTransaction Receipt:\n")
-		fmt.Printf("%sTransaction Hash%s: %s\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.TransactionHash)
-		fmt.Printf("%sBlock Hash:%s %s\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.BlockHash)
-		fmt.Printf("%sBlock Number:%s %v\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.BlockNumber)
-		fmt.Printf("%sTransaction Index In Block%s: %v\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.TransactionIndex)
-		fmt.Printf("%sType:%s %v\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.Type)
-		if txReceipt.Status == 0 {
-			fmt.Printf("%sStatus:%s %sFailed%s\n", gastParams.ColorGreen, gastParams.ColorReset, gastParams.ColorRed, gastParams.ColorReset)
+		if txReceipt != nil {
+			fmt.Printf("\nTransaction Receipt:\n")
+			fmt.Printf("%sTransaction Hash%s: %s\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.TransactionHash)
+			fmt.Printf("%sBlock Hash:%s %s\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.BlockHash)
+			fmt.Printf("%sBlock Number:%s %v\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.BlockNumber)
+			fmt.Printf("%sTransaction Index In Block%s: %v\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.TransactionIndex)
+			fmt.Printf("%sType:%s %v\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.Type)
+			if txReceipt.Status == 0 {
+				fmt.Printf("%sStatus:%s %sFailed%s\n", gastParams.ColorGreen, gastParams.ColorReset, gastParams.ColorRed, gastParams.ColorReset)
+			} else {
+				fmt.Printf("%sStatus:%s Success\n", gastParams.ColorGreen, gastParams.ColorReset)
+			}
+			fmt.Printf("%sGas Used:%s %v\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.GasUsed)
+			fmt.Printf("%sGas Price:%s %v Wei\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.EffectiveGasPrice)
+			fmt.Printf("%sTransaction Fee:%s %v Wei\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.TransactionCost)
+			fmt.Printf("%sDeployed Contract Address:%s %s\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.ContractAddress)
+			fmt.Printf("%sLogs:%s %+v\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.Logs)
+			fmt.Printf("%sReceipt:%s %s\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.TransactionURL)
 		} else {
-			fmt.Printf("%sStatus:%s Success\n", gastParams.ColorGreen, gastParams.ColorReset)
+			return
 		}
-		fmt.Printf("%sGas Used:%s %v\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.GasUsed)
-		fmt.Printf("%sGas Price:%s %v Wei\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.EffectiveGasPrice)
-		fmt.Printf("%sTransaction Fee:%s %v Wei\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.TransactionCost)
-		fmt.Printf("%sDeployed Contract Address:%s %s\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.ContractAddress)
-		fmt.Printf("%sLogs:%s %+v\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.Logs)
-		fmt.Printf("%sReceipt:%s %s\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.TransactionURL)
 	},
 }
 

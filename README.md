@@ -99,7 +99,7 @@ Supported flags include:
 - `--base`: Use the default Base RPC URL.
 - `--linea`: Use the default Linea RPC URL.
 - `--zksync`: Use the default zkSync RPC URL.
-- `-u, --url string`: Specify a custom RPC URL for fetching the gas price.
+- `-u, --rpc-url string`: Specify a custom RPC URL for fetching the gas price.
 
 ## Generating Completions
 To generate completions for zsh shell, run:
@@ -137,21 +137,21 @@ Here are some practical examples to help you get started with Gast. These comman
 gast gas-price --eth 
 
 # Fetch gas price from a custom RPC URL
-gast gas-price --url https://forno.celo.org
+gast gas-price --rpc-url https://forno.celo.org
 ```
 
 ### Contract Deployment
 
 ```shell
 # Deploy a Solidity contract
-gast tx create-contract --url https://sepolia.drpc.org --private-key "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662" --gas-limit 1599000 -d contracts/CurrentYear.sol
+gast tx create-contract --rpc-url https://sepolia.drpc.org --private-key "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662" --gas-limit 1599000 -d contracts/CurrentYear.sol
 ```
 
 ### Creating and Sending Transactions
 
 ```shell
 # Create a raw, signed EIP-1559 transaction
-gast tx create-raw --url "https://eth-sepolia.g.alchemy.com/v2/Of6ow3pvkFafGPn8Y2uk9vz4bSveZQxa" --to "0x4924Fb92285Cb10BC440E6fb4A53c2B94f2930c5" --private-key "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662" --gas-limit 21000 --wei 10000000000000
+gast tx create-raw --rpc-url "https://eth-sepolia.g.alchemy.com/v2/Of6ow3pvkFafGPn8Y2uk9vz4bSveZQxa" --to "0x4924Fb92285Cb10BC440E6fb4A53c2B94f2930c5" --private-key "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662" --gas-limit 21000 --wei 10000000000000
 
 # Submit a raw, signed transaction to the Ethereum network
 gast tx send-raw --raw-tx b87402f87183aa36a781d7843b9aca0084f702d4c28256ce944924fb92285cb10bc440e6fb4a53c2b94f2930c58398968080c080a081725247a454fc36e3ecd411ef6e7ddb89e668745fb2a5169ea08bfc4f5b617ba013cce55e74f620f15904e30a1c0f3e5dad22919e782468afe372d3bc6f5222b0 --rpc-url "https://eth-sepolia.g.alchemy.com/v2/Of6ow3pvkFafGPn8Y2uk9vz4bSveZQxa"
@@ -167,7 +167,7 @@ gast tx get-nonce --address 0x8741Fb04b7d8f5A01e0ec1D454602Bc08BDB0c8c --rpc-url
 
 ```shell
 # Create and send an EIP-4844 blob transaction
-gast tx send-blob --to 0x571B102323C3b8B8Afb30619Ac1d36d85359fb84 --rpc-url "https://rpc2.sepolia.org" --private-key "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662" --blob-data 'Hello Blobs!' -dir gast/blob-tx # dir to save blob tx result
+gast tx send-blob --to 0x571B102323C3b8B8Afb30619Ac1d36d85359fb84 --rpc-url "https://rpc2.sepolia.org" --private-key "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662" --blob-data 'Hello Blobs!' --dir gast/blob-tx # dir to save blob tx result
 ```
 
 ### Message Signing and Verification

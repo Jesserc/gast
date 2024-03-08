@@ -61,8 +61,8 @@ Manage Ethereum transactions with ease. The `tx` command supports a variety of s
 gast tx [sub-command] [flags]
 ```
 * `create-contract`: Deploy Solidity contract
-* `create-raw`: Generate a raw, signed EIP-1559 transaction
-* `send-raw`: Submit a raw, signed transaction
+* `create-raw`: Generate a raw, signed EIP-1559 transaction to propagate later
+* `send-raw`: Propagate a raw, signed transaction. The nonce must not be used.
 * `send-blob`: Create and send an EIP-4844 blob transaction
 * `send`: Send EIP-1559 transaction
 * `trace`: Retrieve and display the execution trace (path) of a given transaction hash

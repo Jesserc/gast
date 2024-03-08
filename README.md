@@ -23,6 +23,11 @@ If the command is not recognized, you would have to add the Go Bin directory to 
 export PATH=$PATH:$(go env GOPATH)/bin
 ```
 Or manually paste it in your `.bashrc`, `.zshrc` file.
+```shell
+nano ~/.zshrc # add => export PATH=$PATH:$(go env GOPATH)/bin
+# or
+nano ~/.bashrc # export => PATH=$PATH:$(go env GOPATH)/bin
+```
 
 ## Usage
 
@@ -41,9 +46,7 @@ gast [command]
 
 ### Flags
 
-- `--config string`: Config file (default is `$HOME/.gast.yaml`).
 - `-h, --help`: Help for Gast.
-- `-t, --toggle`: Help message for toggle.
 
 For more information about a command, use:
 

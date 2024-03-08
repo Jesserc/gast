@@ -27,15 +27,15 @@ var estimateGasCmd = &cobra.Command{
 
 func init() {
 	// Flags and configuration settings.
-	estimateGasCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "url", "u", "", "RPC url")
+	estimateGasCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "rpc-url", "u", "", "RPC url")
 	estimateGasCmd.Flags().StringVarP(&gastParams.FromValue, "from", "f", "", "sender")
 	estimateGasCmd.Flags().StringVarP(&gastParams.ToValue, "to", "t", "", "recipient")
 	estimateGasCmd.Flags().StringVarP(&gastParams.TxDataValue, "data", "d", "", "data (optional)")
 	estimateGasCmd.Flags().Uint64VarP(&gastParams.WeiValue, "wei", "w", 0, "wei (optional)")
 
 	// Mark flags required
-	estimateGasCmd.MarkFlagRequired("url")
+	estimateGasCmd.MarkFlagRequired("rpc-url")
 	estimateGasCmd.MarkFlagRequired("from")
 	estimateGasCmd.MarkFlagRequired("to")
-	estimateGasCmd.MarkFlagsRequiredTogether("url", "from", "to")
+	estimateGasCmd.MarkFlagsRequiredTogether("rpc-url", "from", "to")
 }

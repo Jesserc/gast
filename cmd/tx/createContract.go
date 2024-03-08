@@ -57,16 +57,16 @@ var createContractCmd = &cobra.Command{
 
 func init() {
 	// Flags and configuration settings.
-	createContractCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "url", "u", "", "RPC url")
+	createContractCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "rpc-url", "u", "", "RPC url")
 	createContractCmd.Flags().StringVarP(&gastParams.DirValue, "dir", "d", "", "path to solidity code")
 	createContractCmd.Flags().StringVarP(&gastParams.PrivKeyValue, "private-key", "p", "", "private key to sign transaction")
 	createContractCmd.Flags().Uint64VarP(&gastParams.GasLimitValue, "gas-limit", "l", 0, "max gas limit")
 	createContractCmd.Flags().Uint64VarP(&gastParams.WeiValue, "wei", "w", 0, "amount to send (optional)")
 
 	// Mark flags required
-	createContractCmd.MarkFlagRequired("url")
+	createContractCmd.MarkFlagRequired("rpc-url")
 	createContractCmd.MarkFlagRequired("private-key")
 	createContractCmd.MarkFlagRequired("gas-limit")
 	createContractCmd.MarkFlagRequired("dir")
-	createContractCmd.MarkFlagsRequiredTogether("url", "private-key", "gas-limit", "dir")
+	createContractCmd.MarkFlagsRequiredTogether("rpc-url", "private-key", "gas-limit", "dir")
 }

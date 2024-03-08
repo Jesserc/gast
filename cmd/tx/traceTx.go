@@ -26,7 +26,7 @@ var traceTxCmd = &cobra.Command{
 func init() {
 	// Flags and configuration settings.
 	traceTxCmd.Flags().StringVar(&gastParams.TxHashValue, "hash", "", "Transaction hash to trace")
-	traceTxCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "url", "u", "", "RPC url (optional, but must support Otterscan's ots_traceTransaction")
+	traceTxCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "rpc-url", "u", "", "RPC url (optional, but must support Otterscan's ots_traceTransaction")
 
 	// Mark flags required
 	traceTxCmd.MarkFlagRequired("hash")

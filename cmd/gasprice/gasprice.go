@@ -39,9 +39,9 @@ func init() {
 	GaspriceCmd.Flags().BoolVarP(&base, "base", "", false, "Use default Base RPC url")
 	GaspriceCmd.Flags().BoolVarP(&linea, "linea", "", false, "Use default Linea RPC url")
 	GaspriceCmd.Flags().BoolVarP(&zkSync, "zksync", "", false, "Use default zkSync RPC URL")
-	GaspriceCmd.Flags().StringVarP(&rpcUrl, "url", "u", "", "specify RPC url for gas price")
+	GaspriceCmd.Flags().StringVarP(&rpcUrl, "rpc-url", "u", "", "specify RPC url for gas price")
 
-	GaspriceCmd.MarkFlagsOneRequired("eth", "op", "arb", "base", "linea", "zksync", "url")
+	GaspriceCmd.MarkFlagsOneRequired("eth", "op", "arb", "base", "linea", "zksync", "rpc-url")
 }
 
 func fetchGasPrice() (string, error) {

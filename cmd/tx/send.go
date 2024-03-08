@@ -34,7 +34,7 @@ var sendCmd = &cobra.Command{
 
 func init() {
 	// Flags and configuration settings.
-	sendCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "url", "u", "", "RPC url")
+	sendCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "rpc-url", "u", "", "RPC url")
 	sendCmd.Flags().StringVarP(&gastParams.ToValue, "to", "t", "", "recipient")
 	sendCmd.Flags().StringVarP(&gastParams.TxDataValue, "data", "d", "", "transaction data (optional)")
 	sendCmd.Flags().StringVarP(&gastParams.PrivKeyValue, "private-key", "p", "", "private key to sign transaction")
@@ -42,9 +42,9 @@ func init() {
 	sendCmd.Flags().Uint64VarP(&gastParams.WeiValue, "wei", "w", 0, "amount to send (optional)")
 
 	// Mark flags required
-	sendCmd.MarkFlagRequired("url")
+	sendCmd.MarkFlagRequired("rpc-url")
 	sendCmd.MarkFlagRequired("to")
 	sendCmd.MarkFlagRequired("private-key")
 	sendCmd.MarkFlagRequired("gas-limit")
-	sendCmd.MarkFlagsRequiredTogether("url", "private-key", "gas-limit", "to")
+	sendCmd.MarkFlagsRequiredTogether("rpc-url", "private-key", "gas-limit", "to")
 }

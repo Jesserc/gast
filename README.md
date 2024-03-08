@@ -1,7 +1,5 @@
 # Gast - Ethereum Toolkit
 
-### (IN DEVELOPMENT)
-
 Gast is a command-line toolkit designed to streamline the management of Ethereum transactions and gas prices. It provides some sets of commands for managing transactions (including creation, signing, and tracing).
 
 ## Installation
@@ -10,15 +8,15 @@ Firstly, ensure you have Go language installed. To verify, run:
 ```shell
  go version
 ```
-If not installed, you can see installation steps here: 
+If not installed, you can here: https://go.dev/dl/ 
 
 After installing Go, run this command to install Gast:
 ```shell
-go install github.com/jesserc/gast
+go install github.com/Jesserc/gast@latest
 ```
 Check if Gast is installed:
 ```shell
-Gast help
+gast help
 ```
 
 ## Usage
@@ -55,15 +53,15 @@ Manage Ethereum transactions with ease. The `tx` command supports a variety of s
 gast tx [sub-command] [flags]
 ```
 * `create-contract`: Deploy Solidity contract
-* `create-raw     `: Generate a raw, signed EIP-1559 transaction
-* `send-raw       `: Submit a raw, signed transaction
-* `send-blob      `: Create and send an EIP-4844 blob transaction
-* `send           `: Send EIP-1559 transaction
-* `trace          `: Retrieve and display the execution trace (path) of a given transaction hash
-* `sign-message   `: Sign a given message with a private key
-* `verify-sig     `: Verify the signature of a signed message (can be created with the sign-message command)
-* `estimate-gas   `: Estimate the gas required to execute a given transaction
-* `get-nonce      `: Get the transaction count of an account
+* `create-raw`: Generate a raw, signed EIP-1559 transaction
+* `send-raw`: Submit a raw, signed transaction
+* `send-blob`: Create and send an EIP-4844 blob transaction
+* `send`: Send EIP-1559 transaction
+* `trace`: Retrieve and display the execution trace (path) of a given transaction hash
+* `sign-message`: Sign a given message with a private key
+* `verify-sig`: Verify the signature of a signed message (can be created with the sign-message command)
+* `estimate-gas`: Estimate the gas required to execute a given transaction
+* `get-nonce`: Get the transaction count of an account
 
 [//]: # (- `create-contract`: Deploy Solidity contract &#40;solc must be installed&#41;.)
 
@@ -103,19 +101,17 @@ Supported flags include:
 - `--zksync`: Use the default zkSync RPC URL.
 - `-u, --url string`: Specify a custom RPC URL for fetching the gas price.
 
-## Configuration
-
-[//]: # (Gast uses a configuration file located by default at `$HOME/.gast.yaml`. This file allows you to set default values for various flags and commands.)
-
-(TODO)
 
 ## Tests
 To run unit test:
 ```shell
- go test -v ./...  -skip Integration
+go test -v ./... -short
 ```
 
 To run integration test (connects to network):
 ```shell
  go test -v ./...  -run Integration
 ```
+
+## Contribution
+Good PRs or suggestions are welcomed.

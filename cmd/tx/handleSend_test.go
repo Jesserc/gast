@@ -7,6 +7,10 @@ import (
 )
 
 func TestSendTransaction_Integration(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration test")
+	}
+
 	testCases := []struct {
 		name          string
 		rpcURL        string
@@ -107,10 +111,6 @@ func TestSendTransaction_Integration(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			if testing.Short() {
-				t.Skip("skipping integration test")
-			}
-
 			txReceiptUrl, err := SendTransaction(
 				tc.rpcURL,
 				tc.address,

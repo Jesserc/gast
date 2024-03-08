@@ -38,5 +38,8 @@ func init() {
 	verifySigCmd.Flags().StringVarP(&gastParams.SigMsgValue, "msg", "m", "", "Original message")
 
 	// Mark flags required
+	verifySigCmd.MarkFlagRequired("sig")
+	verifySigCmd.MarkFlagRequired("address")
+	verifySigCmd.MarkFlagRequired("msg")
 	verifySigCmd.MarkFlagsRequiredTogether("sig", "address", "msg")
 }

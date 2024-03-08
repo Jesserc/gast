@@ -30,9 +30,12 @@ func init() {
 	estimateGasCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "url", "u", "", "RPC url")
 	estimateGasCmd.Flags().StringVarP(&gastParams.FromValue, "from", "f", "", "sender")
 	estimateGasCmd.Flags().StringVarP(&gastParams.ToValue, "to", "t", "", "recipient")
-	estimateGasCmd.Flags().StringVarP(&gastParams.TxDataValue, "data", "d", "", "data")
-	estimateGasCmd.Flags().Uint64VarP(&gastParams.WeiValue, "wei", "w", 0, "wei")
+	estimateGasCmd.Flags().StringVarP(&gastParams.TxDataValue, "data", "d", "", "data (optional)")
+	estimateGasCmd.Flags().Uint64VarP(&gastParams.WeiValue, "wei", "w", 0, "wei (optional)")
 
 	// Mark flags required
-	estimateGasCmd.MarkFlagsRequiredTogether("url", "from", "to", "data", "wei")
+	estimateGasCmd.MarkFlagRequired("url")
+	estimateGasCmd.MarkFlagRequired("from")
+	estimateGasCmd.MarkFlagRequired("to")
+	estimateGasCmd.MarkFlagsRequiredTogether("url", "from", "to")
 }

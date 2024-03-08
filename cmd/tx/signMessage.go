@@ -34,5 +34,7 @@ func init() {
 	signCmd.Flags().StringVarP(&gastParams.PrivKeyValue, "private-key", "p", "", "private key to sign transaction")
 
 	// Mark flags required
+	signCmd.MarkFlagRequired("message")
+	signCmd.MarkFlagRequired("private-key")
 	signCmd.MarkFlagsRequiredTogether("message", "private-key")
 }

@@ -32,5 +32,9 @@ func init() {
 	sendBlobTxCmd.Flags().StringVarP(&gastParams.ToValue, "to", "t", "", "blob transaction recipient")
 	sendBlobTxCmd.Flags().StringVarP(&gastParams.DirValue, "dir", "d", "", "directory for saving blob transaction details. e.g, 'gast/blob-tx' => $HOME/gast/blob-tx (optional)")
 
+	sendBlobTxCmd.MarkFlagRequired("rpc-url")
+	sendBlobTxCmd.MarkFlagRequired("blob-data")
+	sendBlobTxCmd.MarkFlagRequired("private-key")
+	sendBlobTxCmd.MarkFlagRequired("to")
 	sendBlobTxCmd.MarkFlagsRequiredTogether("rpc-url", "blob-data", "private-key", "to")
 }

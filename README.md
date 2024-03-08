@@ -18,6 +18,11 @@ Check if Gast is installed:
 ```shell
 gast help
 ```
+If the command is not recognized, you would have to add the Go Bin directory to your path.
+```shell
+export PATH=$PATH:$(go env GOPATH)/bin
+```
+Or manually paste it in your `.bashrc`, `.zshrc` file.
 
 ## Usage
 

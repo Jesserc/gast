@@ -17,9 +17,11 @@ var sendRawCmd = &cobra.Command{
 	Short: "Submit a raw, signed transaction",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		txReceiptUrl, txDetails := SendRawTransaction(gastParams.RawTxValue, gastParams.TxRpcUrlValue)
+		txReceiptUrl, txDetails, err := SendRawTransaction(gastParams.RawTxValue, gastParams.TxRpcUrlValue)
+		if err != nil {
+			log.Crit("Failed to send raw transaction", "error", err)
+		}
 
-		// Print the entire JSON with the added fields
 		log.Info("Transaction details:")
 		fmt.Println(txDetails)
 		fmt.Printf("%sTx Receipt:%s %s\n", gastParams.ColorGreen, gastParams.ColorReset, txReceiptUrl)

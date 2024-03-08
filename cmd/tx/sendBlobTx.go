@@ -15,7 +15,10 @@ var sendBlobTxCmd = &cobra.Command{
 	Short: "Create and send an EIP-4844 blob transaction",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		blobTxHash := SendBlobTX(gastParams.TxRpcUrlValue, gastParams.TxDataValue, gastParams.PrivKeyValue, gastParams.ToValue, gastParams.DirValue)
+		blobTxHash, err := SendBlobTX(gastParams.TxRpcUrlValue, gastParams.ToValue, gastParams.TxDataValue, gastParams.PrivKeyValue, gastParams.DirValue)
+		if err != nil {
+			log.Crit("Failed to send blob transaction", "error", err)
+		}
 		log.Info("Successfully sent blob transaction", "hash", " "+blobTxHash)
 
 	},

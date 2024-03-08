@@ -6,14 +6,13 @@ import (
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/log"
 )
 
 // VerifySig verifies the signature against the provided public key bytes and hash.
-func VerifySig(signature, address, message string) bool {
+func VerifySig(signature, address, message string) (bool, error) {
 	sig, err := hexutil.Decode(signature)
 	if err != nil {
-		log.Crit("Failed to decode signature to bytes", "error", err)
+		return false, fmt.Errorf("failed to decode signature to bytes: %s", err)
 	}
 
 	// Adjust signature to standard format (remove Ethereum's recovery ID)
@@ -29,12 +28,12 @@ func VerifySig(signature, address, message string) bool {
 	// Recover the public key bytes from the signature
 	sigPublicKeyBytes, err := crypto.Ecrecover(hash.Bytes(), sig)
 	if err != nil {
-		log.Crit("Failed to recover public key bytes", "error", err)
+		return false, fmt.Errorf("failed to recover public key bytes: %s", err)
 	}
 
 	ecdsaPublicKey, err := crypto.UnmarshalPubkey(sigPublicKeyBytes)
 	if err != nil {
-		log.Crit("Failed to unmarshal public key bytes", "error", err)
+		return false, fmt.Errorf("failed to unmarshal public key bytes: %s", err)
 	}
 
 	// Derive the address from the recovered public key
@@ -44,5 +43,5 @@ func VerifySig(signature, address, message string) bool {
 	isSigner := strings.EqualFold(rAddress.String(), address)
 
 	// Verify if the recovered public key matches the provided public key bytes
-	return isSigner
+	return isSigner, nil
 }

@@ -6,7 +6,6 @@ package gasprice
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/Jesserc/gast/cmd/gastParams"
 	"github.com/ethereum/go-ethereum/log"
@@ -26,8 +25,7 @@ var GaspriceCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		gPrice, err := fetchGasPrice()
 		if err != nil {
-			log.Error("An error occurred", "err", err)
-			os.Exit(1)
+			log.Crit("Failed to get gas price", "error", err)
 		}
 		fmt.Printf("%ssuggested gas price: %s%v\n", gastParams.ColorGreen, gastParams.ColorReset, gPrice)
 	},

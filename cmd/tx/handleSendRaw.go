@@ -39,35 +39,34 @@ type Transaction struct {
 }
 
 // SendRawTransaction sends a raw Ethereum transaction.
-func SendRawTransaction(rawTx, rpcURL string) (string, string) {
+func SendRawTransaction(rawTx, rpcURL string) (string, string, error) {
 	client, err := ethclient.Dial(rpcURL)
-	defer client.Close()
 	if err != nil {
-		log.Crit("Failed to dial RPC client", "error", err)
+		return "", "", fmt.Errorf("failed to dial RPC client: %s", err)
 	}
+	defer client.Close()
 
 	rawTxBytes, err := hex.DecodeString(rawTx)
 	if err != nil {
-		log.Crit("Failed to decode raw transaction to rlp decoded bytes", "error", err)
+		return "", "", fmt.Errorf("failed to decode raw transaction to rlp decoded bytes: %s", err)
 	}
 
 	tx := new(types.Transaction)
 	err = rlp.DecodeBytes(rawTxBytes, &tx)
 	if err != nil {
-		log.Crit("Failed to decode transaction rlp bytes to types.Transaction", "error", err)
+		return "", "", fmt.Errorf("failed to decode transaction rlp bytes to types.Transaction: %s", err)
 	}
 
 	fmt.Println() // spacing
 	log.Warn("Sending transaction, please wait for confirmation...")
 
-	err = client.SendTransaction(context.Background(), tx)
-	if err != nil {
-		log.Crit("Failed to send transaction", "error", err)
+	if err = client.SendTransaction(context.Background(), tx); err != nil {
+		return "", "", fmt.Errorf("failed to send transaction: %s", err)
 	}
-
+	// Get chain ID
 	chainID, err := client.ChainID(context.Background())
 	if err != nil {
-		log.Crit("Failed to get chain ID", "error", err)
+		return "", "", fmt.Errorf("failed to get chain ID: %s", err)
 	}
 
 	var transactionURL string
@@ -84,8 +83,8 @@ func SendRawTransaction(rawTx, rpcURL string) (string, string) {
 	if err != nil {
 		log.Crit("Failed to marshal transaction", "error", err)
 	}
-	if err := json.Unmarshal(txBytes, &txDetails); err != nil {
-		log.Crit("Failed to unmarshal transaction bytes to type Go Transaction", "error", err)
+	if err = json.Unmarshal(txBytes, &txDetails); err != nil {
+		return "", "", fmt.Errorf("failed to unmarshal transaction bytes to Go type Transaction: %s", err)
 	}
 
 	// Add additional transaction details
@@ -103,10 +102,10 @@ func SendRawTransaction(rawTx, rpcURL string) (string, string) {
 	// Marshal the struct back to JSON
 	txJSON, err := json.MarshalIndent(txDetails, "", "\t")
 	if err != nil {
-		log.Crit("Failed to marshal indent transaction details", "error", err)
+		return "", "", fmt.Errorf("failed to marshal indent transaction details: %s", err)
 	}
 
-	return transactionURL, string(txJSON)
+	return transactionURL, string(txJSON), nil
 }
 
 func convertHexFieldToDecimalString(tx *Transaction, field string) error {

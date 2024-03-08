@@ -5,6 +5,7 @@ package transaction
 
 import (
 	"github.com/Jesserc/gast/cmd/gastParams"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/spf13/cobra"
 )
 
@@ -14,8 +15,10 @@ var traceTxCmd = &cobra.Command{
 	Short: "Retrieve and display the execution trace (path) of a given transaction hash",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		rootTrace := TraceTx(gastParams.TxHashValue, gastParams.TxRpcUrlValue)
-
+		rootTrace, err := TraceTx(gastParams.TxHashValue, gastParams.TxRpcUrlValue)
+		if err != nil {
+			log.Crit("Failed to trace transaction", "error", err)
+		}
 		printTrace(rootTrace, 0, false, "")
 	},
 }

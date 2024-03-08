@@ -18,31 +18,31 @@ import (
 )
 
 // SendTransaction sends an Ethereum transaction.
-func SendTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uint64) string {
+func SendTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uint64) (string, error) {
 	// Connect to the Ethereum client
 	client, err := ethclient.Dial(rpcURL)
-	defer client.Close()
 	if err != nil {
-		log.Crit("Failed to dial RPC client", "error", err)
+		return "", fmt.Errorf("failed to dial RPC client: %s", err)
 	}
+	defer client.Close()
 
 	// Get chain ID
 	chainID, err := client.ChainID(context.Background())
 	if err != nil {
-		log.Crit("Failed to get chain ID", "error", err)
+		return "", fmt.Errorf("failed to get chain ID: %s", err)
 	}
 
 	// Get base fee
 	baseFee, err := client.SuggestGasPrice(context.Background())
 	if err != nil {
-		log.Crit("Failed to get base fee", "error", err)
+		return "", fmt.Errorf("failed to get base fee: %s", err)
 	}
 	log.Info("base fee", "value", baseFee)
 
 	// Get priority fee
 	priorityFee, err := client.SuggestGasTipCap(context.Background())
 	if err != nil {
-		log.Crit("Failed to get priority fee", "error", err) // TODO: should this not be critical? i.e, it shouldn't stop execution here...
+		return "", fmt.Errorf("failed get priority fee: %s", err)
 	}
 	log.Info("priority fee", "value", priorityFee)
 
@@ -54,20 +54,20 @@ func SendTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uint64) 
 	// Decode private key
 	pKeyBytes, err := hexutil.Decode("0x" + privateKey)
 	if err != nil {
-		log.Crit("Failed to decode private key", "error", err)
+		return "", fmt.Errorf("failed to decode private key: %s", err)
 	}
 
 	// Convert private key to ECDSA format
 	ecdsaPrivateKey, err := crypto.ToECDSA(pKeyBytes)
 	if err != nil {
-		log.Crit("Failed to convert private key to ECDSA", "error", err)
+		return "", fmt.Errorf("failed to convert private key to ECDSA: %s", err)
 	}
 
 	fromAddress := crypto.PubkeyToAddress(ecdsaPrivateKey.PublicKey)
 
 	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
 	if err != nil {
-		log.Crit("Failed to get nonce", "error", err)
+		return "", fmt.Errorf("failed to get nonce: %s", err)
 	}
 
 	// Convert data to hex format
@@ -84,7 +84,7 @@ func SendTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uint64) 
 
 		bytesData, err = hexutil.Decode(hexData)
 		if err != nil {
-			log.Crit("Failed to decode data", "error", err)
+			return "", fmt.Errorf("failed to decode data: %s", err)
 		}
 	}
 
@@ -103,20 +103,19 @@ func SendTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uint64) 
 		Data:      bytesData,
 	}), nil
 	if err != nil {
-		log.Crit("Failed to create transaction", "error", err)
+		return "", fmt.Errorf("failed to create transaction: %s", err)
 	}
 
 	signedTx, err := types.SignTx(tx, types.LatestSignerForChainID(chainID), ecdsaPrivateKey)
 	if err != nil {
-		log.Crit("Failed to sign transaction", "error", err)
+		return "", fmt.Errorf("failed to sign transaction: %s", err)
 	}
 
 	fmt.Println() // spacing
-	log.Warn("Sending transaction...")
+	log.Info("Transaction sent")
 
-	err = client.SendTransaction(context.Background(), signedTx)
-	if err != nil {
-		log.Crit("Failed to send transaction", "error", err)
+	if err = client.SendTransaction(context.Background(), signedTx); err != nil {
+		return "", fmt.Errorf("failed to send transaction: %s", err)
 	}
 
 	var transactionURL string
@@ -126,5 +125,5 @@ func SendTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uint64) 
 			break
 		}
 	}
-	return transactionURL
+	return transactionURL, nil
 }

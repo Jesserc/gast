@@ -12,10 +12,10 @@ import (
 // simulateCmd represents the simulate command
 var simulateCmd = &cobra.Command{
 	Use:   "simulate",
-	Short: "A brief description of your command",
+	Short: "Simulate an Ethereum transaction",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("simulate called")
+		fmt.Println("simulate command called") // TODO: implement logic in handleSimulate.go
 	},
 }
 

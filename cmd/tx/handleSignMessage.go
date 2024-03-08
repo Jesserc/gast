@@ -6,7 +6,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/log"
 )
 
 // SignatureResponse represents the structure of the signature response.
@@ -18,11 +17,11 @@ type SignatureResponse struct {
 }
 
 // SignETHMessage signs a message using the provided private key.
-func SignETHMessage(message, privateKey string) string {
+func SignETHMessage(message, privateKey string) (string, error) {
 	// Convert the private key from hex to ECDSA format
 	ecdsaPrivateKey, err := crypto.HexToECDSA(privateKey)
 	if err != nil {
-		log.Crit("Failed to convert private key to ECDSA", "error", err)
+		return "", fmt.Errorf("failed to convert private key to ECDSA: %s", err)
 	}
 
 	// Construct the message prefix
@@ -35,7 +34,7 @@ func SignETHMessage(message, privateKey string) string {
 	// Sign the hashed message
 	sig, err := crypto.Sign(hash.Bytes(), ecdsaPrivateKey)
 	if err != nil {
-		log.Crit("Failed to sign message", "error", err)
+		return "", fmt.Errorf("failed to sign message: %s", err)
 	}
 
 	// Adjust signature to Ethereum's format
@@ -55,8 +54,8 @@ func SignETHMessage(message, privateKey string) string {
 	// Marshal the response to JSON with proper formatting
 	resBytes, err := json.MarshalIndent(res, " ", "\t")
 	if err != nil {
-		log.Crit("Failed marshal indent signature response")
+		return "", fmt.Errorf("failed marshal indent signature response: %s", err)
 	}
 
-	return string(resBytes)
+	return string(resBytes), nil
 }

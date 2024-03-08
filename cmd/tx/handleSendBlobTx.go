@@ -70,7 +70,6 @@ func SendBlobTX(rpcURL, toAddress, data, privateKey, saveBlobDir string) (string
 		Proofs:      []kzg4844.Proof{BlobProof},
 	}
 
-	fmt.Println("priv key:", privateKey)
 	pKeyBytes, err := hexutil.Decode("0x" + privateKey)
 	if err != nil {
 		return "", fmt.Errorf("failed to decode private key: %s", err)

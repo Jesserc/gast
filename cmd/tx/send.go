@@ -34,7 +34,7 @@ var sendCmd = &cobra.Command{
 
 func init() {
 	// Flags and configuration settings.
-	sendCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "url", "u", "", "RPC url")
+	sendCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "rpc-url", "u", "", "RPC url")
 	sendCmd.Flags().StringVarP(&gastParams.ToValue, "to", "t", "", "recipient")
 	sendCmd.Flags().StringVarP(&gastParams.TxDataValue, "data", "d", "", "transaction data (optional)")
 	sendCmd.Flags().StringVarP(&gastParams.PrivKeyValue, "private-key", "p", "", "private key to sign transaction")

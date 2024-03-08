@@ -126,6 +126,67 @@ Apply changes:
 source ~/.zshrc
 ```
 
+## Command Examples
+
+Here are some practical examples to help you get started with Gast. These commands demonstrate how to use Gast for managing Ethereum transactions and gas prices.
+
+### Fetching Gas Prices
+
+```shell
+# Fetch current gas price for Ethereum network
+gast gas-price --eth 
+
+# Fetch gas price from a custom RPC URL
+gast gas-price --url https://forno.celo.org
+```
+
+### Contract Deployment
+
+```shell
+# Deploy a Solidity contract
+gast tx create-contract --url https://sepolia.drpc.org --private-key "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662" --gas-limit 1599000 -d contracts/CurrentYear.sol
+```
+
+### Creating and Sending Transactions
+
+```shell
+# Create a raw, signed EIP-1559 transaction
+gast tx create-raw --url "https://eth-sepolia.g.alchemy.com/v2/Of6ow3pvkFafGPn8Y2uk9vz4bSveZQxa" --to "0x4924Fb92285Cb10BC440E6fb4A53c2B94f2930c5" --private-key "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662" --gas-limit 21000 --wei 10000000000000
+
+# Submit a raw, signed transaction to the Ethereum network
+gast tx send-raw --raw-tx b87402f87183aa36a781d7843b9aca0084f702d4c28256ce944924fb92285cb10bc440e6fb4a53c2b94f2930c58398968080c080a081725247a454fc36e3ecd411ef6e7ddb89e668745fb2a5169ea08bfc4f5b617ba013cce55e74f620f15904e30a1c0f3e5dad22919e782468afe372d3bc6f5222b0 --rpc-url "https://eth-sepolia.g.alchemy.com/v2/Of6ow3pvkFafGPn8Y2uk9vz4bSveZQxa"
+
+# Estimate gas for a transaction
+gast tx estimate-gas --from 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045 --to 0xbe0eb53f46cd790cd13851d5eff43d12404d33e8 --rpc-url https://rpc.mevblocker.io --data 'Hello Ethereum!'
+
+# Get the transaction count of an account
+gast tx get-nonce --address 0x8741Fb04b7d8f5A01e0ec1D454602Bc08BDB0c8c --rpc-url https://sepolia.drpc.org
+```
+
+### EIP-4844 Blob Transactions
+
+```shell
+# Create and send an EIP-4844 blob transaction
+gast tx send-blob --to 0x571B102323C3b8B8Afb30619Ac1d36d85359fb84 --rpc-url "https://rpc2.sepolia.org" --private-key "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662" --blob-data 'Hello Blobs!' -dir gast/blob-tx # dir to save blob tx result
+```
+
+### Message Signing and Verification
+
+```shell
+# Sign a message with a private key
+gast tx sign-message -m Jesserc -p "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662"
+
+# Verify the signature of a signed message
+gast tx verify-sig --sig 0x5e9faa36429804f79bd8ca495e21095f29f1038ec2b3f10788437a16d52f79682aca534e2b4ff0f426d6444555d807e6bc1c7c8a6b21aaaa4676d4f5e8d45b541b --address 0x571B102323C3b8B8Afb30619Ac1d36d85359fb84 --msg Jesserc
+```
+
+### Transaction Tracing
+
+```shell
+# Retrieve the execution trace of a transaction
+gast tx trace --hash 0xee92800f24e23971c0ab031b30d60d6414e2255a308993d902604f4cfc1e4e7f -u https://rpc.builder0x69.io/
+```
+
 
 ## Tests
 To run unit test:

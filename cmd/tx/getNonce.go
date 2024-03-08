@@ -28,7 +28,7 @@ var getNonceCmd = &cobra.Command{
 func init() {
 	// Flags and configuration settings.
 	getNonceCmd.Flags().StringVarP(&gastParams.FromValue, "address", "a", "", "Address to get nonce")
-	getNonceCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "url", "u", "", "RPC url")
+	getNonceCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "rpc-url", "u", "", "RPC url")
 
 	getNonceCmd.MarkFlagRequired("address")
 	getNonceCmd.MarkFlagRequired("url")

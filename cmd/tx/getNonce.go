@@ -31,6 +31,6 @@ func init() {
 	getNonceCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "rpc-url", "u", "", "RPC url")
 
 	getNonceCmd.MarkFlagRequired("address")
-	getNonceCmd.MarkFlagRequired("url")
+	getNonceCmd.MarkFlagRequired("rpc-url")
 	getNonceCmd.MarkFlagsRequiredTogether("address", "url")
 }

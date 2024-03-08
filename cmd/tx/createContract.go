@@ -67,7 +67,7 @@ func init() {
 	createContractCmd.Flags().Uint64VarP(&gastParams.WeiValue, "wei", "w", 0, "amount to send (optional)")
 
 	// Mark flags required
-	createContractCmd.MarkFlagRequired("url")
+	createContractCmd.MarkFlagRequired("rpc-url")
 	createContractCmd.MarkFlagRequired("private-key")
 	createContractCmd.MarkFlagRequired("gas-limit")
 	createContractCmd.MarkFlagRequired("dir")

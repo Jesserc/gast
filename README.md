@@ -1,6 +1,6 @@
 # Gast - Ethereum  Transaction Toolkit
 
-Gast is a command-line transaction toolkit designed to streamline the management of Ethereum (including testnets and EVM compatible Layer 2s) transactions and gas prices. It provides some sets of commands for managing transactions (including creation, signing, and tracing).
+Gast is an open-source command-line transaction toolkit designed to streamline the management of Ethereum (including testnets and EVM compatible Layer 2s) transactions and gas prices. It provides some sets of commands for managing transactions (including creation, signing, and tracing).
 
 ## Installation
 

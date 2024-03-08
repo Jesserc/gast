@@ -101,6 +101,31 @@ Supported flags include:
 - `--zksync`: Use the default zkSync RPC URL.
 - `-u, --url string`: Specify a custom RPC URL for fetching the gas price.
 
+## Generating Completions
+To generate completions for zsh shell, run:
+```shell
+gast completion zsh # or use your shell
+```
+Save completion script to a completion file:
+```shell
+mkdir -p ~/.zsh/completion
+nano ~/.zsh/completion/_gast # paste the completion script here
+```
+Open .zshrc to Include the Completion Directory:
+```shell
+nano ~/.zshrc
+```
+Add the following lines to set completions:
+```shell
+fpath=(~/.zsh/completion $fpath)
+autoload -Uz compinit
+compinit
+```
+Apply changes:
+```shell
+source ~/.zshrc
+```
+
 
 ## Tests
 To run unit test:

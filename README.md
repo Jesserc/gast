@@ -26,7 +26,7 @@ Or manually paste it in your `.bashrc`, `.zshrc` file.
 ```shell
 nano ~/.zshrc # add => export PATH=$PATH:$(go env GOPATH)/bin
 # or
-nano ~/.bashrc # export => PATH=$PATH:$(go env GOPATH)/bin
+nano ~/.bashrc # ad => export PATH=$PATH:$(go env GOPATH)/bin
 ```
 
 ## Usage
@@ -62,7 +62,7 @@ gast tx [sub-command] [flags]
 ```
 * `create-contract`: Deploy Solidity contract
 * `create-raw`: Generate a raw, signed EIP-1559 transaction to propagate later
-* `send-raw`: Propagate a raw, signed transaction. The nonce must not be used.
+* `send-raw`: Propagate a raw, signed transaction. The nonce must not be used
 * `send-blob`: Create and send an EIP-4844 blob transaction
 * `send`: Send EIP-1559 transaction
 * `trace`: Retrieve and display the execution trace (path) of a given transaction hash

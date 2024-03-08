@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/Jesserc/gast/cmd/gastParams"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +17,7 @@ var createRawCmd = &cobra.Command{
 	Short: "Generate a raw, signed EIP-1559 transaction",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		rawTransaction := CreateRawTransaction(
+		rawTransaction, err := CreateRawTransaction(
 			gastParams.TxRpcUrlValue,
 			gastParams.ToValue,
 			gastParams.TxDataValue,
@@ -24,7 +25,9 @@ var createRawCmd = &cobra.Command{
 			gastParams.GasLimitValue,
 			gastParams.WeiValue,
 		)
-
+		if err != nil {
+			log.Crit("Failed to create raw transaction", "error", err)
+		}
 		fmt.Println() // spacing
 		fmt.Printf("%sraw signed message:%s %s\n", gastParams.ColorGreen, gastParams.ColorReset, rawTransaction)
 	},

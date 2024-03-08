@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/Jesserc/gast/utils"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -19,36 +20,48 @@ import (
 	"github.com/mitchellh/go-homedir"
 )
 
-func SendBlobTX(rpcURL, data, privateKey, toAddress, dir string) string {
+func SendBlobTX(rpcURL, toAddress, data, privateKey, saveBlobDir string) (string, error) {
 	client, err := ethclient.Dial(rpcURL)
 	if err != nil {
-		log.Crit("Failed to dial RPC client", "error", err)
+		return "", fmt.Errorf("failed to dial RPC client: %s", err)
 	}
+	defer client.Close()
 
 	chainID, err := client.ChainID(context.Background())
 	if err != nil {
-		log.Crit("Failed to get chain ID", "error", err)
+		return "", fmt.Errorf("failed to get chain ID: %s", err)
 	}
 
 	var Blob [131072]byte
-	if strings.HasPrefix(data, "0x") {
-		bytesData, err := hexutil.Decode(data)
-		if err != nil {
-			log.Crit("Failed to decode data", "error", err)
+
+	// Convert data to hex format
+	var bytesData []byte
+	if data != "" {
+		if utils.IsHexWithOrWithout0xPrefix(data) {
+			if !strings.HasPrefix(data, "0x") {
+				data = "0x" + data // add `0x` prefix if it doesn't have
+			}
+			bytesData, err = hexutil.Decode(data)
+			if err != nil {
+				return "", fmt.Errorf("failed to decode data: %s", err)
+			}
+
+			copy(Blob[:], bytesData)
+
+		} else {
+			copy(Blob[:], data) // if it's not hex, just copy into blob (it'll be converted to bytes by the copy fn)
 		}
-		copy(Blob[:], bytesData)
-	} else {
-		copy(Blob[:], data)
+
 	}
 
 	BlobCommitment, err := kzg4844.BlobToCommitment(Blob)
 	if err != nil {
-		log.Crit("Failed to compute blob commitment", "error", err)
+		return "", fmt.Errorf("failed to compute blob commitment: %s", err)
 	}
 
 	BlobProof, err := kzg4844.ComputeBlobProof(Blob, BlobCommitment)
 	if err != nil {
-		log.Crit("Failed to compute blob proof", "error", err)
+		return "", fmt.Errorf("failed to compute blob proof: %s", err)
 	}
 
 	sidecar := types.BlobTxSidecar{
@@ -57,28 +70,29 @@ func SendBlobTX(rpcURL, data, privateKey, toAddress, dir string) string {
 		Proofs:      []kzg4844.Proof{BlobProof},
 	}
 
+	fmt.Println("priv key:", privateKey)
 	pKeyBytes, err := hexutil.Decode("0x" + privateKey)
 	if err != nil {
-		log.Crit("Failed to decode private key", "error", err)
+		return "", fmt.Errorf("failed to decode private key: %s", err)
 	}
 
 	ecdsaPrivateKey, err := crypto.ToECDSA(pKeyBytes)
 	if err != nil {
-		log.Crit("Failed to convert private key to ECDSA", "error", err)
+		return "", fmt.Errorf("failed to convert private key to ECDSA: %s", err)
 	}
 
 	fromAddress := crypto.PubkeyToAddress(ecdsaPrivateKey.PublicKey)
 
 	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
 	if err != nil {
-		log.Crit("Failed to get nonce", "error", err)
+		return "", fmt.Errorf("failed to get nonce: %s", err)
 	}
 
 	tx, err := types.NewTx(&types.BlobTx{
 		ChainID:    uint256.MustFromBig(chainID),
 		Nonce:      nonce,
 		GasTipCap:  uint256.NewInt(1e10),
-		GasFeeCap:  uint256.NewInt(2e10),
+		GasFeeCap:  uint256.NewInt(20e10),
 		Gas:        250000,
 		To:         common.HexToAddress(toAddress),
 		Value:      uint256.NewInt(0),
@@ -88,19 +102,19 @@ func SendBlobTX(rpcURL, data, privateKey, toAddress, dir string) string {
 		Sidecar:    &sidecar,
 	}), nil
 	if err != nil {
-		log.Crit("Failed to create transaction", "error", err)
+		return "", fmt.Errorf("failed to create transaction: %s", err)
 	}
 
 	signedTx, err := types.SignTx(tx, types.LatestSignerForChainID(chainID), ecdsaPrivateKey)
 	if err != nil {
-		log.Crit("Failed to sign transaction", "error", err)
+		return "", fmt.Errorf("failed to sign transaction: %s", err)
 	}
 
 	if err = client.SendTransaction(context.Background(), signedTx); err != nil {
-		log.Crit("Failed to send transaction", "error", err)
+		return "", fmt.Errorf("failed to send transaction: %s", err)
 	}
 
-	if dir != "" {
+	if saveBlobDir != "" {
 		d, err := json.MarshalIndent(signedTx, "", "\t")
 		if err != nil {
 			log.Error("Failed to marshal indent transaction", "error", err)
@@ -111,7 +125,7 @@ func SendBlobTX(rpcURL, data, privateKey, toAddress, dir string) string {
 			log.Error("Failed to get home directory", "error", err)
 		}
 
-		path := filepath.Join(hd, dir)
+		path := filepath.Join(hd, saveBlobDir)
 		if err = os.MkdirAll(path, 0755); err != nil {
 			log.Error("Failed to create directory", "error", err)
 		}
@@ -131,5 +145,5 @@ func SendBlobTX(rpcURL, data, privateKey, toAddress, dir string) string {
 	}
 	txHash := signedTx.Hash().Hex()
 
-	return txHash
+	return txHash, nil
 }

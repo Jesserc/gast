@@ -9,64 +9,61 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestTraceTxIntegration_FailureDueToWhitespaceInRPCURL(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping integration test")
+func TestTraceTx_Integration(t *testing.T) {
+	testCases := []struct {
+		name         string
+		txHash       string
+		rpcURL       string
+		wantTraceNil bool
+		wantError    bool
+		errorMsg     string
+		wantType     reflect.Type
+	}{
+		{
+			name:         "Failure Due To Whitespace In RPC URL",
+			txHash:       "0xd12e31c3274ff32d5a73cc59e8deacbb0f7ac4c095385add3caa2c52d01164c1",
+			rpcURL:       "  https://rpc.builder0x69.io/ ",
+			wantTraceNil: true,
+			wantError:    true,
+			errorMsg:     "failed to dial RPC client",
+		},
+		{
+			name:         "Failure Due To Invalid Transaction Hash",
+			txHash:       "0xd12e31c3274ff32d5a73cc",
+			rpcURL:       "https://rpc.builder0x69.io/",
+			wantTraceNil: true,
+			wantError:    true,
+			errorMsg:     "invalid argument",
+		},
+		{
+			name:     "Success With Default RPC URL",
+			txHash:   "0xd12e31c3274ff32d5a73cc59e8deacbb0f7ac4c095385add3caa2c52d01164c1",
+			rpcURL:   "",
+			wantType: reflect.TypeOf(&Trace{}),
+		},
+		{
+			name:     "Success With Specified RPC URL",
+			txHash:   "0xd12e31c3274ff32d5a73cc59e8deacbb0f7ac4c095385add3caa2c52d01164c1",
+			rpcURL:   "https://rpc.builder0x69.io/",
+			wantType: reflect.TypeOf(&Trace{}),
+		},
+		// Add more test cases here as needed
 	}
 
-	trace, err := TraceTx(
-		"0xd12e31c3274ff32d5a73cc59e8deacbb0f7ac4c095385add3caa2c52d01164c1",
-		"  https://rpc.builder0x69.io/ ", // Intentional whitespace to cause an error
-	)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			trace, err := TraceTx(tc.txHash, tc.rpcURL)
 
-	require.Nil(t, trace)
-	require.Error(t, err)
-
-	require.ErrorContains(t, err, "failed to dial RPC client")
-}
-
-func TestTraceTxIntegration_FailureDueToInvalidTransactionHash(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping integration test")
+			if tc.wantError {
+				require.NotNil(t, err)
+				require.ErrorContains(t, err, tc.errorMsg)
+				require.True(t, tc.wantTraceNil == (trace == nil))
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, tc.wantType, reflect.TypeOf(trace))
+			}
+		})
 	}
-
-	trace, err := TraceTx(
-		"0xd12e31c3274ff32d5a73cc", // Invalid hash
-		"https://rpc.builder0x69.io/",
-	)
-
-	require.Nil(t, trace)
-	require.Error(t, err)
-
-	require.ErrorContains(t, err, "invalid argument")
-}
-
-func TestTraceTxIntegration_SuccessWithDefaultRPCURL(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping integration test")
-	}
-	trace, err := TraceTx(
-		"0xd12e31c3274ff32d5a73cc59e8deacbb0f7ac4c095385add3caa2c52d01164c1", // invalid hash
-		"", // Use default RPC URL by leaving this empty
-	)
-
-	require.NotNil(t, trace)
-	require.NoError(t, err)
-
-	require.Equal(t, reflect.TypeOf(trace), reflect.TypeOf(&Trace{}))
-}
-
-func TestTraceTxIntegration_SuccessWithSpecifiedRPCURL(t *testing.T) {
-	trace, err := TraceTx(
-		"0xd12e31c3274ff32d5a73cc59e8deacbb0f7ac4c095385add3caa2c52d01164c1",
-		"https://rpc.builder0x69.io/",
-	)
-
-	require.NotNil(t, trace)
-	require.NoError(t, err)
-
-	require.Equal(t, reflect.TypeOf(trace), reflect.TypeOf(&Trace{}))
-
 }
 
 func TestTraceTxIntegration_PrintTrace(t *testing.T) {
@@ -83,19 +80,19 @@ func TestTraceTxIntegration_PrintTrace(t *testing.T) {
 
 	require.Equal(t, reflect.TypeOf(trace), reflect.TypeOf(&Trace{}), "Expected a *Trace type.")
 
-	// Save the original os.Stdout to restore it later.
+	// Save the original os.Stdout to restore it later
 	originalStdout := os.Stdout
 
-	// Create a pipe: 'r' for reading, 'w' for writing.
-	// This allows capturing the output directed to os.Stdout.
+	// Create a pipe: 'r' for reading, 'w' for writing
+	// We'll use this to capture the output directed to os.Stdout
 	r, w, _ := os.Pipe()
-	// Temporarily set os.Stdout to our pipe's writer.
+	// Temporarily set os.Stdout to our pipe's writer
 	os.Stdout = w
 
 	printTrace(trace, 0, false, "") // printing trace to stdout is now redirected to our pipe `w`
-	w.Close()                       // Close the writer end of the pipe to signal we're done writing.
+	w.Close()                       // Close the writer end of the pipe to signal we're done writing
 
-	// Read all output captured from the pipe.
+	// Read all output captured from the pipe
 	out, _ := io.ReadAll(r)
 	os.Stdout = originalStdout // Restore the original stdout to avoid side effects on test outputs
 

@@ -114,8 +114,7 @@ func SendTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uint64) 
 	fmt.Println() // spacing
 	log.Info("Transaction sent")
 
-	err = client.SendTransaction(context.Background(), signedTx)
-	if err != nil {
+	if err = client.SendTransaction(context.Background(), signedTx); err != nil {
 		return "", fmt.Errorf("failed to send transaction: %s", err)
 	}
 

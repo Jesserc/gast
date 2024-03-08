@@ -24,13 +24,16 @@ var createContractCmd = &cobra.Command{
 			log.Crit("Failed to compile contract", "err", err)
 		}
 
-		txReceipt := CreateContract(
+		txReceipt, err := CreateContract(
 			gastParams.TxRpcUrlValue,
 			bytecode,
 			gastParams.PrivKeyValue,
 			gastParams.GasLimitValue,
 			gastParams.WeiValue,
 		)
+		if err != nil {
+			log.Crit("Failed to deploy contract", "err", err)
+		}
 
 		fmt.Printf("\nTransaction Receipt:\n")
 		fmt.Printf("%sTransaction Hash%s: %s\n", gastParams.ColorGreen, gastParams.ColorReset, txReceipt.TransactionHash)

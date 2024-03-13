@@ -172,16 +172,19 @@ gast tx estimate-gas --from 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045 --to 0xbe
 gast tx get-nonce --address 0x8741Fb04b7d8f5A01e0ec1D454602Bc08BDB0c8c --rpc-url https://sepolia.drpc.org
 ```
 
-### EIP-4844 Blob Transactions
+### Send EIP-4844 Blob Transactions
 
 ```shell
 # Create and send an EIP-4844 blob transaction
 gast tx send-blob --to 0x571B102323C3b8B8Afb30619Ac1d36d85359fb84 --rpc-url "https://rpc2.sepolia.org" --private-key "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662" --blob-data 'Hello Blobs!' --dir gast/blob-tx # dir to save blob tx result
+```
+
+### Retrieve EIP-4844 blob transaction data (mainnet only)
+```shell
 
 # retrieve EIP-4844 blob transaction data
 gast tx get-blob --id 8626178 --kzg-commitment 0xb28e4d255047f6e50b3d7548d37155b6e2289e82520aa6248d9fbe50e73b81d9f705cb3f2192d55caf54e26fb29c419a # `id` is the block root (32 bytes) or slot number of the blob tx and `kzg-commitment` is the kzg commitment (48 bytes) of the blob
 ```
-
 ### Message Signing and Verification
 
 ```shell
@@ -192,11 +195,11 @@ gast tx sign-message -m Jesserc -p "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa6
 gast tx verify-sig --sig 0x5e9faa36429804f79bd8ca495e21095f29f1038ec2b3f10788437a16d52f79682aca534e2b4ff0f426d6444555d807e6bc1c7c8a6b21aaaa4676d4f5e8d45b541b --address 0x571B102323C3b8B8Afb30619Ac1d36d85359fb84 --msg Jesserc
 ```
 
-### Transaction Tracing
+### Transaction Tracing (mainnet only)
 
 ```shell
 # Retrieve the execution trace of a transaction
-gast tx trace --hash 0xee92800f24e23971c0ab031b30d60d6414e2255a308993d902604f4cfc1e4e7f -u https://rpc.builder0x69.io/
+gast tx trace --hash 0xee92800f24e23971c0ab031b30d60d6414e2255a308993d902604f4cfc1e4e7f -u https://rpc.builder0x69.io/ 
 ```
 
 

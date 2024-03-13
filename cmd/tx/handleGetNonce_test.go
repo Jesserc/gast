@@ -14,8 +14,7 @@ func TestGetNonce_Integration(t *testing.T) {
 		name          string
 		address       string
 		rpcURL        string
-		expectedError string // Expected error substring
-
+		expectedError string
 	}{
 		{
 			name:          "Whitespace in RPC URL",

@@ -18,7 +18,10 @@ var (
 	SigMsgValue     string
 	SigAddressValue string
 
-	DirValue string
+	// blob
+	DirValue                 string
+	KZGCommitmentVar         string
+	BlockRootOrSlotNumberVar string
 )
 
 // Terminal outputs colours

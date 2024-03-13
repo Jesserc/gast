@@ -26,7 +26,7 @@ Or manually paste it in your `.bashrc`, `.zshrc` file.
 ```shell
 nano ~/.zshrc # add => export PATH=$PATH:$(go env GOPATH)/bin
 # or
-nano ~/.bashrc # add => export PATH=$PATH:$(go env GOPATH)/bin
+nano ~/.bashrc # add**************** => export PATH=$PATH:$(go env GOPATH)/bin
 ```
 
 ## Usage
@@ -64,6 +64,7 @@ gast tx [sub-command] [flags]
 * `create-raw`: Generate a raw, signed EIP-1559 transaction to propagate later
 * `send-raw`: Propagate a raw, signed transaction. The nonce must not be used
 * `send-blob`: Create and send an EIP-4844 blob transaction
+* `get-blob`: Get blob transaction data
 * `send`: Send EIP-1559 transaction
 * `trace`: Retrieve and display the execution trace (path) of a given transaction hash
 * `sign-message`: Sign a given message with a private key
@@ -176,6 +177,9 @@ gast tx get-nonce --address 0x8741Fb04b7d8f5A01e0ec1D454602Bc08BDB0c8c --rpc-url
 ```shell
 # Create and send an EIP-4844 blob transaction
 gast tx send-blob --to 0x571B102323C3b8B8Afb30619Ac1d36d85359fb84 --rpc-url "https://rpc2.sepolia.org" --private-key "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662" --blob-data 'Hello Blobs!' --dir gast/blob-tx # dir to save blob tx result
+
+# retrieve EIP-4844 blob transaction data
+gast tx get-blob --id 8626178 --kzg-commitment 0xb28e4d255047f6e50b3d7548d37155b6e2289e82520aa6248d9fbe50e73b81d9f705cb3f2192d55caf54e26fb29c419a # `id` is the block root (32 bytes) or slot number of the blob tx and `kzg-commitment` is the kzg commitment (48 bytes) of the blob
 ```
 
 ### Message Signing and Verification

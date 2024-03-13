@@ -30,4 +30,5 @@ func init() {
 	TxCmd.AddCommand(createContractCmd)
 	TxCmd.AddCommand(sendBlobTxCmd)
 	TxCmd.AddCommand(sendCmd)
+	TxCmd.AddCommand(getBlobCmd)
 }

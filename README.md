@@ -26,7 +26,7 @@ Or manually paste it in your `.bashrc`, `.zshrc` file.
 ```shell
 nano ~/.zshrc # add => export PATH=$PATH:$(go env GOPATH)/bin
 # or
-nano ~/.bashrc # add**************** => export PATH=$PATH:$(go env GOPATH)/bin
+nano ~/.bashrc # add => export PATH=$PATH:$(go env GOPATH)/bin
 ```
 
 ## Usage

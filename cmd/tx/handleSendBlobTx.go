@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Jesserc/gast/utils"
+	"github.com/Jesserc/gast/internal/hex"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -37,7 +37,7 @@ func SendBlobTX(rpcURL, toAddress, data, privateKey, saveBlobDir string) (string
 	// Convert data to hex format
 	var bytesData []byte
 	if data != "" {
-		if utils.IsHexWithOrWithout0xPrefix(data) {
+		if hex.WithOrWithout0xPrefix(data) {
 			if !strings.HasPrefix(data, "0x") {
 				data = "0x" + data // add `0x` prefix if it doesn't have
 			}

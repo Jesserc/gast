@@ -8,7 +8,7 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/Jesserc/gast/utils"
+	hex2 "github.com/Jesserc/gast/internal/hex"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -75,7 +75,7 @@ func CreateRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uin
 	var hexData string
 	var bytesData []byte
 	if data != "" {
-		if !utils.IsHexWithOrWithout0xPrefix(data) {
+		if !hex2.WithOrWithout0xPrefix(data) {
 			hexData = hexutil.Encode([]byte(data))
 		} else if strings.HasPrefix(data, "0x") {
 			hexData = data

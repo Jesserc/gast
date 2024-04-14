@@ -7,7 +7,6 @@ import (
 	"fmt"
 
 	"github.com/Jesserc/gast/cmd/gastParams"
-	"github.com/Jesserc/gast/utils"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/spf13/cobra"
 )
@@ -19,7 +18,7 @@ var createContractCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		bytecode, err := utils.CompileSol(gastParams.DirValue)
+		bytecode, err := CompileSol(gastParams.DirValue)
 		if err != nil {
 			log.Crit("Failed to compile contract", "err", err)
 		}

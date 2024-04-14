@@ -60,3 +60,54 @@ func GetCurrentGasPrice(rpcUrl string) (string, error) {
 
 	return gasPrice.String(), nil
 }
+
+/*
+func EthConversion(wei uint64, denomination string) (string, error) {
+	weiValue := new(big.Int).SetUint64(wei)
+
+	var value *big.Float
+	var v string
+
+	dLower := strings.ToLower(denomination)
+	switch dLower {
+	case "eth":
+		value = new(big.Float).Quo(new(big.Float).SetInt(weiValue), new(big.Float).SetFloat64(params.Ether))
+		v = value.Text('f', 18)
+		v = strings.TrimRight(v, "0")
+		v = strings.TrimRight(v, ".")
+	case "gwei":
+		value = new(big.Float).Quo(new(big.Float).SetInt(weiValue), new(big.Float).SetFloat64(params.GWei))
+		v = value.Text('f', 9)
+		v = strings.TrimRight(v, "0")
+		v = strings.TrimRight(v, ".")
+	case "wei":
+		v = strconv.FormatUint(wei, 10)
+	default:
+		err := errors.New("denomination not supported: " + denomination)
+		return "", err
+	}
+
+	return v, nil
+}
+
+
+
+func TestEthConversion(t *testing.T) {
+	v, err := EthConversion(10e18, "eth")
+	require.NoError(t, err, "error should be nil")
+	require.Equal(t, "10", v, "10e18 Wei should equal 10 ETH")
+
+	v, err = EthConversion(10e18, "gwei")
+	require.NoError(t, err, "error should be nil")
+	require.Equal(t, "10000000000", v, "10e18 Wei should equal 10000000000 Gwei")
+
+	v, err = EthConversion(10e18, "wei")
+	require.NoError(t, err, "error should be nil")
+	require.Equal(t, "10000000000000000000", v, "10e18 Wei should equal 10000000000000000000 Wei")
+
+	v, err = EthConversion(10e18, "invalid")
+	require.Error(t, err, "error should not be nil")
+	require.ErrorContains(t, err, "denomination not supported")
+}
+
+*/

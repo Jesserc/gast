@@ -1,4 +1,4 @@
-package utils
+package hex
 
 import (
 	"testing"
@@ -7,12 +7,12 @@ import (
 )
 
 func TestIsHexWithOrWithout0xPrefix(t *testing.T) {
-	isHex := IsHexWithOrWithout0xPrefix("Gast")
+	isHex := WithOrWithout0xPrefix("Gast")
 	require.False(t, isHex)
 
-	isHex = IsHexWithOrWithout0xPrefix("0xc0ffeebabe")
+	isHex = WithOrWithout0xPrefix("0xc0ffeebabe")
 	require.True(t, isHex)
 
-	isHex = IsHexWithOrWithout0xPrefix("ffff")
+	isHex = WithOrWithout0xPrefix("ffff")
 	require.True(t, isHex)
 }

@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/Jesserc/gast/cmd/gastParams"
-	"github.com/Jesserc/gast/utils"
+	"github.com/Jesserc/gast/internal/hex"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -74,7 +74,7 @@ func SendTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uint64) 
 	var hexData string
 	var bytesData []byte
 	if data != "" {
-		if !utils.IsHexWithOrWithout0xPrefix(data) {
+		if !hex.WithOrWithout0xPrefix(data) {
 			hexData = hexutil.Encode([]byte(data))
 		} else if strings.HasPrefix(data, "0x") {
 			hexData = data

@@ -3,7 +3,7 @@ package transaction
 import (
 	"testing"
 
-	"github.com/Jesserc/gast/utils"
+	"github.com/Jesserc/gast/internal/hex"
 	"github.com/stretchr/testify/require"
 )
 
@@ -11,7 +11,7 @@ func TestCreateRawTransaction_Integration(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping integration test")
 	}
-	
+
 	testCases := []struct {
 		name       string
 		rpcURL     string
@@ -88,7 +88,7 @@ func TestCreateRawTransaction_Integration(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				require.NotEmpty(t, rawTransaction)
-				require.True(t, utils.IsHexWithOrWithout0xPrefix(rawTransaction), "raw transaction should be a hexadecimal")
+				require.True(t, hex.WithOrWithout0xPrefix(rawTransaction), "raw transaction should be a hexadecimal")
 			}
 		})
 	}

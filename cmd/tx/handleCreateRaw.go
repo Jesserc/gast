@@ -29,10 +29,11 @@ func CreateRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uin
 	}
 	defer client.Close()
 
-	var chainID uint64
-	var baseFee big.Int
-	var priorityFee big.Int
-	var errs w3.CallErrors
+	var (
+		chainID              uint64
+		baseFee, priorityFee big.Int
+		errs                 w3.CallErrors
+	)
 
 	if err := client.CallCtx(
 		context.Background(),

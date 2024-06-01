@@ -43,13 +43,14 @@ func GetCurrentGasPrice(rpcUrl string) (string, error) {
 	}
 	defer client.Close()
 
-	var chainId uint64
-	var gasPrice big.Int
-
-	var errs w3.CallErrors
+	var (
+		chainID  uint64
+		gasPrice big.Int
+		errs     w3.CallErrors
+	)
 
 	if err := client.CallCtx(ctx,
-		w3eth.ChainID().Returns(&chainId),
+		w3eth.ChainID().Returns(&chainID),
 		w3eth.GasPrice().Returns(&gasPrice),
 	); errors.As(err, &errs) {
 		if errs[0] != nil {
@@ -61,10 +62,11 @@ func GetCurrentGasPrice(rpcUrl string) (string, error) {
 		return "", fmt.Errorf("failed RPC request: %s", err)
 	}
 
-	if networkName, ok := networkNames[chainId]; ok {
+	// Retrieve the network name from the map and print
+	if networkName, ok := networkNames[chainID]; ok {
 		log.Info("Retrieving Gas Price", "network", networkName)
 	} else {
-		log.Info("Retrieving Gas Price", "network with chain ID", hexutil.EncodeUint64(chainId))
+		log.Info("Retrieving Gas Price", "network with chain ID", hexutil.EncodeUint64(chainID))
 	}
 
 	return gasPrice.String(), nil

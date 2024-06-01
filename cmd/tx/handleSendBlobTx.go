@@ -32,7 +32,7 @@ func SendBlobTX(rpcURL, toAddress, data, privateKey, saveBlobDir string) (string
 		return "", fmt.Errorf("failed to get chain ID: %s", err)
 	}
 
-	var Blob [131072]byte
+	var Blob kzg4844.Blob
 
 	// Convert data to hex format
 	var bytesData []byte
@@ -54,12 +54,12 @@ func SendBlobTX(rpcURL, toAddress, data, privateKey, saveBlobDir string) (string
 
 	}
 
-	BlobCommitment, err := kzg4844.BlobToCommitment(Blob)
+	BlobCommitment, err := kzg4844.BlobToCommitment(&Blob)
 	if err != nil {
 		return "", fmt.Errorf("failed to compute blob commitment: %s", err)
 	}
 
-	BlobProof, err := kzg4844.ComputeBlobProof(Blob, BlobCommitment)
+	BlobProof, err := kzg4844.ComputeBlobProof(&Blob, BlobCommitment)
 	if err != nil {
 		return "", fmt.Errorf("failed to compute blob proof: %s", err)
 	}

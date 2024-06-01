@@ -4,20 +4,29 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
+	rpcfactory "github.com/Jesserc/gast/internal/rpc_factory"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/lmittmann/w3"
 )
 
 func GetNonce(address, rpcUrl string) (uint64, uint64, error) {
-	client, err := ethclient.Dial(rpcUrl)
+	client, err := w3.Dial(rpcUrl)
 	if err != nil {
 		return 0, 0, fmt.Errorf("failed to dial RPC client: %s", err)
 	}
 	defer client.Close()
 
-	nextNonce, err := client.PendingNonceAt(context.Background(), common.HexToAddress(address))
-	if err != nil {
+	var nonce string
+	if err := client.CallCtx(
+		context.Background(),
+		rpcfactory.PendingNonceAt(w3.A(address)).Returns(&nonce),
+	); err != nil {
 		return 0, 0, fmt.Errorf("failed to get next nonce: %s", err)
+	}
+
+	nextNonce, err := hexutil.DecodeUint64(nonce)
+	if err != nil {
+		return 0, 0, fmt.Errorf("invalid value received: %s", err)
 	}
 
 	var currentNonce uint64

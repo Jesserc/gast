@@ -6,11 +6,14 @@ package gasprice
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"math/big"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/log"
+	"github.com/lmittmann/w3"
+	w3eth "github.com/lmittmann/w3/module/eth"
 )
 
 var (
@@ -34,28 +37,34 @@ var (
 )
 
 func GetCurrentGasPrice(rpcUrl string) (string, error) {
-	client, err := ethclient.Dial(rpcUrl)
+	client, err := w3.Dial(rpcUrl)
 	if err != nil {
 		return "", fmt.Errorf("failed to dial RPC client: %s", err)
 	}
+	defer client.Close()
 
-	chainIdBigInt, err := client.ChainID(ctx)
-	if err != nil {
-		return "", fmt.Errorf("failed to get chain ID: %s", err)
+	var chainId uint64
+	var gasPrice big.Int
+
+	var errs w3.CallErrors
+
+	if err := client.CallCtx(ctx,
+		w3eth.ChainID().Returns(&chainId),
+		w3eth.GasPrice().Returns(&gasPrice),
+	); errors.As(err, &errs) {
+		if errs[0] != nil {
+			return "", fmt.Errorf("failed to get chain ID: %s", err)
+		} else if errs[1] != nil {
+			return "", fmt.Errorf("failed to get gas price: %s", errs[1])
+		}
+	} else if err != nil {
+		return "", fmt.Errorf("failed RPC request: %s", err)
 	}
 
-	chainId := chainIdBigInt.Uint64()
-
-	// Retrieve the network name from the map and print
 	if networkName, ok := networkNames[chainId]; ok {
 		log.Info("Retrieving Gas Price", "network", networkName)
 	} else {
 		log.Info("Retrieving Gas Price", "network with chain ID", hexutil.EncodeUint64(chainId))
-	}
-
-	gasPrice, err := client.SuggestGasPrice(context.Background())
-	if err != nil {
-		return "", fmt.Errorf("failed to get gas price: %s", err)
 	}
 
 	return gasPrice.String(), nil

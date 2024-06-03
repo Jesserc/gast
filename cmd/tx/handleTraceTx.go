@@ -8,8 +8,9 @@ import (
 	"strings"
 
 	"github.com/Jesserc/gast/cmd/gastParams"
+	rpcfactory "github.com/Jesserc/gast/internal/rpc_factory"
 	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/lmittmann/w3"
 )
 
 type Trace struct {
@@ -25,18 +26,18 @@ type Trace struct {
 
 func TraceTx(hash, rpcUrl string) (*Trace, error) {
 	var (
-		client *rpc.Client
+		client *w3.Client
 		err    error
 	)
 
 	if rpcUrl == "" {
-		client, err = rpc.Dial("https://rpc.builder0x69.io/")
+		client, err = w3.Dial("https://rpc.builder0x69.io/")
 		if err != nil {
 			return nil, fmt.Errorf("failed to dial RPC client: %s", err)
 		}
 		defer client.Close()
 	} else {
-		client, err = rpc.Dial(rpcUrl)
+		client, err = w3.Dial(rpcUrl)
 		if err != nil {
 			return nil, fmt.Errorf("failed to dial RPC client: %s", err)
 		}
@@ -44,8 +45,10 @@ func TraceTx(hash, rpcUrl string) (*Trace, error) {
 	}
 
 	var result json.RawMessage
-	err = client.CallContext(context.Background(), &result, "ots_traceTransaction", hash)
-	if err != nil {
+	if err := client.CallCtx(
+		context.Background(),
+		rpcfactory.OtsTraceTransaction(hash).Returns(&result),
+	); err != nil {
 		return nil, fmt.Errorf("failed to trace transaction: %s", err)
 	}
 
@@ -55,7 +58,6 @@ func TraceTx(hash, rpcUrl string) (*Trace, error) {
 	}
 
 	rootTrace := buildTraceHierarchy(traces)
-
 	return rootTrace, nil
 }
 

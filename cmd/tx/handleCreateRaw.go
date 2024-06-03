@@ -134,7 +134,7 @@ func CreateRawTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uin
 		log.Crit("Failed get rlp encoded raw transaction", "error", err)
 	}
 
-	rawTxRLPHex := hex.EncodeToString(buf.Bytes()[2:])
+	rawTxRLPHex := hex.EncodeToString(buf.Bytes())
 
 	return rawTxRLPHex, nil
 }

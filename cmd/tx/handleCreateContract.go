@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math/big"
 	"os/exec"
@@ -13,12 +14,15 @@ import (
 	"time"
 
 	"github.com/Jesserc/gast/cmd/gastParams"
+	rpcfactory "github.com/Jesserc/gast/internal/rpc_factory"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/lmittmann/w3"
+	w3eth "github.com/lmittmann/w3/module/eth"
 )
 
 type TxReceipt struct {
@@ -43,35 +47,37 @@ func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) (*TxR
 	var receipt TxReceipt
 
 	// Connect to the Ethereum client
-	client, err := ethclient.Dial(rpcURL)
+	client, err := w3.Dial(rpcURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to dial RPC client: %s", err)
 	}
 	defer client.Close()
 
-	// Get chain ID
-	chainID, err := client.ChainID(context.Background())
-	if err != nil {
-		return nil, fmt.Errorf("failed to get chain: %s", err)
-	}
+	var chainID uint64
+	var baseFee big.Int
+	var priorityFee big.Int
+	var errs w3.CallErrors
 
-	// Get base fee
-	baseFee, err := client.SuggestGasPrice(context.Background())
-	if err != nil {
-		return nil, fmt.Errorf("failed to get base fee: %s", err)
+	if err := client.CallCtx(
+		context.Background(),
+		w3eth.ChainID().Returns(&chainID),
+		w3eth.GasPrice().Returns(&baseFee),
+		w3eth.GasTipCap().Returns(&priorityFee),
+	); errors.As(err, &errs) {
+		if errs[0] != nil {
+			return nil, fmt.Errorf("failed to get chain: %s", err)
+		} else if errs[1] != nil {
+			return nil, fmt.Errorf("failed to get base fee: %s", err)
+		} else if errs[2] != nil {
+			return nil, fmt.Errorf("failed to get priority fee: %s", err)
+		}
 	}
 	log.Info("base fee", "value", baseFee)
-
-	// Get priority fee
-	priorityFee, err := client.SuggestGasTipCap(context.Background())
-	if err != nil {
-		return nil, fmt.Errorf("failed to get priority fee: %s", err)
-	}
 	log.Info("priority fee", "value", priorityFee)
 
 	// Calculate gas fee cap with 2 Gwei margin
-	increment := new(big.Int).Add(baseFee, big.NewInt(2*params.GWei))
-	gasFeeCap := new(big.Int).Add(increment, priorityFee)
+	increment := new(big.Int).Add(&baseFee, big.NewInt(2*params.GWei))
+	gasFeeCap := new(big.Int).Add(increment, &priorityFee)
 
 	log.Info("max fee per gas", "value", gasFeeCap)
 
@@ -89,9 +95,17 @@ func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) (*TxR
 
 	fromAddress := crypto.PubkeyToAddress(ecdsaPrivateKey.PublicKey)
 
-	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
-	if err != nil {
+	var pendingNonce string
+	if err := client.CallCtx(
+		context.Background(),
+		rpcfactory.PendingNonceAt(fromAddress).Returns(&pendingNonce),
+	); err != nil {
 		return nil, fmt.Errorf("failed to get nonce: %s", err)
+	}
+
+	nonce, err := strconv.ParseUint(pendingNonce, 0, 64)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse nonce: %s", err)
 	}
 
 	data = strings.Trim(data, "\n")
@@ -108,9 +122,9 @@ func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) (*TxR
 	amount := new(big.Int).SetUint64(wei)
 
 	tx, err := types.NewTx(&types.DynamicFeeTx{
-		ChainID:   chainID,
+		ChainID:   big.NewInt(int64(chainID)),
 		Nonce:     nonce,
-		GasTipCap: priorityFee,
+		GasTipCap: &priorityFee,
 		GasFeeCap: gasFeeCap,
 		Gas:       gasLimit,
 		Value:     amount,
@@ -120,12 +134,12 @@ func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) (*TxR
 		return nil, fmt.Errorf("failed to create transaction: %s", err)
 	}
 
-	signedTx, err := types.SignTx(tx, types.LatestSignerForChainID(chainID), ecdsaPrivateKey)
+	signedTx, err := types.SignTx(tx, types.LatestSignerForChainID(big.NewInt(int64(chainID))), ecdsaPrivateKey)
 	if err != nil {
 		return nil, fmt.Errorf("failed to sign transaction: %s", err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 35*time.Second)
 	defer cancel()
 
 	timer := time.Now()
@@ -133,14 +147,17 @@ func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) (*TxR
 	fmt.Println() // spacing
 	log.Warn("Sending transaction, please wait for confirmation...")
 
-	err = client.SendTransaction(ctx, signedTx)
-	if err != nil {
+	var hash common.Hash
+	if err := client.CallCtx(
+		ctx,
+		w3eth.SendTx(signedTx).Returns(&hash),
+	); err != nil {
 		return nil, fmt.Errorf("failed to send transaction: %s", err)
 	}
 
 	var transactionURL string
 	for id, explorer := range gastParams.NetworkExplorers {
-		if chainID.Uint64() == id {
+		if chainID == id {
 			transactionURL = fmt.Sprintf("%vtx/%v", explorer, signedTx.Hash().Hex())
 			break
 		}
@@ -150,9 +167,17 @@ func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) (*TxR
 	case <-time.After(35 * time.Second):
 		log.Crit("Timeout:", "time taken", time.Since(timer))
 	case <-ctx.Done():
-		_, isPending, err := client.TransactionByHash(context.Background(), signedTx.Hash())
-		if err != nil {
+		var txn types.Transaction
+		if err := client.CallCtx(
+			context.Background(),
+			w3eth.Tx(signedTx.Hash()).Returns(&txn),
+		); err != nil {
 			return nil, fmt.Errorf("failed to get transaction status: %s", err)
+		}
+
+		isPending := true
+		if _, r, _ := txn.RawSignatureValues(); r == nil {
+			isPending = false
 		}
 
 		if isPending {
@@ -160,8 +185,11 @@ func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) (*TxR
 			fmt.Println("Tx receipt:", transactionURL)
 			return nil, nil
 		} else {
-			tr, err := client.TransactionReceipt(context.Background(), signedTx.Hash())
-			if err != nil {
+			var tr types.Receipt
+			if err := client.CallCtx(
+				context.Background(),
+				w3eth.TxReceipt(signedTx.Hash()).Returns(&tr),
+			); err != nil {
 				return nil, fmt.Errorf("failed to get transaction receipt: %s", err)
 			}
 

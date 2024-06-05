@@ -63,9 +63,11 @@ func SendRawTransaction(rawTx, rpcURL string) (string, string, error) {
 	fmt.Println() // spacing
 	log.Warn("Sending transaction, please wait for confirmation...")
 
-	var res common.Hash
-	var chainID uint64
-	var errs w3.CallErrors
+	var (
+		res     common.Hash
+		chainID uint64
+		errs    w3.CallErrors
+	)
 
 	if err := client.CallCtx(
 		context.Background(),

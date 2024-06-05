@@ -53,10 +53,12 @@ func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) (*TxR
 	}
 	defer client.Close()
 
-	var chainID uint64
-	var baseFee big.Int
-	var priorityFee big.Int
-	var errs w3.CallErrors
+	var (
+		chainID     uint64
+		baseFee     big.Int
+		priorityFee big.Int
+		errs        w3.CallErrors
+	)
 
 	if err := client.CallCtx(
 		context.Background(),
@@ -103,7 +105,7 @@ func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) (*TxR
 		return nil, fmt.Errorf("failed to get nonce: %s", err)
 	}
 
-	nonce, err := strconv.ParseUint(pendingNonce, 0, 64)
+	nonce, err := hexutil.DecodeUint64(pendingNonce)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse nonce: %s", err)
 	}

@@ -8,7 +8,6 @@ import (
 	"math/big"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"github.com/Jesserc/gast/internal/hex"
@@ -81,9 +80,12 @@ func SendBlobTX(rpcURL, toAddress, data, privateKey, saveBlobDir string) (string
 
 	fromAddress := crypto.PubkeyToAddress(ecdsaPrivateKey.PublicKey)
 
-	var chainID uint64
-	var pendingNonceAt string
-	var errs w3.CallErrors
+	var (
+		chainID        uint64
+		pendingNonceAt string
+		errs           w3.CallErrors
+	)
+
 	if err := client.CallCtx(
 		context.Background(),
 		w3eth.ChainID().Returns(&chainID),
@@ -98,7 +100,7 @@ func SendBlobTX(rpcURL, toAddress, data, privateKey, saveBlobDir string) (string
 		return "", fmt.Errorf("failed RPC request: %s", err)
 	}
 
-	nonce, err := strconv.ParseUint(pendingNonceAt, 0, 64)
+	nonce, err := hexutil.DecodeUint64(pendingNonceAt)
 	if err != nil {
 		return "", fmt.Errorf("bad nonce: %s", err)
 	}

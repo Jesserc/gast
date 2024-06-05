@@ -3,36 +3,35 @@ package transaction
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"math/big"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/Jesserc/gast/internal/hex"
+	rpcfactory "github.com/Jesserc/gast/internal/rpc_factory"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/crypto/kzg4844"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/holiman/uint256"
+	"github.com/lmittmann/w3"
+	w3eth "github.com/lmittmann/w3/module/eth"
 	"github.com/mitchellh/go-homedir"
 )
 
 func SendBlobTX(rpcURL, toAddress, data, privateKey, saveBlobDir string) (string, error) {
-	client, err := ethclient.Dial(rpcURL)
+	client, err := w3.Dial(rpcURL)
 	if err != nil {
 		return "", fmt.Errorf("failed to dial RPC client: %s", err)
 	}
 	defer client.Close()
 
-	chainID, err := client.ChainID(context.Background())
-	if err != nil {
-		return "", fmt.Errorf("failed to get chain ID: %s", err)
-	}
-
-	var Blob [131072]byte
+	var Blob kzg4844.Blob
 
 	// Convert data to hex format
 	var bytesData []byte
@@ -51,15 +50,14 @@ func SendBlobTX(rpcURL, toAddress, data, privateKey, saveBlobDir string) (string
 		} else {
 			copy(Blob[:], data) // if it's not hex, just copy into blob (it'll be converted to bytes by the copy fn)
 		}
-
 	}
 
-	BlobCommitment, err := kzg4844.BlobToCommitment(Blob)
+	BlobCommitment, err := kzg4844.BlobToCommitment(&Blob)
 	if err != nil {
 		return "", fmt.Errorf("failed to compute blob commitment: %s", err)
 	}
 
-	BlobProof, err := kzg4844.ComputeBlobProof(Blob, BlobCommitment)
+	BlobProof, err := kzg4844.ComputeBlobProof(&Blob, BlobCommitment)
 	if err != nil {
 		return "", fmt.Errorf("failed to compute blob proof: %s", err)
 	}
@@ -82,13 +80,33 @@ func SendBlobTX(rpcURL, toAddress, data, privateKey, saveBlobDir string) (string
 
 	fromAddress := crypto.PubkeyToAddress(ecdsaPrivateKey.PublicKey)
 
-	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
+	var (
+		chainID        uint64
+		pendingNonceAt string
+		errs           w3.CallErrors
+	)
+
+	if err := client.CallCtx(
+		context.Background(),
+		w3eth.ChainID().Returns(&chainID),
+		rpcfactory.PendingNonceAt(fromAddress).Returns(&pendingNonceAt),
+	); errors.As(err, &errs) {
+		if errs[0] != nil {
+			return "", fmt.Errorf("failed to get chain ID: %s", err)
+		} else if errs[1] != nil {
+			return "", fmt.Errorf("failed to get nonce: %s", err)
+		}
+	} else if err != nil {
+		return "", fmt.Errorf("failed RPC request: %s", err)
+	}
+
+	nonce, err := hexutil.DecodeUint64(pendingNonceAt)
 	if err != nil {
-		return "", fmt.Errorf("failed to get nonce: %s", err)
+		return "", fmt.Errorf("bad nonce: %s", err)
 	}
 
 	tx, err := types.NewTx(&types.BlobTx{
-		ChainID:    uint256.MustFromBig(chainID),
+		ChainID:    uint256.NewInt(chainID),
 		Nonce:      nonce,
 		GasTipCap:  uint256.NewInt(1e10),
 		GasFeeCap:  uint256.NewInt(20e10),
@@ -104,12 +122,16 @@ func SendBlobTX(rpcURL, toAddress, data, privateKey, saveBlobDir string) (string
 		return "", fmt.Errorf("failed to create transaction: %s", err)
 	}
 
-	signedTx, err := types.SignTx(tx, types.LatestSignerForChainID(chainID), ecdsaPrivateKey)
+	signedTx, err := types.SignTx(tx, types.LatestSignerForChainID(big.NewInt(int64(chainID))), ecdsaPrivateKey)
 	if err != nil {
 		return "", fmt.Errorf("failed to sign transaction: %s", err)
 	}
 
-	if err = client.SendTransaction(context.Background(), signedTx); err != nil {
+	var hash common.Hash
+	if err := client.CallCtx(
+		context.Background(),
+		w3eth.SendTx(signedTx).Returns(&hash),
+	); err != nil {
 		return "", fmt.Errorf("failed to send transaction: %s", err)
 	}
 

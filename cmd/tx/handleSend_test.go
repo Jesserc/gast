@@ -71,7 +71,7 @@ func TestSendTransaction_Integration(t *testing.T) {
 			privateKey:    "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662",
 			gasLimit:      0,
 			wantError:     true,
-			errorMsg:      "failed to send transaction: INTERNAL_ERROR: IntrinsicGas",
+			errorMsg:      "INTERNAL_ERROR: IntrinsicGas",
 			wantTxReceipt: false,
 		},
 		{

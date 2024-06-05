@@ -7,15 +7,16 @@ import (
 	"strings"
 
 	"github.com/Jesserc/gast/internal/hex"
-	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/ethclient"
+	"github.com/lmittmann/w3"
+	w3eth "github.com/lmittmann/w3/module/eth"
+	"github.com/lmittmann/w3/w3types"
 )
 
 // TryEstimateGas tries to estimate the gas needed to execute a specific transaction based on the current pending state of the backend blockchain. There is no guarantee that this is the true gas limit requiremen
 func TryEstimateGas(rpcUrl, from, to, data string, value uint64) (uint64, error) {
-	client, err := ethclient.Dial(rpcUrl)
+	client, err := w3.Dial(rpcUrl)
 	if err != nil {
 		return 0, fmt.Errorf("failed to dial RPC client: %s", err)
 	}
@@ -45,16 +46,19 @@ func TryEstimateGas(rpcUrl, from, to, data string, value uint64) (uint64, error)
 		}
 	}
 
-	msg := ethereum.CallMsg{
+	var gas uint64
+	msg := w3types.Message{
 		From:  fromAddr,
 		To:    &toAddr,
-		Gas:   0x00,
+		Gas:   0,
 		Value: amount,
-		Data:  bytesData,
+		Input: bytesData,
 	}
 
-	gas, err := client.EstimateGas(context.Background(), msg)
-	if err != nil {
+	if err := client.CallCtx(
+		context.Background(),
+		w3eth.EstimateGas(&msg, nil).Returns(&gas),
+	); err != nil {
 		return 0, fmt.Errorf("failed estimate gas: %s", err)
 	}
 

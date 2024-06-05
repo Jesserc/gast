@@ -60,7 +60,7 @@ func TestCreateContract_Integration(t *testing.T) {
 			privateKey: "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662",
 			gasLimit:   0,
 			wantError:  true,
-			errorMsg:   "failed to send transaction: INTERNAL_ERROR: IntrinsicGas",
+			errorMsg:   "failed: INTERNAL_ERROR: IntrinsicGas",
 		},
 		// This last test case makes an RPC call and has a wait time of 30-35 seconds
 		{

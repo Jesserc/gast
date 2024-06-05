@@ -4,16 +4,19 @@ import (
 	"context"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"reflect"
 	"strconv"
 	"time"
 
 	"github.com/Jesserc/gast/cmd/gastParams"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/lmittmann/w3"
+	w3eth "github.com/lmittmann/w3/module/eth"
 )
 
 // Transaction represents the structure of the transaction JSON.
@@ -40,7 +43,7 @@ type Transaction struct {
 
 // SendRawTransaction sends a raw Ethereum transaction.
 func SendRawTransaction(rawTx, rpcURL string) (string, string, error) {
-	client, err := ethclient.Dial(rpcURL)
+	client, err := w3.Dial(rpcURL)
 	if err != nil {
 		return "", "", fmt.Errorf("failed to dial RPC client: %s", err)
 	}
@@ -60,18 +63,29 @@ func SendRawTransaction(rawTx, rpcURL string) (string, string, error) {
 	fmt.Println() // spacing
 	log.Warn("Sending transaction, please wait for confirmation...")
 
-	if err = client.SendTransaction(context.Background(), tx); err != nil {
-		return "", "", fmt.Errorf("failed to send transaction: %s", err)
-	}
-	// Get chain ID
-	chainID, err := client.ChainID(context.Background())
-	if err != nil {
-		return "", "", fmt.Errorf("failed to get chain ID: %s", err)
+	var (
+		res     common.Hash
+		chainID uint64
+		errs    w3.CallErrors
+	)
+
+	if err := client.CallCtx(
+		context.Background(),
+		w3eth.ChainID().Returns(&chainID),
+		w3eth.SendTx(tx).Returns(&res),
+	); errors.As(err, &errs) {
+		if errs[0] != nil {
+			return "", "", fmt.Errorf("failed to get chain ID: %s", err)
+		} else if errs[1] != nil {
+			return "", "", fmt.Errorf("failed to send transaction: %s", err)
+		}
+	} else if err != nil {
+		return "", "", fmt.Errorf("failed RPC request: %s", err)
 	}
 
 	var transactionURL string
 	for id, explorer := range gastParams.NetworkExplorers {
-		if chainID.Uint64() == id {
+		if chainID == id {
 			transactionURL = fmt.Sprintf("%vtx/%v", explorer, tx.Hash().Hex())
 			break
 		}

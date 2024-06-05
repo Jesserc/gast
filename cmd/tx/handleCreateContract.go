@@ -176,7 +176,7 @@ func CreateContract(rpcURL, data, privateKey string, gasLimit, wei uint64) (*TxR
 		}
 
 		isPending := true
-		if _, r, _ := txn.RawSignatureValues(); r == nil {
+		if _, r, _ := txn.RawSignatureValues(); r != nil {
 			isPending = false
 		}
 

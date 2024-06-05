@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
-	"strconv"
 	"strings"
 
 	"github.com/Jesserc/gast/cmd/gastParams"
@@ -84,7 +83,7 @@ func SendTransaction(rpcURL, to, data, privateKey string, gasLimit, wei uint64) 
 		return "", fmt.Errorf("failed to get nonce: %s", err)
 	}
 
-	nonce, err := strconv.ParseUint(pendingNonce, 0, 64)
+	nonce, err := hexutil.DecodeUint64(pendingNonce)
 	if err != nil {
 		return "", fmt.Errorf("failed to parse nonce: %s", err)
 	}

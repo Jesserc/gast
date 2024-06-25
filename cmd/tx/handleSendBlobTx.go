@@ -18,13 +18,14 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/crypto/kzg4844"
 	"github.com/ethereum/go-ethereum/log"
+	"github.com/ethereum/go-ethereum/params"
 	"github.com/holiman/uint256"
 	"github.com/lmittmann/w3"
 	w3eth "github.com/lmittmann/w3/module/eth"
 	"github.com/mitchellh/go-homedir"
 )
 
-func SendBlobTX(rpcURL, toAddress, data, privateKey, saveBlobDir string) (string, error) {
+func SendBlobTX(rpcURL, toAddress, data, privateKey, saveBlobDir string, gasLimit, wei uint64) (string, error) {
 	client, err := w3.Dial(rpcURL)
 	if err != nil {
 		return "", fmt.Errorf("failed to dial RPC client: %s", err)
@@ -81,15 +82,18 @@ func SendBlobTX(rpcURL, toAddress, data, privateKey, saveBlobDir string) (string
 	fromAddress := crypto.PubkeyToAddress(ecdsaPrivateKey.PublicKey)
 
 	var (
-		chainID        uint64
-		pendingNonceAt string
-		errs           w3.CallErrors
+		chainID              uint64
+		pendingNonceAt       string
+		errs                 w3.CallErrors
+		baseFee, priorityFee big.Int
 	)
 
 	if err := client.CallCtx(
 		context.Background(),
 		w3eth.ChainID().Returns(&chainID),
 		rpcfactory.PendingNonceAt(fromAddress).Returns(&pendingNonceAt),
+		w3eth.GasPrice().Returns(&baseFee),
+		w3eth.GasTipCap().Returns(&priorityFee),
 	); errors.As(err, &errs) {
 		if errs[0] != nil {
 			return "", fmt.Errorf("failed to get chain ID: %s", err)
@@ -105,14 +109,27 @@ func SendBlobTX(rpcURL, toAddress, data, privateKey, saveBlobDir string) (string
 		return "", fmt.Errorf("bad nonce: %s", err)
 	}
 
+	increment := new(big.Int).Add(&baseFee, big.NewInt(2*params.GWei))
+	gasFeeCap := new(big.Int).Add(increment, &priorityFee) /* .Add(increment, big.NewInt(0)) */
+
+	gasTipCap, ok := uint256.FromBig(&priorityFee)
+	if !ok {
+		return "", fmt.Errorf("bad gas tip cap: %s", priorityFee.String())
+	}
+
+	gasCap, ok := uint256.FromBig(gasFeeCap)
+	if !ok {
+		return "", fmt.Errorf("bad gas cap: %s", gasFeeCap.String())
+	}
+
 	tx, err := types.NewTx(&types.BlobTx{
 		ChainID:    uint256.NewInt(chainID),
 		Nonce:      nonce,
-		GasTipCap:  uint256.NewInt(1e10),
-		GasFeeCap:  uint256.NewInt(20e10),
-		Gas:        250000,
+		GasTipCap:  gasTipCap,
+		GasFeeCap:  gasCap,
+		Gas:        gasLimit,
 		To:         common.HexToAddress(toAddress),
-		Value:      uint256.NewInt(0),
+		Value:      uint256.NewInt(wei),
 		Data:       nil,
 		BlobFeeCap: uint256.NewInt(3e10), // 30 gwei
 		BlobHashes: sidecar.BlobHashes(),

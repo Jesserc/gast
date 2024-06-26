@@ -20,12 +20,15 @@ func TestSendBlobTX_Integration(t *testing.T) {
 		wantError   bool
 		errorMsg    string
 		wantTxHash  bool
+		gasLimit    uint64
+		wei         uint64
 	}{
 		{
 			name:       "RPC URL Whitespace Failure",
 			rpcURL:     " https://sepolia.drpc.org ",
 			address:    "0x4924Fb92285Cb10BC440E6fb4A53c2B94f2930c5",
 			privateKey: "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662",
+			gasLimit:   25000,
 			wantError:  true,
 			errorMsg:   "failed to dial RPC client",
 		},
@@ -34,6 +37,7 @@ func TestSendBlobTX_Integration(t *testing.T) {
 			rpcURL:     "https://sepolia.drpc.or",
 			address:    "0x4924Fb92285Cb10BC440E6fb4A53c2B94f2930c5",
 			privateKey: "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662",
+			gasLimit:   25000,
 			wantError:  true,
 			errorMsg:   "no such host",
 		},
@@ -42,6 +46,7 @@ func TestSendBlobTX_Integration(t *testing.T) {
 			rpcURL:     "https://sepolia.drpc.org",
 			address:    "0x4924Fb92285Cb10BC440E6fb4A53c2B94f2930c5",
 			privateKey: "123",
+			gasLimit:   25000,
 			wantError:  true,
 			errorMsg:   "failed to decode private key: hex string of odd length",
 		},
@@ -50,6 +55,7 @@ func TestSendBlobTX_Integration(t *testing.T) {
 			rpcURL:     "https://sepolia.drpc.org",
 			address:    "0x4924Fb92285Cb10BC440E6fb4A53c2B94f2930c5",
 			privateKey: "ffffff2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662",
+			gasLimit:   25000,
 			wantError:  true,
 			errorMsg:   "failed to convert private key to ECDSA",
 		},
@@ -60,6 +66,7 @@ func TestSendBlobTX_Integration(t *testing.T) {
 			data:        "ffff",
 			privateKey:  "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662",
 			saveBlobDir: "gast/blob-tx",
+			gasLimit:    25000,
 			wantError:   true,
 			errorMsg:    "failed to compute blob commitment: scalar is not canonical when interpreted as a big integer in big-endian",
 		},
@@ -70,7 +77,9 @@ func TestSendBlobTX_Integration(t *testing.T) {
 			data:        "Hello Blobs!",
 			privateKey:  "2843e08c0fa87258545656e44955aa2c6ca2ebb92fa65507e4e5728570d36662",
 			saveBlobDir: "gast/blob-tx",
+			gasLimit:    25000,
 			wantError:   false,
+			wei:         0.5e9,
 		},
 	}
 
@@ -82,6 +91,8 @@ func TestSendBlobTX_Integration(t *testing.T) {
 				tc.data,
 				tc.privateKey,
 				tc.saveBlobDir,
+				tc.gasLimit,
+				tc.wei,
 			)
 
 			if tc.wantError {

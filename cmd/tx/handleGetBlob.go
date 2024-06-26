@@ -13,13 +13,13 @@ import (
 	"github.com/rs/zerolog"
 )
 
-func GetBlob(blockRootOrSlotNumber, kzgCommitment string) (string, error) {
+func GetBlob(rpcUrl, blockRootOrSlotNumber, kzgCommitment string) (string, error) {
 	var err error
 	ctx, cancel := context.WithCancel(context.Background())
 
 	client, err := eth2http.New(ctx,
 		// WithAddress supplies the address of the beacon node, as a URL.
-		eth2http.WithAddress("https://docs-demo.quiknode.pro/"),
+		eth2http.WithAddress(rpcUrl),
 		// LogLevel supplies the level of logging to carry out.
 		eth2http.WithLogLevel(zerolog.WarnLevel),
 	)

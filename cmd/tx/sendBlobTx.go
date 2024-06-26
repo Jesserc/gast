@@ -15,12 +15,11 @@ var sendBlobTxCmd = &cobra.Command{
 	Short: "Create and send an EIP-4844 blob transaction",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		blobTxHash, err := SendBlobTX(gastParams.TxRpcUrlValue, gastParams.ToValue, gastParams.TxDataValue, gastParams.PrivKeyValue, gastParams.DirValue)
+		blobTxHash, err := SendBlobTX(gastParams.TxRpcUrlValue, gastParams.ToValue, gastParams.TxDataValue, gastParams.PrivKeyValue, gastParams.DirValue, gastParams.GasLimitValue, gastParams.WeiValue)
 		if err != nil {
 			log.Crit("Failed to send blob transaction", "error", err)
 		}
 		log.Info("Successfully sent blob transaction", "hash", " "+blobTxHash)
-
 	},
 }
 
@@ -31,10 +30,13 @@ func init() {
 	sendBlobTxCmd.Flags().StringVarP(&gastParams.PrivKeyValue, "private-key", "p", "", "private key to sign transaction")
 	sendBlobTxCmd.Flags().StringVarP(&gastParams.ToValue, "to", "t", "", "blob transaction recipient")
 	sendBlobTxCmd.Flags().StringVarP(&gastParams.DirValue, "dir", "d", "", "directory for saving blob transaction details. e.g, 'gast/blob-tx' => $HOME/gast/blob-tx (optional)")
+	sendBlobTxCmd.Flags().Uint64VarP(&gastParams.GasLimitValue, "gas-limit", "l", 0, "transaction gas limit")
+	sendBlobTxCmd.Flags().Uint64VarP(&gastParams.WeiValue, "wei", "w", 0, "amount to send (optional)")
 
 	sendBlobTxCmd.MarkFlagRequired("rpc-url")
 	sendBlobTxCmd.MarkFlagRequired("blob-data")
 	sendBlobTxCmd.MarkFlagRequired("private-key")
 	sendBlobTxCmd.MarkFlagRequired("to")
-	sendBlobTxCmd.MarkFlagsRequiredTogether("rpc-url", "blob-data", "private-key", "to")
+	sendBlobTxCmd.MarkFlagRequired("gas-limit")
+	sendBlobTxCmd.MarkFlagsRequiredTogether("rpc-url", "blob-data", "private-key", "to", "gas-limit")
 }

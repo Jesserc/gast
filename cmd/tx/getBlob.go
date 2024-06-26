@@ -17,7 +17,7 @@ var getBlobCmd = &cobra.Command{
 	Short: "Get blob transaction data",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		blob, err := GetBlob(gastParams.BlockRootOrSlotNumberVar, gastParams.KZGCommitmentVar)
+		blob, err := GetBlob(gastParams.TxRpcUrlValue, gastParams.BlockRootOrSlotNumberVar, gastParams.KZGCommitmentVar)
 		if err != nil {
 			log.Crit("Failed to get blob", "error", err)
 		}
@@ -30,7 +30,9 @@ func init() {
 	// Flags and configuration settings.
 	getBlobCmd.Flags().StringVarP(&gastParams.BlockRootOrSlotNumberVar, "id", "i", "", "block root (32 bytes) or slot number")
 	getBlobCmd.Flags().StringVarP(&gastParams.KZGCommitmentVar, "kzg-commitment", "k", "", "kzg commitment (48 bytes)")
+	getBlobCmd.Flags().StringVarP(&gastParams.TxRpcUrlValue, "rpc-url", "u", "", "RPC url")
 
+	getBlobCmd.MarkFlagRequired("rpc-url")
 	getBlobCmd.MarkFlagRequired("id")
 	getBlobCmd.MarkFlagRequired("kzg-commitment")
 }

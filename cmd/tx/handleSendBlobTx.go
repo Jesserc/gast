@@ -112,14 +112,14 @@ func SendBlobTX(rpcURL, toAddress, data, privateKey, saveBlobDir string, gasLimi
 	increment := new(big.Int).Add(&baseFee, big.NewInt(2*params.GWei))
 	gasFeeCap := new(big.Int).Add(increment, &priorityFee) /* .Add(increment, big.NewInt(0)) */
 
-	gasTipCap, ok := uint256.FromBig(&priorityFee)
-	if !ok {
-		return "", fmt.Errorf("bad gas tip cap: %s", priorityFee.String())
+	gasTipCap, isOverflow := uint256.FromBig(&priorityFee)
+	if isOverflow {
+		return "", fmt.Errorf("gas tip cap overflowed: %s", priorityFee.String())
 	}
 
-	gasCap, ok := uint256.FromBig(gasFeeCap)
-	if !ok {
-		return "", fmt.Errorf("bad gas cap: %s", gasFeeCap.String())
+	gasCap, isOverflow := uint256.FromBig(gasFeeCap)
+	if isOverflow {
+		return "", fmt.Errorf("bad gas cap overflowed: %s", gasFeeCap.String())
 	}
 
 	tx, err := types.NewTx(&types.BlobTx{
